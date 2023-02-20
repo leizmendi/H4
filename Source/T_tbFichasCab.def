@@ -1,0 +1,1903 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<TableDef name="tbFichasCab" foreign="True">
+  <Properties/>
+  <Source Connect=";DATABASE=E:\_DOCS1_\__H4+\H4dat_21.mdb" SourceTableName="tbFichasCab"/>
+  <SQL>CREATE TABLE [tbFichasCab] (
+[Id] AUTOINCREMENT,
+[IdFichaCab] LONG,
+[FechaReserva] DATETIME DEFAULT Date(),
+[FechaLlegada] DATETIME NOT NULL DEFAULT Date(),
+[FechaSalida] DATETIME,
+[HoraLlegada] DATETIME DEFAULT now(),
+[MatriculaVehiculo] TEXT (20),
+[ModeloVehiculo] TEXT (50),
+[TipoDocumento] TEXT (25) Default '"D"',
+[FechaExpedicion] DATETIME,
+[SexoCliente] TEXT (1) Default '"M"',
+[DNICliente] TEXT (25) Default '="-"',
+[NombreCliente] TEXT (50),
+[ApellidosCliente] TEXT (50),
+[DireccionCliente] TEXT (100),
+[TelefonoCliente] TEXT (30),
+[LocalidadCliente] TEXT (50),
+[CPCliente] TEXT (8),
+[ProvinciaCliente] TEXT (20),
+[PaisCliente] TEXT (50),
+[EstadoFicha] SHORT NOT NULL DEFAULT 2,
+[Notas] MEMO,
+[IvaIncluido] BIT NOT NULL DEFAULT No,
+[IdFactura] LONG NOT NULL DEFAULT 0,
+[NoFacturarExtras] BIT,
+[Adultos] SHORT NOT NULL DEFAULT 0,
+[Niños] SHORT NOT NULL DEFAULT 0,
+[ParcelasCamping] LONG NOT NULL DEFAULT 0,
+[Bungaloes] LONG NOT NULL DEFAULT 0,
+[ConfirmadaReserva] BIT,
+[FechaNacimiento] DATETIME,
+[IdCajaAper] LONG,
+[LugarNacimiento] TEXT (50),
+[IdAgencia] LONG DEFAULT 0,
+[Dto] CURRENCY DEFAULT 0,
+[EMail] TEXT (50),
+[NumeroPolicia] LONG DEFAULT 0,
+[VariasCuentasSN] BIT,
+[Regimen] TEXT (5),
+[DescripcionCliente] MEMO,
+[ReservaImporteSolicitado] CURRENCY,
+[TarjetaCodigoSeguridad] TEXT (3),
+[NumeroTarjeta] TEXT (16),
+[CaducaTarjeta] TEXT (7),
+[TitularTarjeta] TEXT (50),
+[IdIdioma] LONG,
+[MarcarSN] BIT,
+[NotasParteG] MEMO,
+[DetalleEstancia] MEMO,
+[SuReferencia] TEXT (20),
+[IdProcedencia] LONG,
+[WuBookID] LONG,
+[EnviarRecordatorioSN] BIT);</SQL>
+  <Attributes value="1073741824">
+    <dbHiddenObject value="False"/>
+    <dbAttachExclusive value="False"/>
+    <dbAttachSavePWD value="False"/>
+    <dbAttachedODBC value="False"/>
+    <dbAttachedTable value="True"/>
+    <dbSystemObject value="False"/>
+  </Attributes>
+  <FieldDefs>
+    <Field_0 name="Id">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="17"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="Id"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="0"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="Id"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="1"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+    </Field_0>
+    <Field_1 name="IdFichaCab">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdFichaCab"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="1"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdFichaCab"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="3"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_1>
+    <Field_2 name="FechaReserva">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="FechaReserva"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="2"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="FechaReserva"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="Date()"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1200"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="4"/>
+      <Format name="Format" type="10" value="Short Date"/>
+      <InputMask name="InputMask" type="10" value="99/99/00;0;_"/>
+      <Caption name="Caption" type="12" value="Llegada"/>
+    </Field_2>
+    <Field_3 name="FechaLlegada">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="FechaLlegada"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="3"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="FechaLlegada"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="Date()"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1665"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="5"/>
+      <Format name="Format" type="10" value="Short Date"/>
+      <InputMask name="InputMask" type="10" value="99/99/00;0;_"/>
+    </Field_3>
+    <Field_4 name="FechaSalida">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="FechaSalida"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="4"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="FechaSalida"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="6"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <Format name="Format" type="10" value="Short Date"/>
+      <InputMask name="InputMask" type="10" value="99/99/00;0;_"/>
+    </Field_4>
+    <Field_5 name="HoraLlegada">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="HoraLlegada"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="5"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="HoraLlegada"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="now()"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="7"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <Format name="Format" type="10" value="Short Time"/>
+      <InputMask name="InputMask" type="10" value="00:00;0;_"/>
+      <Caption name="Caption" type="12" value="Hora llegada"/>
+    </Field_5>
+    <Field_6 name="MatriculaVehiculo">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="MatriculaVehiculo"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="6"/>
+      <Size name="Size" type="4" value="20"/>
+      <SourceField name="SourceField" type="12" value="MatriculaVehiculo"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="8"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_6>
+    <Field_7 name="ModeloVehiculo">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="ModeloVehiculo"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="7"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="ModeloVehiculo"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="9"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <Description name="Description" type="10" value="(en las fichas de comedor, se utiliza este campo para guardar el nº de la mesa)"/>
+    </Field_7>
+    <Field_8 name="TipoDocumento">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="TipoDocumento"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="8"/>
+      <Size name="Size" type="4" value="25"/>
+      <SourceField name="SourceField" type="12" value="TipoDocumento"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;D&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <AllowMultipleValues name="AllowMultipleValues" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AllowValueListEdits name="AllowValueListEdits" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowOnlyRowSourceValues name="ShowOnlyRowSourceValues" type="1" value="False"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="10"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="111"/>
+      <RowSourceType name="RowSourceType" type="10" value="Value List"/>
+      <RowSource name="RowSource" type="12" value="&quot;DNI&quot;;&quot;Pasaporte&quot;;&quot;Carnet de Conducir&quot;"/>
+      <BoundColumn name="BoundColumn" type="3" value="1"/>
+      <ColumnCount name="ColumnCount" type="3" value="1"/>
+      <ColumnHeads name="ColumnHeads" type="1" value="False"/>
+      <ListRows name="ListRows" type="3" value="8"/>
+      <ListWidth name="ListWidth" type="10" value="0twip"/>
+      <LimitToList name="LimitToList" type="1" value="False"/>
+    </Field_8>
+    <Field_9 name="FechaExpedicion">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="FechaExpedicion"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="9"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="FechaExpedicion"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="11"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <InputMask name="InputMask" type="10" value="00/00/0099"/>
+    </Field_9>
+    <Field_10 name="SexoCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="SexoCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="10"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="SexoCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;M&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <AllowMultipleValues name="AllowMultipleValues" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AllowValueListEdits name="AllowValueListEdits" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowOnlyRowSourceValues name="ShowOnlyRowSourceValues" type="1" value="False"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="12"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="111"/>
+      <RowSourceType name="RowSourceType" type="10" value="Value List"/>
+      <RowSource name="RowSource" type="12" value="&quot;M&quot;;&quot;F&quot;"/>
+      <BoundColumn name="BoundColumn" type="3" value="1"/>
+      <ColumnCount name="ColumnCount" type="3" value="1"/>
+      <ColumnHeads name="ColumnHeads" type="1" value="False"/>
+      <ListRows name="ListRows" type="3" value="8"/>
+      <ListWidth name="ListWidth" type="10" value="0twip"/>
+      <LimitToList name="LimitToList" type="1" value="False"/>
+    </Field_10>
+    <Field_11 name="DNICliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="DNICliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="11"/>
+      <Size name="Size" type="4" value="25"/>
+      <SourceField name="SourceField" type="12" value="DNICliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="=&quot;-&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="13"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="2280"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_11>
+    <Field_12 name="NombreCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="NombreCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="12"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="NombreCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="14"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_12>
+    <Field_13 name="ApellidosCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="ApellidosCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="13"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="ApellidosCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="15"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_13>
+    <Field_14 name="DireccionCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="DireccionCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="14"/>
+      <Size name="Size" type="4" value="100"/>
+      <SourceField name="SourceField" type="12" value="DireccionCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="16"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_14>
+    <Field_15 name="TelefonoCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="TelefonoCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="15"/>
+      <Size name="Size" type="4" value="30"/>
+      <SourceField name="SourceField" type="12" value="TelefonoCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="17"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_15>
+    <Field_16 name="LocalidadCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="LocalidadCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="16"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="LocalidadCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="18"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_16>
+    <Field_17 name="CPCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="CPCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="17"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="CPCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="19"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <InputMask name="InputMask" type="10" value="99999999"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_17>
+    <Field_18 name="ProvinciaCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="ProvinciaCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="18"/>
+      <Size name="Size" type="4" value="20"/>
+      <SourceField name="SourceField" type="12" value="ProvinciaCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="20"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_18>
+    <Field_19 name="PaisCliente">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="PaisCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="19"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="PaisCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="21"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_19>
+    <Field_20 name="EstadoFicha">
+      <Value name="Value" type="3"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="3"/>
+      <Name name="Name" type="12" value="EstadoFicha"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="20"/>
+      <Size name="Size" type="4" value="2"/>
+      <SourceField name="SourceField" type="12" value="EstadoFicha"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="2"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="3"/>
+      <VisibleValue name="VisibleValue" type="3"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="2"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <Description name="Description" type="10" value="1= Reserva; 2= Actual; 3= Liquidada; 4= Cliente Fijo; 11=Reserva Rte; 12= Actual Rte.; 13= Liquidada Rte.;"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_20>
+    <Field_21 name="Notas">
+      <Value name="Value" type="12"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="12"/>
+      <Name name="Name" type="12" value="Notas"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="21"/>
+      <Size name="Size" type="4" value="0"/>
+      <SourceField name="SourceField" type="12" value="Notas"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="12"/>
+      <VisibleValue name="VisibleValue" type="12"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextFormat name="TextFormat" type="2" value="0"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+    </Field_21>
+    <Field_22 name="IvaIncluido">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="IvaIncluido"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="22"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="IvaIncluido"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="No"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Yes/No"/>
+      <DisplayControl name="DisplayControl" type="3" value="106"/>
+    </Field_22>
+    <Field_23 name="IdFactura">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdFactura"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="23"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdFactura"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Description name="Description" type="10" value="IdFactura de la factura correspondiente"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_23>
+    <Field_24 name="NoFacturarExtras">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="NoFacturarExtras"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="24"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="NoFacturarExtras"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Description name="Description" type="10" value="Al generar la factura, no incluir los extras"/>
+      <Format name="Format" type="10" value="Yes/No"/>
+      <DisplayControl name="DisplayControl" type="3" value="106"/>
+    </Field_24>
+    <Field_25 name="Adultos">
+      <Value name="Value" type="3"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="3"/>
+      <Name name="Name" type="12" value="Adultos"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="25"/>
+      <Size name="Size" type="4" value="2"/>
+      <SourceField name="SourceField" type="12" value="Adultos"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="3"/>
+      <VisibleValue name="VisibleValue" type="3"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_25>
+    <Field_26 name="Niños">
+      <Value name="Value" type="3"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="3"/>
+      <Name name="Name" type="12" value="Niños"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="26"/>
+      <Size name="Size" type="4" value="2"/>
+      <SourceField name="SourceField" type="12" value="Niños"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="3"/>
+      <VisibleValue name="VisibleValue" type="3"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <Caption name="Caption" type="12" value="Niños/as"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_26>
+    <Field_27 name="ParcelasCamping">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="ParcelasCamping"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="27"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="ParcelasCamping"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1995"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Description name="Description" type="10" value="número de parcelas ocupadas"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_27>
+    <Field_28 name="Bungaloes">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="Bungaloes"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="28"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="Bungaloes"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Description name="Description" type="10" value="idem bungaloes"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_28>
+    <Field_29 name="ConfirmadaReserva">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="ConfirmadaReserva"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="29"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="ConfirmadaReserva"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Yes/No"/>
+      <DisplayControl name="DisplayControl" type="3" value="106"/>
+    </Field_29>
+    <Field_30 name="FechaNacimiento">
+      <Value name="Value" type="8"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="8"/>
+      <Name name="Name" type="12" value="FechaNacimiento"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="30"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="FechaNacimiento"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="8"/>
+      <VisibleValue name="VisibleValue" type="8"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ShowDatePicker name="ShowDatePicker" type="3" value="1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+    </Field_30>
+    <Field_31 name="IdCajaAper">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdCajaAper"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="31"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdCajaAper"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <Description name="Description" type="10" value="Tiene valor en las fichas que corresponden a los pagos directos a caja (sin ficha de estancia propia)"/>
+    </Field_31>
+    <Field_32 name="LugarNacimiento">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="LugarNacimiento"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="32"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="LugarNacimiento"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_32>
+    <Field_33 name="IdAgencia">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdAgencia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="33"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdAgencia"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_33>
+    <Field_34 name="Dto">
+      <Value name="Value" type="5"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="5"/>
+      <Name name="Name" type="12" value="Dto"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="34"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="Dto"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="5"/>
+      <VisibleValue name="VisibleValue" type="5"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Percent"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+    </Field_34>
+    <Field_35 name="EMail">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="EMail"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="35"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="EMail"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_35>
+    <Field_36 name="NumeroPolicia">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="NumeroPolicia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="36"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="NumeroPolicia"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_36>
+    <Field_37 name="VariasCuentasSN">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="VariasCuentasSN"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="37"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="VariasCuentasSN"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Yes/No"/>
+      <DisplayControl name="DisplayControl" type="3" value="106"/>
+    </Field_37>
+    <Field_38 name="Regimen">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Regimen"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="38"/>
+      <Size name="Size" type="4" value="5"/>
+      <SourceField name="SourceField" type="12" value="Regimen"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_38>
+    <Field_39 name="DescripcionCliente">
+      <Value name="Value" type="12"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="12"/>
+      <Name name="Name" type="12" value="DescripcionCliente"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="39"/>
+      <Size name="Size" type="4" value="0"/>
+      <SourceField name="SourceField" type="12" value="DescripcionCliente"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="12"/>
+      <VisibleValue name="VisibleValue" type="12"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextFormat name="TextFormat" type="2" value="0"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+    </Field_39>
+    <Field_40 name="ReservaImporteSolicitado">
+      <Value name="Value" type="5"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="5"/>
+      <Name name="Name" type="12" value="ReservaImporteSolicitado"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="40"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="ReservaImporteSolicitado"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="5"/>
+      <VisibleValue name="VisibleValue" type="5"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+    </Field_40>
+    <Field_41 name="TarjetaCodigoSeguridad">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="TarjetaCodigoSeguridad"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="41"/>
+      <Size name="Size" type="4" value="3"/>
+      <SourceField name="SourceField" type="12" value="TarjetaCodigoSeguridad"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_41>
+    <Field_42 name="NumeroTarjeta">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="NumeroTarjeta"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="42"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="NumeroTarjeta"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_42>
+    <Field_43 name="CaducaTarjeta">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="CaducaTarjeta"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="43"/>
+      <Size name="Size" type="4" value="7"/>
+      <SourceField name="SourceField" type="12" value="CaducaTarjeta"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_43>
+    <Field_44 name="TitularTarjeta">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="TitularTarjeta"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="44"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="TitularTarjeta"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_44>
+    <Field_45 name="IdIdioma">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdIdioma"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="45"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdIdioma"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_45>
+    <Field_46 name="MarcarSN">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="MarcarSN"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="46"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="MarcarSN"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_46>
+    <Field_47 name="NotasParteG">
+      <Value name="Value" type="12"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="12"/>
+      <Name name="Name" type="12" value="NotasParteG"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="47"/>
+      <Size name="Size" type="4" value="0"/>
+      <SourceField name="SourceField" type="12" value="NotasParteG"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="12"/>
+      <VisibleValue name="VisibleValue" type="12"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextFormat name="TextFormat" type="2" value="0"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+    </Field_47>
+    <Field_48 name="DetalleEstancia">
+      <Value name="Value" type="12"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="12"/>
+      <Name name="Name" type="12" value="DetalleEstancia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="48"/>
+      <Size name="Size" type="4" value="0"/>
+      <SourceField name="SourceField" type="12" value="DetalleEstancia"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="12"/>
+      <VisibleValue name="VisibleValue" type="12"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextFormat name="TextFormat" type="2" value="0"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_48>
+    <Field_49 name="SuReferencia">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="SuReferencia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="49"/>
+      <Size name="Size" type="4" value="20"/>
+      <SourceField name="SourceField" type="12" value="SuReferencia"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_49>
+    <Field_50 name="IdProcedencia">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdProcedencia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="50"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdProcedencia"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_50>
+    <Field_51 name="WuBookID">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="WuBookID"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="51"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="WuBookID"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+    </Field_51>
+    <Field_52 name="EnviarRecordatorioSN">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="EnviarRecordatorioSN"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="52"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="EnviarRecordatorioSN"/>
+      <SourceTable name="SourceTable" type="12" value="tbFichasCab"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+    </Field_52>
+  </FieldDefs>
+</TableDef>

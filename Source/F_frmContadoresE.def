@@ -1,0 +1,62 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+
+Private Sub btnAddContador_Click()
+    On Error GoTo Error_btnAddContador_Click
+    Dim strParcela As String, lngIdParcela As Long, cCE As cContadorElectricidad
+    strParcela = Nz(DimeTeclado(1, "Introduzca nombre de la parcela donde se ha instalado el contador"), "")
+    If strParcela = "" Then Exit Sub
+    lngIdParcela = Nz(DLookup("IdPArcela", "tbParcelas", "NombreParcela = " & ConComillas(strParcela)), 0)
+    If lngIdParcela = 0 Then
+        MsgBox "No se encontró parcela: " & UCase(strParcela), vbExclamation
+        Exit Sub
+    End If
+    Set cCE = New cContadorElectricidad
+    cCE.NewContador , , , lngIdParcela
+    Me.lstContadoresE.Requery
+Salir_btnAddContador_Click:
+    Exit Sub
+Error_btnAddContador_Click:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en btnAddContador_Click" & vbCrLf & Err.Description
+            Resume Salir_btnAddContador_Click
+    End Select
+End Sub
+
+Private Sub btnEditContador_Click()
+    'DoCmd.OpenForm "frmContadoresElectricidad", acFormDS, , "IdContadorE = " & Me.lstContadoresE, , acWindowNormal
+    DoCmd.OpenForm "frmHD", , , , , , "frmContadoresElectricidad//"
+End Sub
+
+Private Sub btnEditLecturas_Click()
+    'DoCmd.OpenForm "frmContadorE_Lecturas", acFormDS, , "IdContadorE = " & Me.lstContadoresE, , acDialog
+    DoCmd.OpenForm "frmHD", , , "IdContadorE = " & Me.lstContadoresE, , , "frmContadorE_Lecturas//"
+End Sub
+
+Private Sub btnPrint_Click()
+    Dim strRPT As String, strW As String
+    strRPT = "rptContadorE_Lecturas"
+    If Me.lstContadoresE.ListIndex <> -1 Then
+        strW = "IdContadorE = " & Me.lstContadoresE
+    End If
+    DoCmd.OpenReport strRPT, acViewPreview, , strW
+    
+End Sub
+
+Private Sub lstContadoresE_Click()
+    Dim strSQL As String
+    strSQL = "SELECT tbContadorE_Lecturas.IdContadorE, tbContadorE_Lecturas.Fecha, tbContadorE_Lecturas.Lectura, tbContadorE_Lecturas.Consumo, tbContadorE_Lecturas.Precio, Format([A_IdFichaCab],'0;-0;-') AS Ficha, IIf(IsNull([tbFichasDet]![IdFichaDet]),'-','X') AS [En Ficha]"
+    strSQL = strSQL & " FROM tbContadorE_Lecturas LEFT JOIN tbFichasDet ON tbContadorE_Lecturas.IdFichaDet = tbFichasDet.IdFichaDet"
+    If Me.lstContadoresE.ListIndex <> -1 Then strSQL = strSQL & " WHERE IdContadorE=" & Me.lstContadoresE
+    strSQL = strSQL & " ORDER BY Fecha DESC, IdCE_L DESC"
+    Me.lstLecturas.RowSource = strSQL
+    Me.btnEditLecturas.Enabled = Me.lstContadoresE.ListIndex <> -1
+    PonValorParam "frmContadoresE_IdContadorE", Me.lstContadoresE, 4
+End Sub

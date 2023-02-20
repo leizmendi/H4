@@ -1,0 +1,122 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Compare Database
+Option Explicit
+
+Private Sub btnPrueba_Click()
+    If rsaReadPrivateKey(Me.TBaiCertificadoDigitalEmisorFile, Trim(EncryptString(Environ("COMPUTERNAME"), Me.TBaiCertificadoDigitalEmisorPassword, 2))) = "" Then
+        MsgBox "Contraseña no es correcta", vbExclamation, "Contraseña incorrecta"
+    Else
+        MsgBox "Contraseña correcta", vbInformation, "Contraseña correcta"
+    End If
+End Sub
+
+Private Sub btnSelFile_Click()
+    On Error GoTo HandleError
+    Me(Me.btnSelFile.Tag).SetFocus
+    Dim s As String, sTitulo As String, sBoton As String, bFoldersOnly As Boolean
+    Select Case Me.btnSelFile.Tag
+        Case "TBaiCertificadoDigitalEmisorFile"
+            sTitulo = "Indicar Fichero de Certificado Emisor"
+            sBoton = "Certificado"
+        Case "TBaiFileXML_ModeloAlta"
+            sTitulo = "Indicar Fichero Modelo de Alta-XML"
+            sBoton = "Alta.xml"
+        Case "TBaiFileXML_ModeloBaja"
+            sTitulo = "Indicar Fichero Modelo de Baja-XML"
+            sBoton = "Baja.xml"
+        Case "TBai_CarpetaSalida"
+            sTitulo = "Indicar Carpeta de Salida para envíos a TicketBai"
+            sBoton = "Salida"
+            bFoldersOnly = True
+        Case Else
+            MsgBox "No se ha considerado esta opción: " & Me.btnSelFile.Tag, VBE
+            GoTo HandleExit
+    End Select
+            
+    s = AbrirDialogo(, , , Nz(Me(Me.btnSelFile.Tag), ""), sTitulo, sBoton, , , , , , CInt(bFoldersOnly), True, 4)
+
+    If s <> "" Then
+        Me(Me.btnSelFile.Tag) = s
+    End If
+    
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnSelFile2_Click()
+    Call btnSelFile_Click
+End Sub
+
+Private Sub Form_Load()
+    CargarParam Me
+    Call TBaiSN_AfterUpdate
+    Carga_lstEnvios
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    ComprobarParam Me, Cancel
+End Sub
+
+Private Sub mrcTBai_enviadosSN_AfterUpdate()
+    Carga_lstEnvios
+End Sub
+
+Private Sub TabEndEnv_Change()
+    If Me.btnSelFile.Tag <> "TBaiCertificadoDigitalEmisorFile" And Me.TabEndEnv <> 0 Then
+        Me.btnSelFile.Visible = False
+    Else
+        Me.btnSelFile.Visible = True
+    End If
+End Sub
+
+Private Sub TBaiCertificadoDigitalEmisorPassword_AfterUpdate()
+    Dim ctl As Control
+    Set ctl = Me.TBaiCertificadoDigitalEmisorPassword
+    If Len(Nz(ctl, "")) > 0 Then
+        If Len(ctl) < 8 Then
+            ctl = ctl & space(8 - Len(ctl))
+        End If
+    End If
+    ctl = EncryptString(Environ("COMPUTERNAME"), Nz(ctl, ""), 1)
+    'MsgBox ctl & "=" & EncryptString(Environ("COMPUTERNAME"), Nz(ctl, ""), 2)
+
+End Sub
+
+
+Private Function GetFocusFile()
+    Dim ctl As Control
+    Set ctl = Screen.ActiveControl
+    Me.btnSelFile.Visible = ctl.Name = "TBaiCertificadoDigitalEmisorFile"
+    Me.btnPrueba.Visible = Me.btnSelFile.Visible
+    Me.btnSelFile2.Visible = Not Me.btnSelFile.Visible
+    Me.btnSelFile.Tag = ctl.Name
+    If Me.btnSelFile.Visible Then Me.btnSelFile.Top = ctl.Top
+    If Me.btnSelFile2.Visible Then Me.btnSelFile2.Top = ctl.Top
+    'Me.btnSelFile.Visible = True
+    'Me.btnPrueba.Top = ctl.Top
+End Function
+
+Private Sub TBaiSN_AfterUpdate()
+    Dim ctl As Control
+    For Each ctl In Me.Controls
+        If InStr(ctl.Tag, "param") > 0 And ctl.Name <> "TBaiSN" Then ctl.Enabled = Nz(Me.TBaiSN)
+    Next ctl
+End Sub
+
+Public Sub Carga_lstEnvios()
+    Dim sSQL As String
+    sSQL = "SELECT tbTBai_Envios.IdTBai_Envio, tbTBai_Envios.TipoTBai, tbTBai_Envios.EndPoint, tbTBai_Envios.RequestFileXML, tbTBai_Envios.Response, tbTBai_Envios.FechaEnvio, tbTBai_Envios.IP_Envio, tbTBai_Envios.CSV" & _
+           " FROM tbTBai_Envios" & _
+           " WHERE tbTBai_Envios.EnviadoSN=" & IIf(Me.mrcTBai_enviadosSN = 1, "False", "True") & _
+           " ORDER BY IdTBai_Envio " & IIf(Me.mrcTBai_enviadosSN = 1, "DESC", "ASC")
+    Me.lstEnvios.RowSource = sSQL
+End Sub

@@ -1,0 +1,1168 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<TableDef name="conPasoDiario" foreign="True">
+  <Properties/>
+  <Source Connect=";DATABASE=E:\_DOCS1_\__H4+\H4CON.mdb" SourceTableName="conPasoDiario"/>
+  <SQL>CREATE TABLE [conPasoDiario] (
+[Asien] TEXT (6),
+[Fecha] TEXT (8),
+[SubCta] TEXT (12),
+[Contra] TEXT (12),
+[PtaDebe] TEXT (16) Default '"            0.00"',
+[Concepto] TEXT (25),
+[PtaHaber] TEXT (16) Default '"            0.00"',
+[Factura] TEXT (8) Default '="       0"',
+[BaseImpo] TEXT (16) Default '"            0.00"',
+[IVA] TEXT (5) Default '" 0.00"',
+[Recequiv] TEXT (5) Default '" 0.00"',
+[Documento] TEXT (10),
+[Departa] TEXT (3),
+[Clave] TEXT (6),
+[Estado] TEXT (1),
+[NCasado] TEXT (6) Default '"     0"',
+[TCasado] TEXT (1) Default '0',
+[Trans] TEXT (6) Default '"     0"',
+[Cambio] TEXT (16) Default '"        0.000000"',
+[DebeME] TEXT (16) Default '"            0.00"',
+[HaberME] TEXT (16) Default '"            0.00"',
+[Auxiliar] TEXT (1),
+[Serie] TEXT (1),
+[Sucursal] TEXT (4),
+[CodDivisa] TEXT (5),
+[ImpAuxME] TEXT (16) Default '"            0.00"',
+[MonedaUso] TEXT (1) Default '"2"',
+[EuroDebe] TEXT (16) Default '"            0.00"',
+[EuroHaber] TEXT (16) Default '"            0.00"',
+[BaseEuro] TEXT (16) Default '"            0.00"',
+[NoConv] TEXT (1) Default '"F"',
+[Numeroinv] TEXT (10));</SQL>
+  <Attributes value="1073741824">
+    <dbHiddenObject value="False"/>
+    <dbAttachExclusive value="False"/>
+    <dbAttachSavePWD value="False"/>
+    <dbAttachedODBC value="False"/>
+    <dbAttachedTable value="True"/>
+    <dbSystemObject value="False"/>
+  </Attributes>
+  <FieldDefs>
+    <Field_0 name="Asien">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Asien"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="0"/>
+      <Size name="Size" type="4" value="6"/>
+      <SourceField name="SourceField" type="12" value="Asien"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_0>
+    <Field_1 name="Fecha">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Fecha"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="1"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="Fecha"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_1>
+    <Field_2 name="SubCta">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="SubCta"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="2"/>
+      <Size name="Size" type="4" value="12"/>
+      <SourceField name="SourceField" type="12" value="SubCta"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_2>
+    <Field_3 name="Contra">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Contra"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="3"/>
+      <Size name="Size" type="4" value="12"/>
+      <SourceField name="SourceField" type="12" value="Contra"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_3>
+    <Field_4 name="PtaDebe">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="PtaDebe"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="4"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="PtaDebe"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_4>
+    <Field_5 name="Concepto">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Concepto"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="5"/>
+      <Size name="Size" type="4" value="25"/>
+      <SourceField name="SourceField" type="12" value="Concepto"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_5>
+    <Field_6 name="PtaHaber">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="PtaHaber"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="6"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="PtaHaber"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_6>
+    <Field_7 name="Factura">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Factura"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="7"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="Factura"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="=&quot;       0&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_7>
+    <Field_8 name="BaseImpo">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="BaseImpo"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="8"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="BaseImpo"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_8>
+    <Field_9 name="IVA">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="IVA"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="9"/>
+      <Size name="Size" type="4" value="5"/>
+      <SourceField name="SourceField" type="12" value="IVA"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot; 0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_9>
+    <Field_10 name="Recequiv">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Recequiv"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="10"/>
+      <Size name="Size" type="4" value="5"/>
+      <SourceField name="SourceField" type="12" value="Recequiv"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot; 0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_10>
+    <Field_11 name="Documento">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Documento"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="11"/>
+      <Size name="Size" type="4" value="10"/>
+      <SourceField name="SourceField" type="12" value="Documento"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_11>
+    <Field_12 name="Departa">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Departa"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="12"/>
+      <Size name="Size" type="4" value="3"/>
+      <SourceField name="SourceField" type="12" value="Departa"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_12>
+    <Field_13 name="Clave">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Clave"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="13"/>
+      <Size name="Size" type="4" value="6"/>
+      <SourceField name="SourceField" type="12" value="Clave"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_13>
+    <Field_14 name="Estado">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Estado"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="14"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="Estado"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_14>
+    <Field_15 name="NCasado">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="NCasado"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="15"/>
+      <Size name="Size" type="4" value="6"/>
+      <SourceField name="SourceField" type="12" value="NCasado"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;     0&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_15>
+    <Field_16 name="TCasado">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="TCasado"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="16"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="TCasado"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_16>
+    <Field_17 name="Trans">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Trans"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="17"/>
+      <Size name="Size" type="4" value="6"/>
+      <SourceField name="SourceField" type="12" value="Trans"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;     0&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_17>
+    <Field_18 name="Cambio">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Cambio"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="18"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="Cambio"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;        0.000000&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_18>
+    <Field_19 name="DebeME">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="DebeME"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="19"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="DebeME"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_19>
+    <Field_20 name="HaberME">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="HaberME"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="20"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="HaberME"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_20>
+    <Field_21 name="Auxiliar">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Auxiliar"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="21"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="Auxiliar"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_21>
+    <Field_22 name="Serie">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Serie"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="22"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="Serie"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_22>
+    <Field_23 name="Sucursal">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Sucursal"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="23"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="Sucursal"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_23>
+    <Field_24 name="CodDivisa">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="CodDivisa"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="24"/>
+      <Size name="Size" type="4" value="5"/>
+      <SourceField name="SourceField" type="12" value="CodDivisa"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_24>
+    <Field_25 name="ImpAuxME">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="ImpAuxME"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="25"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="ImpAuxME"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_25>
+    <Field_26 name="MonedaUso">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="MonedaUso"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="26"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="MonedaUso"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;2&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_26>
+    <Field_27 name="EuroDebe">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="EuroDebe"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="27"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="EuroDebe"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_27>
+    <Field_28 name="EuroHaber">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="EuroHaber"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="28"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="EuroHaber"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_28>
+    <Field_29 name="BaseEuro">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="BaseEuro"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="29"/>
+      <Size name="Size" type="4" value="16"/>
+      <SourceField name="SourceField" type="12" value="BaseEuro"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;            0.00&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_29>
+    <Field_30 name="NoConv">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="NoConv"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="30"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="NoConv"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="&quot;F&quot;"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_30>
+    <Field_31 name="Numeroinv">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Numeroinv"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="31"/>
+      <Size name="Size" type="4" value="10"/>
+      <SourceField name="SourceField" type="12" value="Numeroinv"/>
+      <SourceTable name="SourceTable" type="12" value="conPasoDiario"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_31>
+  </FieldDefs>
+</TableDef>

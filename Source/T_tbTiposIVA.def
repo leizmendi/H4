@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<TableDef name="tbTiposIVA" foreign="True">
+  <Properties/>
+  <Source Connect=";DATABASE=E:\_DOCS1_\__H4+\H4dat_21.mdb" SourceTableName="tbTiposIVA"/>
+  <SQL>CREATE TABLE [tbTiposIVA] (
+[TipoIVA] SHORT DEFAULT 0,
+[IVA] SINGLE NOT NULL DEFAULT 0,
+[RecargoEquivalencia] SINGLE NOT NULL DEFAULT 0);</SQL>
+  <Attributes value="1073741824">
+    <dbHiddenObject value="False"/>
+    <dbAttachExclusive value="False"/>
+    <dbAttachSavePWD value="False"/>
+    <dbAttachedODBC value="False"/>
+    <dbAttachedTable value="True"/>
+    <dbSystemObject value="False"/>
+  </Attributes>
+  <FieldDefs>
+    <Field_0 name="TipoIVA">
+      <Value name="Value" type="3"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="3"/>
+      <Name name="Name" type="12" value="TipoIVA"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="0"/>
+      <Size name="Size" type="4" value="2"/>
+      <SourceField name="SourceField" type="12" value="TipoIVA"/>
+      <SourceTable name="SourceTable" type="12" value="tbTiposIVA"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="3"/>
+      <VisibleValue name="VisibleValue" type="3"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_0>
+    <Field_1 name="IVA">
+      <Value name="Value" type="6"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="6"/>
+      <Name name="Name" type="12" value="IVA"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="1"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IVA"/>
+      <SourceTable name="SourceTable" type="12" value="tbTiposIVA"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="6"/>
+      <VisibleValue name="VisibleValue" type="6"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Percent"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_1>
+    <Field_2 name="RecargoEquivalencia">
+      <Value name="Value" type="6"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="6"/>
+      <Name name="Name" type="12" value="RecargoEquivalencia"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="2"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="RecargoEquivalencia"/>
+      <SourceTable name="SourceTable" type="12" value="tbTiposIVA"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="True"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="6"/>
+      <VisibleValue name="VisibleValue" type="6"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="Percent"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+    </Field_2>
+  </FieldDefs>
+</TableDef>

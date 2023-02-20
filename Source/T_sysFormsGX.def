@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<TableDef name="sysFormsGX" foreign="True">
+  <Properties/>
+  <Source Connect=";DATABASE=E:\_DOCS1_\__H4+\H4SYS.MDB" SourceTableName="sysFormsGX"/>
+  <SQL>CREATE TABLE [sysFormsGX] (
+[Id] AUTOINCREMENT,
+[IdFormsG] LONG DEFAULT 0,
+[Ord] CURRENCY DEFAULT 0,
+[Concepto] TEXT (50),
+[FormName] TEXT (50),
+[View] LONG DEFAULT 0,
+[Desactivar] BIT,
+[Modulo] TEXT (3));</SQL>
+  <Attributes value="1073741824">
+    <dbHiddenObject value="False"/>
+    <dbAttachExclusive value="False"/>
+    <dbAttachSavePWD value="False"/>
+    <dbAttachedODBC value="False"/>
+    <dbAttachedTable value="True"/>
+    <dbSystemObject value="False"/>
+  </Attributes>
+  <FieldDefs>
+    <Field_0 name="Id">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="17"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="Id"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="0"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="Id"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_0>
+    <Field_1 name="IdFormsG">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="IdFormsG"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="1"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="IdFormsG"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1680"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_1>
+    <Field_2 name="Ord">
+      <Value name="Value" type="5"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="5"/>
+      <Name name="Name" type="12" value="Ord"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="2"/>
+      <Size name="Size" type="4" value="8"/>
+      <SourceField name="SourceField" type="12" value="Ord"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="5"/>
+      <VisibleValue name="VisibleValue" type="5"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1485"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <Format name="Format" type="10" value="#,##0.00 €;-#,##0.00 €"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_2>
+    <Field_3 name="Concepto">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Concepto"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="3"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="Concepto"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_3>
+    <Field_4 name="FormName">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="FormName"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="4"/>
+      <Size name="Size" type="4" value="50"/>
+      <SourceField name="SourceField" type="12" value="FormName"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="True"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="True"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="1980"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_4>
+    <Field_5 name="View">
+      <Value name="Value" type="4"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="4"/>
+      <Name name="Name" type="12" value="View"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="5"/>
+      <Size name="Size" type="4" value="4"/>
+      <SourceField name="SourceField" type="12" value="View"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value="0"/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="4"/>
+      <VisibleValue name="VisibleValue" type="4"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <AllowMultipleValues name="AllowMultipleValues" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="2415"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DecimalPlaces name="DecimalPlaces" type="2" value="255"/>
+      <DisplayControl name="DisplayControl" type="3" value="111"/>
+      <RowSourceType name="RowSourceType" type="10" value="Value List"/>
+      <RowSource name="RowSource" type="12" value="0;&quot;acNormal&quot;;1;&quot;acDesgin&quot;;2;&quot;acPreview&quot;;3;&quot;acFormDS&quot;;4;&quot;acFormPivotTable&quot;;5;&quot;acFormPivotChart&quot;"/>
+      <BoundColumn name="BoundColumn" type="3" value="1"/>
+      <ColumnCount name="ColumnCount" type="3" value="2"/>
+      <ColumnHeads name="ColumnHeads" type="1" value="False"/>
+      <ColumnWidths name="ColumnWidths" type="10" value="0"/>
+      <ListRows name="ListRows" type="3" value="8"/>
+      <ListWidth name="ListWidth" type="10" value="0twip"/>
+      <LimitToList name="LimitToList" type="1" value="True"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+      <AllowValueListEdits name="AllowValueListEdits" type="1" value="False"/>
+      <ShowOnlyRowSourceValues name="ShowOnlyRowSourceValues" type="1" value="False"/>
+    </Field_5>
+    <Field_6 name="Desactivar">
+      <Value name="Value" type="1"/>
+      <Attributes name="Attributes" type="4" value="1"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="1024"/>
+      <Type name="Type" type="3" value="1"/>
+      <Name name="Name" type="12" value="Desactivar"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="6"/>
+      <Size name="Size" type="4" value="1"/>
+      <SourceField name="SourceField" type="12" value="Desactivar"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="1"/>
+      <VisibleValue name="VisibleValue" type="1"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_6>
+    <Field_7 name="Modulo">
+      <Value name="Value" type="10"/>
+      <Attributes name="Attributes" type="4" value="2"/>
+      <CollatingOrder name="CollatingOrder" type="3" value="3082"/>
+      <Type name="Type" type="3" value="10"/>
+      <Name name="Name" type="12" value="Modulo"/>
+      <OrdinalPosition name="OrdinalPosition" type="3" value="7"/>
+      <Size name="Size" type="4" value="3"/>
+      <SourceField name="SourceField" type="12" value="Modulo"/>
+      <SourceTable name="SourceTable" type="12" value="sysFormsGX"/>
+      <ValidateOnSet name="ValidateOnSet" type="1"/>
+      <DataUpdatable name="DataUpdatable" type="1" value="False"/>
+      <ForeignName name="ForeignName" type="12"/>
+      <DefaultValue name="DefaultValue" type="12" value=""/>
+      <ValidationRule name="ValidationRule" type="12" value=""/>
+      <ValidationText name="ValidationText" type="12" value=""/>
+      <Required name="Required" type="1" value="False"/>
+      <AllowZeroLength name="AllowZeroLength" type="1" value="False"/>
+      <AppendOnly name="AppendOnly" type="1" value="False"/>
+      <Expression name="Expression" type="12" value=""/>
+      <FieldSize name="FieldSize" type="4"/>
+      <OriginalValue name="OriginalValue" type="10"/>
+      <VisibleValue name="VisibleValue" type="10"/>
+      <ColumnHidden name="ColumnHidden" type="1" value="False"/>
+      <IMEMode name="IMEMode" type="2" value="0"/>
+      <IMESentenceMode name="IMESentenceMode" type="2" value="3"/>
+      <UnicodeCompression name="UnicodeCompression" type="1" value="False"/>
+      <AggregateType name="AggregateType" type="4" value="-1"/>
+      <ResultType name="ResultType" type="2" value="0"/>
+      <CurrencyLCID name="CurrencyLCID" type="4" value="0"/>
+      <ColumnWidth name="ColumnWidth" type="3" value="-1"/>
+      <ColumnOrder name="ColumnOrder" type="3" value="0"/>
+      <DisplayControl name="DisplayControl" type="3" value="109"/>
+      <TextAlign name="TextAlign" type="2" value="0"/>
+    </Field_7>
+  </FieldDefs>
+</TableDef>

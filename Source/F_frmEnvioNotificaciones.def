@@ -1,0 +1,79 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+    
+    Dim lngIdFichaCab As Long
+
+Private Sub btnEnviaRecordatorio_Click()
+    On Error GoTo HandleError
+    Dim sPEN As String, i As Integer, j As Integer, strMSG As String
+    If Me.lstNotificacionesAEnviar.ItemsSelected.Count = 0 Then
+        MsgBox "Se debe seleccionar al menos una notificación de la lista", vbExclamation
+        GoTo HandleExit
+    End If
+    Dim vIt As Variant, strResp As String
+    For Each vIt In Me.lstNotificacionesAEnviar.ItemsSelected
+        
+        If EnviaNotificacion(Me.lstNotificacionesAEnviar.Column(0, vIt), Me.lstNotificacionesAEnviar.Column(1, vIt), False, False, strResp) = True Then
+            i = i + 1
+            strMSG = strMSG & "Ficha Nº: " & Me.lstNotificacionesAEnviar.Column(0, vIt) & "--> Se envió -->" & DameValorParam("Notificacion_" & Me.lstNotificacionesAEnviar.Column(1, vIt)) & vbCrLf
+        Else
+            j = j + 1
+            strMSG = strMSG & "Ficha Nº: " & Me.lstNotificacionesAEnviar.Column(0, vIt) & "--> No se pudo enviar -->" & DameValorParam("Notificacion" & Me.lstNotificacionesAEnviar.Column(1, vIt)) & vbCrLf
+        End If
+    
+    Next vIt
+    Genera_auxNotificaciones
+    Carga_lstNotificacionesAEnviar
+    'If IsOpenForm("frmListaEmails") Then Forms("frmListaEmails").lstEmails.Requery
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub Form_Load()
+    Call Genera_auxNotificaciones
+End Sub
+
+Private Sub Form_Open(Cancel As Integer)
+    Me.Caption = "Envío de Notificaciones"
+    Carga_lstNotificacionesAEnviar
+End Sub
+
+Public Sub Carga_lstNotificacionesAEnviar()
+    Dim strSQL As String, rs As Recordset, rsF As Recordset, sRow As String
+    Dim iAD As Integer, iDias As Integer, iNumNoti As Integer
+    On Error GoTo HandleError
+    strSQL = "SELECT *" & _
+             " FROM auxNotificaciones" & _
+             " WHERE True"
+    If Me.lstNotificaciones.ListIndex <> -1 Then
+        iNumNoti = Right(Me.lstNotificaciones, 1)
+        If iNumNoti <> 0 Then strSQL = strSQL & " AND NumNoti = " & iNumNoti
+    End If
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    sRow = "Nº Ficha;Noti;Cliente;Pax;Email;Entrada;Salida;"
+    If rs.EOF Then GoTo SetRowSource
+    While Not rs.EOF
+        sRow = sRow & rs("IdFichaCab") & ";" & rs("NumNoti") & ";" & rs("Cliente") & ";" & rs("Pax") & ";" & rs("Email") & ";" & rs("Entrada") & ";" & rs("Salida") & ";"
+        rs.MoveNext
+    Wend
+SetRowSource:
+    Me.lstNotificacionesAEnviar.RowSource = sRow
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub lstNotificaciones_AfterUpdate()
+    Carga_lstNotificacionesAEnviar
+End Sub

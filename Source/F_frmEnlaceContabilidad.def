@@ -1,0 +1,493 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+    Dim gstrTeclas As String
+    Dim gintGenerarNoEnlazar As Integer
+
+Private Sub Enlazar()
+    Dim strSQL As String, strSQL2 As String, intResult As Integer
+    Dim i As Long, l As Long, intR As Integer, strR As String
+    GrabarParam Me
+    strSQL = "UPDATE conEnlazar SET MarcarSN = TRUE"
+    CurrentDb.Execute strSQL, dbFailOnError
+    For i = 1 To Me.lstRegistrosEnlazar.ListCount
+        If Me.lstRegistrosEnlazar.Selected(i) = False Then
+            strSQL = "UPDATE conEnlazar SET MarcarSN = FALSE"
+            strSQL = strSQL & " WHERE IdRegistroEnlazar = " & Nz(Me.lstRegistrosEnlazar.Column(0, i), 0)
+            CurrentDb.Execute strSQL, dbFailOnError
+        End If
+        SysCmd acSysCmdSetStatus, "Marcando registros a " & IIf(gintGenerarNoEnlazar, "no ", "") & "enlazar: " & i & "/" & Me.lstRegistrosEnlazar.ListCount
+    Next i
+    strR = ""
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'F'")
+    If l > 0 Then
+        strR = strR & "Facturas Emitidas: " & l & vbCrLf
+    End If
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'C'")
+    If l > 0 Then
+        strR = strR & "Facturas Emitidas/Cobros: " & l & vbCrLf
+    End If
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'O'")
+    If l > 0 Then
+        strR = strR & "Otros Ingresos: " & l & vbCrLf
+    End If
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'R'")
+    If l > 0 Then
+        strR = strR & "Facturas Recibidas: " & l & vbCrLf
+    End If
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'P'")
+    If l > 0 Then
+        strR = strR & "Facturas Recibidas/Pagos: " & l & vbCrLf
+    End If
+    l = DCount("IdRegistroEnlazar", "conEnlazar", "MarcarSN = True AND Tipo = 'T'")
+    If l > 0 Then
+        strR = strR & "Totalizacion Tarjetas: " & l & vbCrLf
+    End If
+    If strR <> "" Then
+        If gintGenerarNoEnlazar = False Then
+            strR = "Se enlazarán los siguientes registros: " & vbCrLf & strR
+        Else
+            strR = "Se marcaran como enlazados los siguientes registros: " & vbCrLf & strR
+        End If
+    Else
+        MsgBox "Se deben seleccionar los registros a enlazar"
+        Exit Sub
+    End If
+    intR = MsgBox(strR, vbOKCancel + vbQuestion)
+    If intR <> vbOK Then Exit Sub
+    Call EnlaceContabilidad(gintGenerarNoEnlazar)
+    GenerarRegistrosAEnlazar
+    If intResult = True Then
+        DoCmd.Close
+    End If
+End Sub
+
+Private Sub btnAceptar_Click()
+    gintGenerarNoEnlazar = False
+    Enlazar
+End Sub
+
+Private Sub btnCancelar_Click()
+    DoCmd.Close
+End Sub
+
+Private Sub btnNoEnlazar_Click()
+    gintGenerarNoEnlazar = True
+    Enlazar
+End Sub
+
+Private Sub btnOrdenFE_Click()
+    Dim strSQL As String
+    strSQL = "SELECT conEnlazar.IdRegistroEnlazar, conEnlazar.Tipo, conEnlazar.IdFOR, conEnlazar.Fecha, conEnlazar.Importe, conEnlazar.Concepto, IIf(([MáxDeRegEnlace]<0),'NO',[MáxDeFechaEnlace]) AS [Enlace Contabilidad], qryEnlacesContables.MáxDeRegEnlace"
+    strSQL = strSQL & " FROM conEnlazar LEFT JOIN qryEnlacesContables ON (conEnlazar.IdFOR = qryEnlacesContables.IdFOR) AND (conEnlazar.Tipo = qryEnlacesContables.Tipo)"
+    If Me.btnOrdenFE.Caption = "Orden FECHA - Enlace" Then
+        strSQL = strSQL & " ORDER BY [MáxDeFechaEnlace] DESC;"
+        Me.btnOrdenFE.Caption = "Orden Fecha + ENLACE"
+    Else
+        strSQL = strSQL & " ORDER BY conEnlazar.Fecha, conEnlazar.Concepto;"
+        Me.btnOrdenFE.Caption = "Orden FECHA - Enlace"
+    End If
+    Me.lstRegistrosEnlazar.RowSource = strSQL
+
+End Sub
+
+Private Sub btnSeleccionarTodos_Click()
+    Dim l As Long
+    For l = 1 To Me.lstRegistrosEnlazar.ListCount
+        Me.lstRegistrosEnlazar.Selected(l) = True
+        SysCmd acSysCmdSetStatus, "Seleccionando todos " & l & "/" & Me.lstRegistrosEnlazar.ListCount
+    Next l
+    SysCmd acSysCmdClearStatus
+End Sub
+
+Private Sub btnVerRegistros_Click()
+    Call GenerarRegistrosAEnlazar
+End Sub
+
+Private Sub casTodos_AfterUpdate()
+    Me.casCobrosFE = Me.casTodos
+    Me.casFE = Me.casTodos
+    Me.casFR = Me.casTodos
+    Me.casOI = Me.casTodos
+    Me.casPagosFR = Me.casTodos
+End Sub
+
+Private Sub cmbEmpresaFR_AfterUpdate()
+    If Me.cmbEmpresaFR.ListIndex <> -1 Then
+        Me.ContabilidadEmpresa = Me.cmbEmpresaFR.Column(2)
+    Else
+        Me.ContabilidadEmpresa = Nz(DLookup("IdEmpresaContabilidad", "tbEmpresasFR", "PrincipalSN = True"), 0)
+    End If
+End Sub
+
+Private Sub ContabilidadEjercicio_AfterUpdate()
+    Call GenerarRegistrosAEnlazar
+End Sub
+
+Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+    ControlTeclas Me, KeyCode, Shift, gstrTeclas
+End Sub
+
+Private Sub Form_Load()
+    
+    CentrarTodoFRM Me, Me.cdrCentrar, , False
+    CargarParam Me
+    If Me.ContabilidadFicheroEnlace Like (Format(Date, "YYYY_MM_DD") & "*") Then
+    Else
+        Me.ContabilidadFicheroEnlace = Format(Date, "YYYY_MM_DD") & ".pbs"
+        PonValorParam "ContabilidadFicheroEnlace", Me.ContabilidadFicheroEnlace
+    End If
+    gstrTeclas = "|CTRL_0|#txtDesde#"
+    Me.txtDesde = CDate("01/" & Month(Date) & "/" & Year(Date))
+    Me.txtHasta = Date
+    'Me.ContabilidadFicheroTraspaso = DameValorParam("ContabilidadFicheroTraspaso")
+    Call mrcFecha_AfterUpdate
+    On Error Resume Next
+    Dim strT As String
+    strT = Parent.Caption
+    If Err = 0 Then Me.EncabezadoDelFormulario.Visible = False
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    GrabarParam Me
+End Sub
+
+Private Sub lstRegistrosEnlazar_DblClick(Cancel As Integer)
+    Call btnIrAAlbaran_Click
+End Sub
+
+Private Sub mrcEnlazados_Click()
+    Call GenerarRegistrosAEnlazar
+End Sub
+
+Private Sub mrcFecha_AfterUpdate()
+    If Me.mrcFecha = 1 Then
+        Me.txtDesde.Visible = False
+        Me.txtHasta.Visible = False
+    Else
+        Me.txtDesde.Visible = True
+        Me.txtHasta.Visible = True
+    End If
+End Sub
+
+Private Sub mrcTipo_AfterUpdate()
+    Call GenerarRegistrosAEnlazar
+End Sub
+
+Private Sub txtDesde_AfterUpdate()
+    If Not IsDate(Me.txtDesde) Then Me.txtDesde = Date
+End Sub
+
+Private Sub txtDesde_KeyDown(KeyCode As Integer, Shift As Integer)
+    'F4Fecha KeyCode, Shift
+'    Call txtDesde_AfterUpdate
+End Sub
+
+Private Sub txtHasta_AfterUpdate()
+    If Not IsDate(Me.txtHasta) Then Me.txtHasta = Date
+End Sub
+
+Private Sub txtHasta_KeyDown(KeyCode As Integer, Shift As Integer)
+    'F4Fecha KeyCode, Shift
+    'Call txtHasta_AfterUpdate
+End Sub
+
+Private Sub btnIrAAlbaran_Click()
+    If Me.lstRegistrosEnlazar.ListIndex = -1 Then Exit Sub
+    Dim lngIdFa As Long, lngIdFi As Long
+    Select Case Me.lstRegistrosEnlazar.Column(1)
+        Case "F"
+            DoCmd.OpenForm "frmFacturas", , , "IdFactura = " & Me.lstRegistrosEnlazar.Column(2)
+        Case "R"
+            DoCmd.OpenForm "frmFacturasRecibidas", , , "IdFacturaRecibida = " & Me.lstRegistrosEnlazar.Column(2)
+            DoCmd.GoToRecord acDataForm, "frmFacturasRecibidas", acLast
+        Case "C"
+            lngIdFa = Nz(DLookup("IdFParcial", "tbCajaDet", "IdCajaDet = " & Me.lstRegistrosEnlazar.Column(2)), 0)
+            If lngIdFa <> 0 Then
+                DoCmd.OpenForm "frmFacturas", , , "IdFactura = " & lngIdFa
+            Else
+                lngIdFi = Nz(DLookup("IdFrom", "tbCajaDet", "Origen = 'E' And IdCajaDet = " & Me.lstRegistrosEnlazar.Column(2)), 0)
+                If lngIdFi <> 0 Then
+                    lngIdFa = Nz(DLookup("IdFactura", "tbFichasCab", "IdFichacab = " & lngIdFi), 0)
+                    If lngIdFa <> 0 Then
+                        DoCmd.OpenForm "frmFacturas", , , "IdFactura = " & lngIdFa
+                    Else
+                        DoCmd.OpenForm "frmFichas", , , "IdFichaCab = " & lngIdFi
+                    End If
+                End If
+            End If
+                    
+    End Select
+End Sub
+
+Public Function GenerarRegistrosAEnlazar()
+    Dim rs As Recordset, strSQL As String, rsCon As Recordset
+    Dim lngAntNc As Long, intAux As Integer, curTotal As Currency, strRes As String, l As Long
+    Dim lngIdFac As Long, y As Long
+    CurrentDb.Execute "DELETE * FROM conEnlazar", dbFailOnError
+    Set rsCon = CurrentDb.OpenRecordset("conEnlazar", dbOpenDynaset)
+    DoCmd.Hourglass True
+AñadirFacturas:
+    If Not Me.casFE Then GoTo AñadirOtrosIngresos
+    strSQL = "SELECT DISTINCT tbFacturasCab.IdFactura, tbFacturasCab.Serie, tbFacturasCab.NumeroDeFactura, tbFacturasCab.DireccionCliente, tbFacturasCab.FechaFactura, (TotalBase + TotalIVA) AS TotalFactura"
+    strSQL = strSQL & " FROM tbFacturasCab LEFT JOIN qryEnlazadasFacturasE ON tbFacturasCab.IdFactura = qryEnlazadasFacturasE.IdFOR"
+    strSQL = strSQL & " WHERE Year(FechaFactura)=" & Nz(Me.ContabilidadEjercicio, DameValorParam("ContabilidadEjercicio"))
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasFacturasE.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasFacturasE.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasFacturasE.RegEnlace < 0"
+    End Select
+    strSQL = strSQL & " AND DireccionCliente Like '*" & Me.txtCliente & "*'"
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND tbFacturasCab.Fechafactura >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND tbFacturasCab.Fechafactura <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "F"
+        rsCon("IdFOR") = rs("IdFactura")
+        rsCon("Fecha") = rs("FechaFactura")
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("FE: " & rs("NumeroDeFactura") & " - " & rs("DireccionCliente"), 0, 50), "--")
+        rsCon("Importe") = rs("TotalFactura")
+        curTotal = curTotal + Nz(rs("TotalFactura"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rsCon.Update
+        rs.MoveNext
+    Wend
+    strRes = l & " Facturas -> " & Format(curTotal, "currency") & vbCrLf
+AñadirOtrosIngresos:
+    If Not Me.casOI Then GoTo AñadirFacturasRecibidas
+    curTotal = 0
+    l = 0
+    strSQL = "SELECT DISTINCT tbOI.Fecha, tbOI.IdOtrosIngresos, tbGruposDeIngresos.DescripcionGrupo, tbOI.IVA, CCur([Importe1]+[Importe3]+[Importe2]+[Importe4]) AS TotalImporte"
+    strSQL = strSQL & " FROM (tbOI LEFT JOIN qryEnlazadasOtrosIngresos ON tbOI.IdOtrosIngresos = qryEnlazadasOtrosIngresos.IdFOR) LEFT JOIN tbGruposDeIngresos ON tbOI.CodGrupoIngresos = tbGruposDeIngresos.CodNombreGrupo"
+    strSQL = strSQL & " WHERE Year(tbOI.Fecha)=" & Me.ContabilidadEjercicio
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasOtrosIngresos.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasOtrosIngresos.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasOtrosIngresos.RegEnlace < 0"
+    End Select
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND tbOI.Fecha >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND tbOI.Fecha <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "O"
+        rsCon("IdFOR") = rs("IdOtrosIngresos")
+        rsCon("Fecha") = rs("Fecha")
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("OI: " & Format(rs("Fecha"), "yyyy/mm/dd") & " - " & rs("DescripcionGrupo") & " - " & rs("IVA") & " - " & rs("TotalImporte"), 0, 50), "--")
+        rsCon("Importe") = rs("TotalImporte")
+        curTotal = curTotal + Nz(rs("TotalImporte"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rsCon.Update
+SiguienteOI:
+        rs.MoveNext
+    Wend
+    strRes = strRes & l & " Otros Ingresos -> " & Format(curTotal, "currency") & vbCrLf
+AñadirFacturasRecibidas:
+    If Not Me.casFR Then GoTo AñadirCobrosFE
+    curTotal = 0
+    l = 0
+    strSQL = "SELECT DISTINCT tbFacturasRecibidas.IdFacturaRecibida, tbFacturasRecibidas.FechaFactura, tbFacturasRecibidas.NumeroDeFactura, tbFacturasRecibidas.NIF, tbFacturasRecibidas.Proveedor, tbGruposDeGastos.NombreGrupo, [TotalBase]+[TotalIVA]+[TotalRecEq] AS TotalFactura"
+    strSQL = strSQL & " FROM (tbFacturasRecibidas LEFT JOIN qryEnlazadasFacturasR ON tbFacturasRecibidas.IdFacturaRecibida = qryEnlazadasFacturasR.IdFOR) LEFT JOIN tbGruposDeGastos ON tbFacturasRecibidas.CodGrupoGastos = tbGruposDeGastos.CodNombreGrupoGastos"
+    strSQL = strSQL & " WHERE Year(FechaFactura)=" & Me.ContabilidadEjercicio
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasFacturasR.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasFacturasR.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasFacturasR.RegEnlace < 0"
+    End Select
+    strSQL = strSQL & " AND Proveedor Like '*" & Me.txtProveedor & "*'"
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND tbFacturasRecibidas.Fechafactura >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND tbFacturasRecibidas.Fechafactura <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    If Me.cmbEmpresaFR.ListIndex <> -1 Then
+        If Nz(DLookup("PrincipalSN", "tbEmpresasFR", "IdEmpresaFR = " & Nz(Me.cmbEmpresaFR, 0)), False) = True Then
+            strSQL = strSQL & " AND Nz(IdEmpresaFR," & Me.cmbEmpresaFR & ") = " & Me.cmbEmpresaFR
+        Else
+            strSQL = strSQL & " AND Nz(IdEmpresaFR,0) = " & Me.cmbEmpresaFR
+        End If
+    End If
+    strSQL = strSQL & " ORDER BY FechaFactura"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "R"
+        rsCon("IdFOR") = rs("IdFacturaRecibida")
+        rsCon("Fecha") = rs("FechaFactura")
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("FR: " & rs("Proveedor") & " - " & rs("NumeroDeFactura"), 0, 50), "--")
+        rsCon("Importe") = rs("TotalFactura")
+        rsCon.Update
+        curTotal = curTotal + Nz(rs("TotalFactura"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rs.MoveNext
+    Wend
+    strRes = strRes & l & " Facturas Recibidas -> " & Format(curTotal, "currency") & vbCrLf
+    
+AñadirCobrosFE:
+    If Not Me.casCobrosFE Then GoTo AñadirPagosFR
+    curTotal = 0
+    l = 0
+    Dim intCajaDet_From_E_R As Integer
+    intCajaDet_From_E_R = 1
+Bucle_E_R:
+    If intCajaDet_From_E_R = 1 Then
+        'strSQL = "SELECT DISTINCT qryCajaDet_FichasEstancia.*, qryEnlazadasCobrosFacturasE.IdFOR, tbFacturasCab.IdFactura as IDFAC, tbFacturasCab.*"
+        'strSQL = strSQL & " FROM ((tbFacturasCab INNER JOIN tbFichasCab ON tbFacturasCab.IdFactura = tbFichasCab.IdFactura) INNER JOIN qryCajaDet_FichasEstancia ON tbFichasCab.IdFichaCab = qryCajaDet_FichasEstancia.IdFrom) LEFT JOIN qryEnlazadasCobrosFacturasE ON tbFacturasCab.IdFactura = qryEnlazadasCobrosFacturasE.IdFOR"
+        strSQL = "SELECT DISTINCT qryCajaDet_FichasEstancia.*, qryEnlazadasCobrosFacturasE.IdFOR, tbFacturasCab.IdFactura AS IDFAC, tbFacturasCab.*"
+        strSQL = strSQL & " FROM ((tbFacturasCab INNER JOIN tbFichasCab ON tbFacturasCab.IdFactura = tbFichasCab.IdFactura) INNER JOIN qryCajaDet_FichasEstancia ON tbFichasCab.IdFichaCab = qryCajaDet_FichasEstancia.IdFrom) LEFT JOIN qryEnlazadasCobrosFacturasE ON qryCajaDet_FichasEstancia.IdCajaDet = qryEnlazadasCobrosFacturasE.IdFOR"
+        strSQL = strSQL & " WHERE True"
+        strSQL = strSQL & " AND Year(Fecha)=" & Me.ContabilidadEjercicio
+    ElseIf intCajaDet_From_E_R = 12 Then
+        'strSQL = "SELECT DISTINCT qryCajaDet_Facturas.*, qryEnlazadasCobrosFacturasE.IdFOR, tbFacturasCab.IdFactura as IDFAC, tbFacturasCab.*"
+        'strSQL = strSQL & " FROM (tbFacturasCab LEFT JOIN qryEnlazadasCobrosFacturasE ON tbFacturasCab.IdFactura = qryEnlazadasCobrosFacturasE.IdFOR) INNER JOIN qryCajaDet_Facturas ON tbFacturasCab.IdFactura = qryCajaDet_Facturas.IdFrom"
+        strSQL = "SELECT DISTINCT qryCajaDet_Facturas.*, qryEnlazadasCobrosFacturasE.IdFOR, tbFacturasCab.IdFactura AS IDFAC, tbFacturasCab.*"
+        strSQL = strSQL & " FROM (tbFacturasCab INNER JOIN qryCajaDet_Facturas ON tbFacturasCab.IdFactura = qryCajaDet_Facturas.IdFrom) LEFT JOIN qryEnlazadasCobrosFacturasE ON qryCajaDet_Facturas.IdCajaDet = qryEnlazadasCobrosFacturasE.IdFOR"
+        strSQL = strSQL & " WHERE True"
+        strSQL = strSQL & " AND Year(Fecha)=" & Me.ContabilidadEjercicio
+    Else
+        strSQL = "SELECT DISTINCT qryCajaDet_FacturasParciales.*, qryEnlazadasCobrosFacturasE.IdFOR, tbFacturasCab.IdFactura AS IDFAC, tbFacturasCab.*"
+        strSQL = strSQL & " FROM (tbFacturasCab INNER JOIN qryCajaDet_FacturasParciales ON tbFacturasCab.IdFactura = qryCajaDet_FacturasParciales.IdFParcial) LEFT JOIN qryEnlazadasCobrosFacturasE ON qryCajaDet_FacturasParciales.IdCajaDet = qryEnlazadasCobrosFacturasE.IdFOR"
+        strSQL = strSQL & " WHERE True"
+        strSQL = strSQL & " AND Year(Fecha)=" & Me.ContabilidadEjercicio
+    End If
+    
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasCobrosFacturasE.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasCobrosFacturasE.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasCobrosFacturasE.RegEnlace < 0"
+    End Select
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND Fecha >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND Fecha <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    strSQL = strSQL & " ORDER BY Fecha"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "C"
+        rsCon("IdFOR") = rs("IdCajaDet")
+        rsCon("Fecha") = rs("Fecha")
+        lngIdFac = rs("IDFAC")
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("Cobro FE: " & Nz(DLookup("NumeroDeFactura", "tbFacturasCab", "IdFactura = " & lngIdFac), "?") & "/Cobro " & Nz(DLookup("Descripcion", "tbFPago", "CodFPago = '" & rs("CodFPago") & "'"), rs("CodFPago")), 0, 50), "--")
+        rsCon("Importe") = rs("Cantidad")
+        rsCon.Update
+        curTotal = curTotal + Nz(rs("Cantidad"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rs.MoveNext
+    Wend
+    If intCajaDet_From_E_R = 1 Then
+        intCajaDet_From_E_R = 12
+        GoTo Bucle_E_R
+    ElseIf intCajaDet_From_E_R = 12 Then
+        intCajaDet_From_E_R = 13
+        GoTo Bucle_E_R
+    Else
+    End If
+    strRes = strRes & l & " Cobro de F.E. -> " & Format(curTotal, "currency") & vbCrLf
+AñadirPagosFR:
+    If Not Me.casPagosFR Then GoTo AñadirTotalizacionVisas
+    curTotal = 0
+    l = 0
+    strSQL = "SELECT qryCajaDet_FacturasRecibidas.*, qryEnlazadasPagosFacturasR.IdFOR, tbFacturasRecibidas.*"
+    strSQL = strSQL & " FROM tbFacturasRecibidas INNER JOIN (qryCajaDet_FacturasRecibidas LEFT JOIN qryEnlazadasPagosFacturasR ON qryCajaDet_FacturasRecibidas.IdCajaDet = qryEnlazadasPagosFacturasR.IdFOR) ON tbFacturasRecibidas.IdFacturaRecibida = qryCajaDet_FacturasRecibidas.IdFrom"
+    strSQL = strSQL & " WHERE Year(Fecha)=" & Me.ContabilidadEjercicio
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasPagosFacturasR.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasPagosFacturasR.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasPagosFacturasR.RegEnlace < 0"
+    End Select
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND Fecha >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND Fecha <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    strSQL = strSQL & " ORDER BY Fecha"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "P"
+        rsCon("IdFOR") = rs("IdCajaDet")
+        rsCon("Fecha") = rs("Fecha")
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("Pago FR: " & rs("Proveedor") & "/Pago " & Nz(DLookup("Descripcion", "tbFPago", "CodFPago = '" & rs("CodFPago") & "'"), rs("CodFPago")) & "/" & rs("NumeroDeFactura"), 0, 50), "--")
+        rsCon("Importe") = rs("Cantidad")
+        rsCon.Update
+        curTotal = curTotal + Nz(rs("Cantidad"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rs.MoveNext
+    Wend
+    strRes = strRes & l & " Pago de F.R. -> " & Format(curTotal, "currency") & vbCrLf
+    
+AñadirTotalizacionVisas:
+    If Not Me.casTotVisas Then GoTo Fin
+    curTotal = 0
+    l = 0
+    strSQL = "SELECT DISTINCT tbTotalizacionTarjetas.*, qryEnlazadasTotalizacionVisas.IdFOR"
+    strSQL = strSQL & " FROM tbTotalizacionTarjetas  LEFT JOIN qryEnlazadasTotalizacionVisas ON tbTotalizacionTarjetas.IdTotalizacionTarjetas = qryEnlazadasTotalizacionVisas.IdFOR"
+    strSQL = strSQL & " WHERE Year(Fecha)=" & Me.ContabilidadEjercicio
+    Select Case Me.mrcEnlazados
+        Case 1
+            strSQL = strSQL & " AND qryEnlazadasTotalizacionVisas.IdFOR Is Null"
+        Case 2
+            strSQL = strSQL & " AND qryEnlazadasTotalizacionVisas.IdFOR Is Not Null"
+        Case 4
+            strSQL = strSQL & " AND qryEnlazadasTotalizacionVisas.RegEnlace < 0"
+    End Select
+    If Me.mrcFecha = 2 Then
+        If Not IsNull(Me.txtDesde) Then strSQL = strSQL & " AND Fecha >= #" & Format(CDate(Me.txtDesde), "mm/dd/yyyy") & "#"
+        If Not IsNull(Me.txtHasta) Then strSQL = strSQL & " AND Fecha <= #" & Format(CDate(Me.txtHasta), "mm/dd/yyyy") & "#"
+    End If
+    strSQL = strSQL & " ORDER BY Fecha"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        rsCon.AddNew
+        rsCon("Tipo") = "T"
+        rsCon("IdFOR") = rs("IdTotalizacionTarjetas")
+        rsCon("Fecha") = IIf(IsNull(rs("FechaCobro")), rs("Fecha"), rs("FechaCobro"))
+        rsCon("Concepto") = Sin_vbCrLf(RecDerTop("Total TPV " & rs("TPV") & " / " & rs("TipoTarjeta"), 0, 50), "--")
+        rsCon("Importe") = rs("Importe")
+        rsCon.Update
+        curTotal = curTotal + Nz(rs("Importe"), 0)
+        l = l + 1
+        y = y + 1
+        SysCmd acSysCmdSetStatus, "Generando registros a enlazar: " & y
+        rs.MoveNext
+    Wend
+    strRes = strRes & l & " Totalización de tarjetas -> " & Format(curTotal, "currency") & vbCrLf
+Fin:
+    Me.lstRegistrosEnlazar.Requery
+    Me.lblCont.Caption = Nz(RecDerTop(strRes, 2, 0), "")
+    DoCmd.Hourglass False
+    SysCmd acSysCmdClearStatus
+End Function

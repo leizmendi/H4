@@ -1,0 +1,448 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+
+'Defined with events capability.
+    Public WithEvents Icar As Icar
+Attribute Icar.VB_VarHelpID = -1
+    'Se definen también otras variables globales que nos serán útiles.
+    Dim strDefaultPath As String
+    Dim DocImagePath As String, PhotoImagePath As String
+    Dim DocUVImagePath As String, DocIRImagePath As String
+    Dim SignatureImagePath As String, DigitalCopyImagePath As String
+    Dim FingerprintImagePath As String
+    Dim fConfig As Boolean
+
+
+Private Sub btnAceptar_Click()
+    Dim intR As Integer
+    Me.Visible = False
+    If IsOpenForm("frmPartesPolicia") Then
+        Call Lee_ICAR_txtOutPut_frmPartesPolicia(Nz(Me.txtOutput, ""))
+        'If IsOpenForm("frmFichas") Then
+        '    If Forms("frmFichas").gintPrimeraEntradaViajero = True Then
+        '        intR = MsgBox("¿Grabar datos del viajero en la ficha de estancia?", vbOKCancel + vbQuestion)
+        '        If intR = vbOK Then
+        '            Call Lee_ICAR_txtOutPut_frmFichas(Nz(Me.txtOutput, ""))
+        '            Forms("frmFichas").gintPrimeraEntradaViajero = False
+        '        End If
+        '    End If
+        'End If
+        'Exit Sub
+    'End If
+    ElseIf IsOpenForm("frmFichas") Then
+        Call Lee_ICAR_txtOutPut_frmFichas(Nz(Me.txtOutput, ""))
+    End If
+End Sub
+
+Private Sub btnCancelar_Click()
+    'DoCmd.Close acForm, Me.Name
+    Me.txtOutput = Null
+    Me.Visible = False
+End Sub
+
+Public Sub btnEscanear_Click()
+    On Error GoTo Error_btnEscanear_Click
+    Kill strDefaultPath & "*tmp.jpg"
+    Call Icar.Process
+    Me.imgICAR.Picture = DocImagePath
+Salir_btnEscanear_Click:
+    Exit Sub
+Error_btnEscanear_Click:
+    Select Case Err
+        Case 53
+            Resume Next
+        Case Else
+            MsgBox "Error nº " & Err & " en btnEscanear_Click" & vbCrLf & Err.Description
+            Resume Salir_btnEscanear_Click
+    End Select
+End Sub
+
+Private Sub btnOpciones_Click()
+    DoCmd.OpenForm "frmPArametrosICAR", , , , , acDialog
+End Sub
+
+'App initialization
+Private Sub Form_Load()
+    On Error GoTo ProcessErrorHandler
+    Me.imgICAR.Picture = ""
+    Set Icar = New Icar
+    fConfig = False
+    Icar.Initialize
+    CheckICARError
+    Call UpdateICARParameters
+    CheckICARError
+    Call Icar.Process
+    Me.imgICAR.Picture = DocImagePath
+    GoTo EndProcessErrorHandler
+ProcessErrorHandler:
+    MsgBox Err.Description, , "ERROR: Form_Load"
+    Resume EndProcessErrorHandler
+EndProcessErrorHandler:
+End Sub
+
+Private Sub CheckICARError()
+    On Error GoTo Error_CheckICARError
+    Dim strErrorMsg As String, lngIcarError As Long
+    lngIcarError = Icar.checkError
+    If lngIcarError <> 0 Then
+        Select Case lngIcarError
+            Case -2147220991 ' Se debe iniciar ICAR
+                Call Icar.Initialize
+            Case Else
+                strErrorMsg = Icar.getErrorDescription
+                If strErrorMsg Like "*warning*" = False Then
+                    Err.Raise vbObjectError + 513, "ICARExample Form", strErrorMsg
+                Else
+                    MsgBox strErrorMsg, vbExclamation, "ERROR"
+                End If
+        End Select
+    End If
+Salir_CheckICARError:
+    Exit Sub
+Error_CheckICARError:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en CheckICARError" & vbCrLf & Err.Description
+            Resume Salir_CheckICARError
+    End Select
+End Sub
+
+'This event is fired every time a document has been read
+Private Sub Icar_DocumentRead(bstrResult As String)
+    On Error GoTo ProcessErrorHandler
+    CheckICARError
+    'Display result string
+    ShowICARResults (bstrResult)
+    'Display result images
+    'ShowICARImages
+    GoTo EndProcessErrorHandler
+ProcessErrorHandler:
+    MsgBox Err.Description, , "ERROR: Form_Load"
+    Resume EndProcessErrorHandler
+EndProcessErrorHandler:
+    
+End Sub
+
+'Displays result string
+Private Sub ShowICARResults(strOutput As String)
+    If Len(strOutput) = 0 Then
+        Me.txtOutput = "NOT READ"
+    Else
+        Me.txtOutput = Replace(strOutput, "# ", vbCrLf) 'result display
+    End If
+End Sub
+
+'Cleanup
+Private Sub Form_Unload(Cancel As Integer)
+    'ICAR cleanup
+    On Error Resume Next
+    Icar.CleanUp
+    Set Icar = Nothing
+End Sub
+
+'Updates ICAR parameters from dialog setup
+Public Function UpdateICARParameters() As Integer
+    'On Error GoTo ERror_UpdateICARParameters
+    Dim AcqDevice As Long, DeviceName As String, ImageFolderPath As String
+    Dim docIntegrationType As Long, SCDevice As Long
+'Acquisition device
+    Icar.setPropertyNumber ICAR_ACQ_DEVICE, Nz(DameValorParam("ICAR_ACQ_DEVICE"), ICAR_TWAIN_DEVICE)
+    Icar.setPropertyString ICAR_ACQ_DEVICENAME, Nz(DameValorParam("ICAR_ACQ_DEVICENAME"), "")
+    Call CheckICARError
+
+    Icar.setPropertyNumber ICAR_CFG_DATEFORMAT, 1
+    Icar.setPropertyNumber ICAR_CFG_UPPERCASE, 1
+    Icar.setPropertyNumber ICAR_CFG_REMOVEACCENTS, 1
+    Icar.setPropertyNumber ICAR_ACQ_DELFILEIMAGEAFTERPROCESSING, 1
+    Icar.setPropertyNumber ICAR_CFG_PROCESSMODE, 0
+    Icar.setPropertyNumber ICAR_ACQ_TWAINACQUISITIONSIZEX, 175 ' nz(DameValorParam("ICAR_ACQ_TWAINACQUISITIONSIZEX"), 175)
+    Icar.setPropertyNumber ICAR_ACQ_TWAINACQUISITIONSIZEY, 111 'nz(DameValorParam("ICAR_ACQ_TWAINACQUISITIONSIZEY"), 111)
+    Icar.setPropertyNumber ICAR_CFG_COLORMODEDOCIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_COLORMODEPHOTOIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_COLORMODESIGNATUREIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_COLORMODEFINGERPRINTIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_COLORMODEDOCUVIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_COLORMODEDOCIRIMAGE, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_DOCIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_PHOTOIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_SIGNATUREIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_FINGERPRINTIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_DOCUVIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    Icar.setPropertyNumber ICAR_CFG_DOCIRIMAGEENHANCEMENT, 0
+    Call CheckICARError
+    'También se actualizan las rutas de los ficheros resultados mediante la función icar.setPropertyString.
+    'Settings paths for result files
+    Dim strPhotoImagePath As String, RFIDImagePath  As String
+    Dim DocUVImagePath As String, DocIRImagePath As String
+    Dim SignatureImagePath As String, DigitalCopyImagePath As String
+    Dim FingerprintImagePath As String
+    
+    strDefaultPath = DirectorioDe(CurrentDb.Name) & Nz(DameValorParam("ICAR_CarpetaImagenes"), "icar\")
+    
+    
+    strPhotoImagePath = strDefaultPath & "photoTmp.jpg"
+    RFIDImagePath = strDefaultPath & "rfidPhotoTmp.jpg"
+    DocImagePath = strDefaultPath & Nz(DameValorParam("ICAR_RESULT_DOCIMAGEPATH"), "docTmp.jpg")
+    SignatureImagePath = strDefaultPath & "signTmp.jpg"
+    FingerprintImagePath = strDefaultPath & "fingerTmp.jpg"
+    DigitalCopyImagePath = strDefaultPath & "digCTmp.jpg"
+    DocUVImagePath = strDefaultPath & "docUVTmp.jpg"
+    DocIRImagePath = strDefaultPath & "docIRTmp.jpg"
+    Icar.setPropertyString ICAR_RESULT_DOCIMAGEPATH, DocImagePath
+    Me.imgICAR.Picture = DocImagePath
+    Call CheckICARError
+    Icar.setPropertyString ICAR_RESULT_PHOTOIMAGEPATH, strPhotoImagePath
+    Call CheckICARError
+    Icar.setPropertyString ICAR_RESULT_SIGNATUREIMAGEPATH, SignatureImagePath
+    Call CheckICARError
+    Icar.setPropertyString ICAR_RESULT_FINGERPRINTIMAGEPATH, FingerprintImagePath
+    Call CheckICARError
+    Icar.setPropertyString ICAR_RESULT_DOCUVIMAGEPATH, DocUVImagePath
+    Call CheckICARError
+    Icar.setPropertyString ICAR_RESULT_DOCIRIMAGEPATH, DocIRImagePath
+    Call CheckICARError
+    UpdateICARParameters = True
+    GoTo EndProcessErrorHandler
+ProcessErrorHandler:
+    MsgBox Err.Description, , "ERROR: UpdateICARParameters"
+    Resume EndProcessErrorHandler
+EndProcessErrorHandler:
+Salir_UpdateICARParameters:
+    Exit Function
+'ERror_UpdateICARParameters:
+'    Select Case Err
+'        Case Else
+'            MsgBox "error nº " & Err & " en UpdateICARParameters" & vbCrLf & Err.Description
+'            Resume Salir_UpdateICARParameters
+'    End Select
+
+End Function
+
+
+
+
+
+Public Sub Lee_ICAR_txtOutPut(frm As Form)
+    Dim strResult As String
+    Dim strDNICliente  As String
+    Dim edad As Integer
+    strResult = Nz(Me.txtOutput, "")
+    If strResult = "" Then Exit Sub
+    'MsgBox strResult
+    strResult = Replace(strResult, vbCrLf, "# ")
+    'MsgBox strResult
+    'DoCmd.Close acForm, "frmICAR"
+    Dim intR As Integer
+    'Me.txtOutput = ""
+    If Len(frm.DNICliente) > 1 Then
+        intR = MsgBox("¿Añadir los datos existentes del cliente? Pulsando NO se sustituyen los datos", vbQuestion + vbYesNoCancel + vbDefaultButton1)
+        If intR = vbCancel Then Exit Sub
+        If intR = vbNo Then
+            Dim ctl As Control
+            For Each ctl In frm.Controls
+                If InStr(ctl.Tag, "scan") > 0 Then
+                    ctl.value = Null
+                End If
+            Next ctl
+        End If
+    Else
+        intR = vbYes
+    End If
+    Select Case Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-")
+        Case "ESP"
+            Select Case Nz(DimeCampoICAR(strResult, "TYPE"), "-")
+                Case "IDENTITY"
+                    frm.TipoDocumento = "D"
+                Case "PASSPORT"
+                    frm.TipoDocumento = "P"
+                Case "DRIVER_LICENSE"
+                    frm.TipoDocumento = "C"
+                Case "RESIDENT_CARD"
+                    frm.TipoDocumento = "N"
+                Case Else
+                    frm.TipoDocumento = "I"
+            End Select
+        Case Else
+            Select Case Nz(DimeCampoICAR(strResult, "TYPE"), "-")
+                Case "IDENTITY"
+                    frm.TipoDocumento = "I"
+                Case "PASSPORT"
+                    frm.TipoDocumento = "P"
+                Case "DRIVER_LICENSE"
+                    frm.TipoDocumento = "I"
+                Case "RESIDENT_CARD"
+                    frm.TipoDocumento = "X"
+                Case Else
+                    frm.TipoDocumento = "I"
+            End Select
+    End Select
+    If intR = vbNo Then
+        frm.DNICliente = Nz(DimeCampoICAR(strResult, "ID_NUMBER"), "-")
+        frm.SexoCliente = Nz(DimeCampoICAR(strResult, "SEX"), frm.SexoCliente)
+        frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPEDITION_DATE"), "01/01/2001")
+        frm.NombreCliente = Nz(DimeCampoICAR(strResult, "NAME"), "")
+        frm.ApellidosCliente = Nz(DimeCampoICAR(strResult, "SURNAME", True), "")
+        frm.DireccionCliente = Nz(DimeCampoICAR(strResult, "STREET_ADDRESS"), "")
+        If Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-") = "ESP" Then
+            frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+            frm.ProvinciaCliente = Nz(DimeCampoICAR(strResult, "STATE_ADDRESS"), "")
+            frm.CPCliente = Nz(DimeCampoICAR(strResult, "ZIP"), "")
+            If frm.FechaExpedicion = "01/01/2001" Then
+                frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
+                frm.FechaExpedicion = DateAdd("yyyy", -10, frm.FechaExpedicion)
+            End If
+        Else
+            frm.LocalidadCliente = Trim(DimeCampoICAR(strResult, "CITY_ADDRESS") & " " & DimeCampoICAR(strResult, "STATE_ADDRESS") & " " & DimeCampoICAR(strResult, "ZIP"))
+            frm.ProvinciaCliente = Null
+            frm.CPCliente = Null
+        End If
+        If frm.DNICliente = "-" Then
+            frm.DNICliente = Nz(DimeCampoICAR(strResult, "DOC_NUMBER"), "-")
+        End If
+        
+        Select Case Nz(DimeCampoICAR(strResult, "TYPE"), "-")
+            Case "RESIDENT_CARD"
+                frm.PaisCliente = DimePaisOACI(Nz(DimeCampoICAR(strResult, "NATIONALITY"), "-"))
+            Case Else
+                frm.PaisCliente = DimePaisOACI(Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-"))
+        End Select
+        
+        'frm.PaisCliente = DimePaisOACI(Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-"))
+        'Call frm.PonIdi
+        frm.FechaNacimiento = (DimeCampoICAR(strResult, "BIRTHDATE"))
+    Else
+        If frm.TipoDocumento = "P" Then
+            frm.DNICliente = IIf(Nz(frm.DNICliente, "") = "" Or Nz(frm.DNICliente, "") = "-", Nz(DimeCampoICAR(strResult, "DOC_NUMBER"), "-"), frm.DNICliente)
+        Else
+            frm.DNICliente = IIf(Nz(frm.DNICliente, "") = "" Or Nz(frm.DNICliente, "") = "-", Nz(DimeCampoICAR(strResult, "ID_NUMBER"), "-"), frm.DNICliente)
+        End If
+        'Call Comprobar_Datos
+        frm.SexoCliente = Nz(DimeCampoICAR(strResult, "SEX"), frm.SexoCliente)
+        If Nz(frm.FechaExpedicion, "") = "" Then
+            frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPEDITION_DATE"), "01/01/2001")
+        Else
+            If Nz(DimeCampoICAR(strResult, "EXPEDITION_DATE")) <> "" And frm.FechaExpedicion <> Nz(DimeCampoICAR(strResult, "EXPEDITION_DATE")) Then
+                frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPEDITION_DATE"), "01/01/2001")
+            End If
+        End If
+        If Nz(DimeCampoICAR(strResult, "NAME"), "") = "" Then
+        Else
+            If Nz(frm.NombreCliente, "") = "" Or frm.NombreCliente <> Nz(DimeCampoICAR(strResult, "NAME"), "") Then
+                frm.NombreCliente = Nz(DimeCampoICAR(strResult, "NAME"), "")
+            Else
+                If Nz(DimeCampoICAR(strResult, "NAME")) <> "" And frm.NombreCliente <> Nz(DimeCampoICAR(strResult, "NAME")) Then
+                    frm.NombreCliente = Nz(DimeCampoICAR(strResult, "NAME"), "")
+                End If
+            End If
+        End If
+        If Nz(DimeCampoICAR(strResult, "SURNAME"), "") = "" Then
+        Else
+            If Nz(frm.ApellidosCliente, "") = "" Or frm.ApellidosCliente <> Nz(DimeCampoICAR(strResult, "SURNAME"), "") Then
+                frm.ApellidosCliente = Nz(DimeCampoICAR(strResult, "SURNAME", True), "")
+            Else
+                If Nz(DimeCampoICAR(strResult, "SURNAME")) <> "" And frm.ApellidosCliente <> Nz(DimeCampoICAR(strResult, "SURNAME")) Then
+                    frm.ApellidosCliente = Nz(DimeCampoICAR(strResult, "SURNAME", True), "")
+                End If
+            End If
+        End If
+        If Nz(frm.DireccionCliente, "") = "" Then
+            frm.DireccionCliente = Nz(DimeCampoICAR(strResult, "STREET_ADDRESS"), "")
+            If Nz(frm.DireccionCliente, "") = "" Then
+            frm.DireccionCliente = Nz(DimeCampoICAR(strResult, "ADDRESS"), "")
+            End If
+        Else
+            If Nz(DimeCampoICAR(strResult, "STREET_ADDRESS")) <> "" And frm.DireccionCliente <> Nz(DimeCampoICAR(strResult, "STREET_ADDRESS")) Then
+                frm.DireccionCliente = Nz(DimeCampoICAR(strResult, "STREET_ADDRESS"), "")
+            End If
+        End If
+        frm.CPCliente = Nz(DimeCampoICAR(strResult, "ZIP"), "")
+        If Nz(frm.FechaNacimiento, "") = "" Then
+            frm.FechaNacimiento = Nz(DimeCampoICAR(strResult, "BIRTHDATE"), "")
+        Else
+            If Nz(DimeCampoICAR(strResult, "BIRTHDATE")) <> "" And frm.FechaNacimiento <> Nz(DimeCampoICAR(strResult, "BIRTHDATE")) Then
+                frm.FechaNacimiento = Nz(DimeCampoICAR(strResult, "BIRTHDATE"), "")
+            End If
+        End If
+        
+        
+        If Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-") = "ESP" Then
+        If Nz(frm.LocalidadCliente, "") = "" Then
+            frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+            If Nz(frm.LocalidadCliente, "") = "" Then
+            frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+            End If
+        Else
+            If Nz(DimeCampoICAR(strResult, "CITY_ADDRESS")) <> "" And frm.LocalidadCliente <> Nz(DimeCampoICAR(strResult, "CITY_ADDRESS")) Then
+                frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+            End If
+        End If
+
+            If Nz(DimeCampoICAR(strResult, "STATE_ADDRESS")) <> "" And frm.DireccionCliente <> Nz(DimeCampoICAR(strResult, "STATE_ADDRESS")) Then
+                frm.ProvinciaCliente = Nz(DimeCampoICAR(strResult, "STATE_ADDRESS"), "")
+            End If
+            frm.CPCliente = IIf(Nz(frm.CPCliente, "") = "", Nz(DimeCampoICAR(strResult, "ZIP"), ""), frm.CPCliente)
+            If frm.FechaExpedicion = "01/01/2001" Then
+                frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
+                edad = DateDiff("yyyy", frm.FechaNacimiento, frm.FechaExpedicion) - 5
+                'IIf ((DateDiff("yyyy", frm.FechaNacimiento, frm.FechaExpedicion) - 5) < 30), frm.FechaExpedicion = (DateAdd("yyyy", -5, frm.FechaExpedicion)), frm.FechaExpedicion = (DateAdd("yyyy", -10, frm.FechaExpedicion))
+                If edad < 30 Then
+                    frm.FechaExpedicion = DateAdd("yyyy", -5, frm.FechaExpedicion)
+                Else
+                    frm.FechaExpedicion = DateAdd("yyyy", -10, frm.FechaExpedicion)
+                End If
+            End If
+        Else
+        If Nz(frm.LocalidadCliente, "") = "" Then
+            frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+        Else
+            If Nz(DimeCampoICAR(strResult, "CITY_ADDRESS")) <> "" And frm.LocalidadCliente <> Nz(DimeCampoICAR(strResult, "CITY_ADDRESS")) Then
+                frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+            End If
+        End If
+'            If Nz(DimeCampoICAR(strResult, "CITY_ADDRESS")) <> "" And (Nz(frm.LocalidadCliente, "") Or frm.LocalidadCliente <> Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"))) Then
+ '               frm.LocalidadCliente = Nz(DimeCampoICAR(strResult, "CITY_ADDRESS"), "")
+  '          End If
+            'frm.ProvinciaCliente = Null
+            'frm.CPCliente = Null
+            If frm.FechaExpedicion = "01/01/2001" Then
+                If Nz(DimeCampoICAR(strResult, "EXPIRY")) = "" Then
+                Else
+                    If Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-") = "D" Or Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-") = "FRA" Then
+                        frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
+                        frm.FechaExpedicion = DateAdd("yyyy", -10, frm.FechaExpedicion)
+                        frm.FechaExpedicion = DateAdd("d", 1, frm.FechaExpedicion)
+                    Else
+                        frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
+                        frm.FechaExpedicion = DateAdd("yyyy", -10, frm.FechaExpedicion)
+                    End If
+                End If
+            End If
+        End If
+                        
+        frm.PaisCliente = IIf(Nz(frm.PaisCliente, "") = "", DimePaisOACI(Nz(DimeCampoICAR(strResult, "EXPEDITOR"), "-")), frm.PaisCliente)
+        'Call frm.PonIdi
+    End If
+    If Nz(DameValorParam("ICAR_GuardarImagenSN"), True) = True Then
+        Dim strDefaultPath As String
+        strDefaultPath = DirectorioDe(CurrentDb.Name) & Nz(DameValorParam("ICAR_CarpetaImagenes"), "icar\")
+        FileCopy strDefaultPath & Nz(DameValorParam("ICAR_RESULT_DOCIMAGEPATH"), "docTmp.jpg"), strDefaultPath & "F" & frm.IdFichaCab & "_doc.jpg"
+    End If
+
+End Sub

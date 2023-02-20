@@ -1,0 +1,28 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+Private Sub Form_Unload(Cancel As Integer)
+    'Dim strSerie As String
+    'strSerie = Nz(DLookup("SerieFacturacion", "tbEmpresasFR", "ActivaSN = True"), "")
+    'PonValorParam "PuestoSerie", strSerie
+    'MsgBox "La Serie de Facturas para la empresa seleccionada es: " & IIf(strSerie = "", "(Sin Serie)", strSerie), vbInformation
+    PonSerieEmpresaActiva
+End Sub
+
+Private Sub PrincipalSN_AfterUpdate()
+    If Me.PrincipalSN Then
+        CurrentDb.Execute "UPDATE tbEmpresasFR SET PrincipalSN = False WHERE IdEmpresaFR<>" & Me.IdEmpresaFR, dbFailOnError
+'        PonValorParam "PuestoSerie", Me.SerieFacturacion
+    End If
+End Sub
+
+Private Sub SerieFacturacion_AfterUpdate()
+    If Me.PrincipalSN Then
+'        PonValorParam "PuestoSerie", Nz(Me.SerieFacturacion, "")
+    End If
+End Sub

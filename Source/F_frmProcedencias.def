@@ -1,0 +1,21 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+Private Sub Color_DblClick(Cancel As Integer)
+    Me.Color = adhChooseColor(Nz(Nz(Me.Color, 0), Me.Color))
+    Call Form_Current
+End Sub
+
+Private Sub Form_Current()
+    On Error Resume Next
+    Me.DatasheetBackColor = Nz(Me.Color, vbWhite)
+End Sub
+
+Private Sub Form_Load()
+    AjustarColumnas Me
+End Sub

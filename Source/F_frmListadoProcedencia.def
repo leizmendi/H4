@@ -1,0 +1,538 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Compare Database
+Option Explicit
+Dim gintActualizarIngresosXActividadAux As Integer
+
+
+
+Private Sub btnAsociacion_Click()
+    Dim strSQL As String, dtDesde As Date, dtHasta As Date
+    dtDesde = Me.txtDesde: dtHasta = Me.txtHasta
+    
+    'strSQL = "SELECT Format(([FechaSalida])-([FechaLlegada]),'00') AS DiasEstancia, Sum(([Adultos]+[Niños])) AS Personas"
+    'strSQL = strSQL & " FROM tbFichasCab"
+    'strSQL = strSQL & " WHERE tbFichasCab.EstadoFicha>1 AND (tbFichasCab.FechaLlegada Between " & CLng(dtDesde) & " And " & CLng(dtHasta) & ")"
+    'strSQL = strSQL & " Group BY([FechaSalida]) - ([FechaLlegada])"
+    'strSQL = strSQL & " HAVING ([FechaSalida] - [FechaLlegada]) <= 10 Or ([FechaSalida] - [FechaLlegada]) Is Null"
+    'strSQL = strSQL & " Order BY([FechaSalida]) - ([FechaLlegada])"
+    'strSQL = strSQL & " UNION SELECT 'Más que 10' AS Expr1, Sum(([Adultos]+[Niños])) AS Personas"
+    'strSQL = strSQL & " FROM tbFichasCab"
+    'strSQL = strSQL & " WHERE tbFichasCab.EstadoFicha>1 AND ([FechaSalida]-[FechaLlegada])>10 AND (tbFichasCab.FechaLlegada Between " & CLng(dtDesde) & " And " & CLng(dtHasta) & ")"
+    'strSQL = strSQL & " GROUP BY 'Más que 10';"
+    
+    strSQL = "SELECT Format(tbINE.DiasEstancia,'0') as [DiasEstancia], Sum(tbINE.Viajeros) AS Personas"
+    strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " WHERE tbINE.Fecha Between " & CLng(dtDesde) & " And " & CLng(dtHasta)
+    strSQL = strSQL & " AND tbINE.DiasEstancia > 0 And tbINE.DiasEstancia <= 10"
+    strSQL = strSQL & " GROUP BY tbINE.DiasEstancia"
+    strSQL = strSQL & " UNION SELECT 'Más que 10' AS DiasEstancia, Sum(tbINE.Viajeros) AS Personas"
+    strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " WHERE tbINE.Fecha Between " & CLng(dtDesde) & " And " & CLng(dtHasta)
+    strSQL = strSQL & " AND tbINE.DiasEstancia>10"
+    
+    CurrentDb.QueryDefs("qryListadoAso_DiasEstancia").SQL = strSQL
+
+    'strSQL = "SELECT valNacionalidades.Nacionalidad, Sum([Adultos]+[Niños]) AS Personas"
+    'strSQL = strSQL & " FROM (tbFichasCab LEFT JOIN valPaises ON tbFichasCab.PaisCliente = valPaises.NombrePais) LEFT JOIN valNacionalidades ON valPaises.Nacionalidad = valNacionalidades.Nacionalidad"
+    'strSQL = strSQL & " WHERE tbFichasCab.EstadoFicha>1 AND (tbFichasCab.FechaLlegada Between " & CLng(dtDesde) & " And " & CLng(dtHasta) & ")"
+    'strSQL = strSQL & " GROUP BY valNacionalidades.Nacionalidad, valNacionalidades.Orden"
+    'strSQL = strSQL & " ORDER BY valNacionalidades.Orden;"
+    
+    strSQL = "SELECT valNacionalidades.Nacionalidad, Sum(tbINE.Viajeros) AS Personas"
+    strSQL = strSQL & " FROM (tbINE LEFT JOIN valPaises ON tbINE.Pais = valPaises.NombrePais) LEFT JOIN valNacionalidades ON valPaises.Nacionalidad = valNacionalidades.Nacionalidad"
+    strSQL = strSQL & " WHERE tbINE.Fecha Between " & CLng(dtDesde) & " And " & CLng(dtHasta)
+    strSQL = strSQL & " AND tbINE.Viajeros > 0"
+    strSQL = strSQL & " GROUP BY valNacionalidades.Orden, valNacionalidades.Nacionalidad"
+    strSQL = strSQL & " ORDER BY valNacionalidades.Orden, valNacionalidades.Nacionalidad;"
+    CurrentDb.QueryDefs("qryListadoAso_ProcedenciaNacionalidades").SQL = strSQL
+
+    'strSQL = "SELECT tbFichasCab.ProvinciaCliente, Sum([Adultos]+[Niños]) AS Personas"
+    'strSQL = strSQL & " FROM tbFichasCab"
+    'strSQL = strSQL & " WHERE ((tbFichasCab.EstadoFicha)>1) AND (tbFichasCab.FechaLlegada Between " & CLng(dtDesde) & " And " & CLng(dtHasta) & ")"
+    'strSQL = strSQL & " GROUP BY tbFichasCab.ProvinciaCliente"
+    'strSQL = strSQL & " HAVING (((tbFichasCab.ProvinciaCliente) Is Not Null))"
+    'strSQL = strSQL & " ORDER BY tbFichasCab.ProvinciaCliente;"
+    
+    strSQL = "SELECT tbINE.Provincia as ProvinciaCliente, Sum(tbINE.Viajeros) AS Personas"
+    strSQL = strSQL & " FROM (tbINE LEFT JOIN valPaises ON tbINE.Pais = valPaises.NombrePais) LEFT JOIN valNacionalidades ON valPaises.Nacionalidad = valNacionalidades.Nacionalidad"
+    strSQL = strSQL & " WHERE tbINE.Fecha Between " & CLng(dtDesde) & " And " & CLng(dtHasta)
+    strSQL = strSQL & " AND tbINE.Provincia Is Not Null AND tbINE.Viajeros > 0"
+    strSQL = strSQL & " GROUP BY tbINE.Provincia"
+    CurrentDb.QueryDefs("qryListadoAso_ProcedenciaProvincias").SQL = strSQL
+    
+    If Me.mrcPantImp = 1 Then
+        DoCmd.OpenQuery "qryListadoAso_DiasEstancia"
+        DoCmd.OpenQuery "qryListadoAso_ProcedenciaNacionalidades"
+        DoCmd.OpenQuery "qryListadoAso_ProcedenciaProvincias"
+    Else
+        DoCmd.OpenReport "rptListadoAsociacion", acViewPreview
+    End If
+End Sub
+
+Private Sub btnCancelar_Click()
+    On Error Resume Next
+    DoCmd.Close
+End Sub
+
+
+Private Sub btnINE_Click()
+    Dim strSQL As String, qdf As QueryDef, strIn As String, dt As Date, fld As DAO.Field
+    Dim strTitulo As String, strTitulo1 As String, txtGrupoPlaning As String
+    Dim varReturn As Variant, intBloc As Integer, strPivotIn As String, dtD As Date, dtH As Date
+    Dim intExcel As Integer, strFile As String, strOtros As String
+    On Error GoTo Error_btnINE_Click
+    
+    
+    If ComprobarFichasINE() = False Then GoTo Salir_btnINE_Click
+    dtD = CDate(Me.txtDesde)
+    dtH = CDate(Me.txtHasta)
+    
+    'If Rellenar_auxINEProcedencia(dtD, dtH, False, Me.casIncluirFijos, Me.cmbGrupo, Me.casExcluirSinFactura) <> True Then
+    '    DoCmd.Hourglass False
+    '    Exit Sub
+    'End If
+    'strSQL = "TRANSFORM Sum(auxINEProcedencia.EntradaViajeros) AS [Entrada de Viajeros]"
+    'strSQL = strSQL & " SELECT auxINEProcedencia.LugarResidencia as [2 - Entrada de Viajeros]" 'Lugar de Residencia
+    'strSQL = strSQL & " FROM auxINEProcedencia"
+    'strSQL = strSQL & " WHERE auxINEProcedencia.Fecha Between #" & Format(dtD, "mm/dd/yyyy") & "# AND #" & Format(dtH, "mm/dd/yyyy") & "#"
+    'strSQL = strSQL & " GROUP BY auxINEProcedencia.LugarResidencia"
+    'strSQL = strSQL & " PIVOT Format(auxINEProcedencia.Fecha,'dd-mmm-yy')"
+    'For dt = dtD To dtH
+    '    strPivotIn = strPivotIn & Format(dt, "dd-mmm-yy") & ", "
+    'Next dt
+    'strPivotIn = " IN (" & RecDerTop(strPivotIn, 2, 0) & ")"
+    'strSQL = strSQL & strPivotIn
+    
+    strSQL = "TRANSFORM Sum(tbINE.Viajeros) AS SumaDeViajeros"
+    strSQL = strSQL & " SELECT Format([valPaises]![Orden],'00-') & [NombrePais] AS Pais, Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad] AS Comunidad"
+    strSQL = strSQL & " FROM ((tbINE LEFT JOIN valPaises ON tbINE.Pais = valPaises.NombrePais) LEFT JOIN valProvincias ON tbINE.Provincia = valProvincias.NombreProvincia) LEFT JOIN valComunidadesAutonomas ON valProvincias.CodComunidad = valComunidadesAutonomas.CodComunidad"
+    strSQL = strSQL & " WHERE (((tbINE.Fecha) Between " & CLng(dtD) & " And " & CLng(dtH) & "))"
+    strSQL = strSQL & " GROUP BY Format([valPaises]![Orden],'00-') & [NombrePais], Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad]"
+    strSQL = strSQL & " ORDER BY Format([valPaises]![Orden],'00-') & [NombrePais], Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad], tbINE.Fecha"
+    strSQL = strSQL & " PIVOT tbINE.Fecha;"
+
+    Set qdf = CurrentDb.QueryDefs("qryListadoINEEntradaViajeros")
+    qdf.SQL = strSQL
+    qdf.Close
+    
+    'strSQL = "TRANSFORM Sum(auxINEProcedencia.PlazasOcupadas) AS [Pernoctaciones]"
+    'strSQL = strSQL & " SELECT auxINEProcedencia.LugarResidencia as [3 - Pernoctaciones]" 'Lugar de Residencia
+    'strSQL = strSQL & " FROM auxINEProcedencia"
+    'strSQL = strSQL & " WHERE auxINEProcedencia.Fecha Between #" & Format(dtD, "mm/dd/yyyy") & "# AND #" & Format(dtH, "mm/dd/yyyy") & "#"
+    'strSQL = strSQL & " GROUP BY auxINEProcedencia.LugarResidencia"
+    'strSQL = strSQL & " PIVOT Format(auxINEProcedencia.Fecha,'dd-mmm-yy')"
+    'strSQL = strSQL & strPivotIn
+    
+    strSQL = "TRANSFORM Sum(tbINE.Pernoctaciones) AS SumaDePernoctaciones"
+    strSQL = strSQL & " SELECT Format([valPaises]![Orden],'00-') & [NombrePais] AS Pais, Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad] AS Comunidad"
+    strSQL = strSQL & " FROM ((tbINE LEFT JOIN valPaises ON tbINE.Pais = valPaises.NombrePais) LEFT JOIN valProvincias ON tbINE.Provincia = valProvincias.NombreProvincia) LEFT JOIN valComunidadesAutonomas ON valProvincias.CodComunidad = valComunidadesAutonomas.CodComunidad"
+    strSQL = strSQL & " WHERE (((tbINE.Fecha) Between " & CLng(dtD) & " And " & CLng(dtH) & "))"
+    strSQL = strSQL & " GROUP BY Format([valPaises]![Orden],'00-') & [NombrePais], Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad]"
+    strSQL = strSQL & " ORDER BY Format([valPaises]![Orden],'00-') & [NombrePais], Format([valComunidadesAutonomas]![Orden],'00-') & [NombreComunidad], tbINE.Fecha"
+    strSQL = strSQL & " PIVOT tbINE.Fecha;"
+    
+    Set qdf = CurrentDb.QueryDefs("qryListadoINEPlazasOcupadas")
+    qdf.SQL = strSQL
+    qdf.Close
+    DoCmd.Hourglass False
+    DoCmd.Hourglass True
+    'If Rellenar_auxINEParcelasOcupadas(dtD, dtH, , Me.casIncluirFijos, Me.cmbGrupo, Me.casExcluirSinFactura) = False Then
+    '    DoCmd.Hourglass False
+    '    Exit Sub
+    'End If
+    'strSQL = "TRANSFORM Sum(auxINEParcelasOcupadas.Ocupadas) AS SumaDeOcupadas"
+    'strSQL = strSQL & " SELECT auxINEParcelasOcupadas.TipoParcela as [4-1 - " & g_strPHs & " Ocupadas]" 'Tipo de Parcela
+    'strSQL = strSQL & " FROM auxINEParcelasOcupadas"
+    'strSQL = strSQL & " WHERE auxINEParcelasOcupadas.Fecha Between #" & Format(dtD, "mm/dd/yyyy") & "# AND #" & Format(dtH, "mm/dd/yyyy") & "#"
+    'strSQL = strSQL & " GROUP BY auxINEParcelasOcupadas.TipoParcela"
+    'strSQL = strSQL & " PIVOT Format(auxINEParcelasOcupadas.Fecha,'dd-mmm-yy')"
+    'strSQL = strSQL & strPivotIn
+    
+    strSQL = "TRANSFORM Sum(tbINE.Parcelas) AS SumaDeParcelas"
+    strSQL = strSQL & " SELECT tbINE.TipoINE, tbINE.TipoParcela"
+    strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " WHERE (((tbINE.Fecha) Between " & CLng(dtD) & " And " & CLng(dtH) & "))"
+    strSQL = strSQL & " GROUP BY tbINE.TipoINE, tbINE.TipoParcela"
+    strSQL = strSQL & " ORDER BY tbINE.TipoINE, tbINE.TipoParcela, tbINE.Fecha"
+    strSQL = strSQL & " PIVOT tbINE.Fecha;"
+
+    Set qdf = CurrentDb.QueryDefs("qryListadoINEParcelasOcupadas")
+    qdf.SQL = strSQL
+    qdf.Close
+    
+    'strSQL = "SELECT auxINEParcelasOcupadas.TipoParcela as [4-3 Total " & g_strPHs & "-Dia], Sum(auxINEParcelasOcupadas.Ocupadas) AS [Total Habitaciones], Sum(auxINEParcelasOcupadas.DobleUsoDoble) AS [Doble DUD], Sum(auxINEParcelasOcupadas.DobleUsoIndividual) AS [Dobles DUI], Sum(auxINEParcelasOcupadas.Otras) AS [Otras]"
+    'strSQL = strSQL & " FROM auxINEParcelasOcupadas"
+    'strSQL = strSQL & " WHERE auxINEParcelasOcupadas.Fecha Between #" & Format(dtD, "mm/dd/yyyy") & "# AND #" & Format(dtH, "mm/dd/yyyy") & "#"
+    'strSQL = strSQL & " GROUP BY auxINEParcelasOcupadas.TipoParcela"
+    
+    strSQL = "SELECT tbINE.TipoINE, tbINE.TipoParcela, Sum(tbINE.Parcelas) AS SumaDeParcelas"
+    strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " WHERE (((tbINE.Fecha) Between " & CLng(dtD) & " And " & CLng(dtH) & "))"
+    strSQL = strSQL & " GROUP BY tbINE.TipoINE, tbINE.TipoParcela"
+    strSQL = strSQL & " ORDER BY tbINE.TipoINE, tbINE.TipoParcela;"
+
+    Set qdf = CurrentDb.QueryDefs("qryListadoINEParcelasOcupadasTotal")
+    qdf.SQL = strSQL
+    qdf.Close
+    DoCmd.Hourglass False
+    'Tipo de Clientes y Tarifa promedio diaria (ADR)
+    DoCmd.Hourglass True
+    If Rellenar_auxINE_TipoClienteADR(dtD, dtH, , Me.casIncluirFijos, Me.cmbGrupo, Me.casExcluirSinFactura) = False Then
+        DoCmd.Hourglass False
+        Exit Sub
+    End If
+    strSQL = "SELECT TipoCliente as [Tipo Cliente], TarifaPromedioDiaria as [ADR en euros], Format(PorcentajeOcupacion,'0.00%') as [%] FROM auxINE_TipoCliente_TOTAL"
+    Set qdf = CurrentDb.QueryDefs("qryListadoINE_TipoClienteADR")
+    qdf.SQL = strSQL
+    qdf.Close
+    DoCmd.Hourglass False
+    DoCmd.Hourglass True
+    Select Case Me.mrcPantImp
+        Case 1
+            If Me.cas6 Then DoCmd.OpenQuery "qryListadoINE_TipoClienteADR", acViewNormal, acReadOnly
+            If Me.cas4 Then
+                DoCmd.OpenQuery "qryListadoINEParcelasOcupadasTotal", acViewNormal, acReadOnly
+                DoCmd.OpenQuery "qryListadoINEParcelasOcupadas", acViewNormal, acReadOnly
+            End If
+            If Me.cas3 Then DoCmd.OpenQuery "qryListadoINEPlazasOcupadas", acViewNormal, acReadOnly
+            If Me.cas2 Then DoCmd.OpenQuery "qryListadoINEEntradaViajeros", acViewNormal, acReadOnly
+        Case 2, 3, 4
+            intBloc = IIf(Me.mrcPantImp = 3, True, Nz(DameValorParam("ImprimirAlBlocDeNotas"), True))
+            intExcel = Me.mrcPantImp = 4
+            strTitulo1 = "Listados para el I.N.E."
+            If Me.cmbGrupo <> 0 Then
+                txtGrupoPlaning = DLookup("GrupoP", "tbGruposPlaning", "IdGrupoPlaning=" & Me.cmbGrupo)
+                strTitulo1 = strTitulo1 & " (Filtrado por el grupo " & txtGrupoPlaning & ")"
+            End If
+            DoCmd.Hourglass True
+            If Me.cas2 Then
+                strTitulo = strTitulo1 & vbCrLf & "2. Entrada de viajeros entre el " & Me.txtDesde & " y el " & Me.txtHasta
+                If Not intExcel Then
+                    ImprimirSQL_DOS1 CurrentDb.QueryDefs("qryListadoINEEntradaViajeros").SQL, strTitulo, "111,303010,113,114,001", True, , intBloc, , , , False
+                Else
+                    strFile = DameValorParam("AplicacionCarpetaListados") & NombreCampoValido(strTitulo, True, True)
+                    strOtros = "111,301010,113,114,001"
+                    ExportarSQL_Excel "qryListadoINEEntradaViajeros", strFile, , strOtros
+                End If
+            End If
+            If Me.cas3 Then
+                strTitulo = strTitulo1 & vbCrLf & "3. Pernoctaciones entre el " & Me.txtDesde & " y el " & Me.txtHasta
+                If Not intExcel Then
+                    ImprimirSQL_DOS1 CurrentDb.QueryDefs("qryListadoINEPlazasOcupadas").SQL, strTitulo, "111,303010,113,114,001", True, , intBloc, , , , False
+                Else
+                    strFile = DameValorParam("AplicacionCarpetaListados") & NombreCampoValido(strTitulo, True, True)
+                    strOtros = "111,303010,113,114,001"
+                    ExportarSQL_Excel "qryListadoINEPlazasOcupadas", strFile, , strOtros
+                End If
+            End If
+            If Me.cas4 Then
+                strTitulo = strTitulo1 & vbCrLf & "4.1 " & g_strPHs & " ocupadas entre el " & Me.txtDesde & " y el " & Me.txtHasta
+                If Not intExcel Then
+                    ImprimirSQL_DOS1 CurrentDb.QueryDefs("qryListadoINEParcelasOcupadas").SQL, strTitulo, "111,102810,113,114,001", True, , intBloc, , , , False
+                Else
+                    strFile = DameValorParam("AplicacionCarpetaListados") & NombreCampoValido(strTitulo, True, True)
+                    strOtros = "111,102810,113,114,001"
+                    ExportarSQL_Excel "qryListadoINEParcelasOcupadas", strFile, , strOtros
+                End If
+                If Not intBloc Then
+                    strTitulo = strTitulo1 & vbCrLf & "4.3 Número de " & g_strPHs & "-Día ocupadas entre el " & Me.txtDesde & " y el " & Me.txtHasta
+                    ImprimirSQL_DOS1 CurrentDb.QueryDefs("qryListadoINEParcelasOcupadasTotal").SQL, strTitulo, "111,102810,113,114,001", True, , intBloc, , , , False
+                End If
+            End If
+            If Me.cas6 Then
+                strTitulo = strTitulo1 & vbCrLf & "6 Tarifa promedio diaria (ADR) por tipo de cliente entre el " & Me.txtDesde & " y el " & Me.txtHasta
+                If Not intExcel Then
+                    ImprimirSQL_DOS1 CurrentDb.QueryDefs("qryListadoINE_TipoClienteADR").SQL, strTitulo, "111,301010,133,136,000", True, , intBloc, , , , False
+                Else
+                    strFile = DameValorParam("AplicacionCarpetaListados") & NombreCampoValido(strTitulo, True, True)
+                    strOtros = "111,301010,133,136,000"
+                    ExportarSQL_Excel "qryListadoINE_TipoClienteADR", strFile, , strOtros
+                End If
+            End If
+            DoCmd.Hourglass False
+    
+    End Select
+    DoCmd.Hourglass False
+
+Salir_btnINE_Click:
+    DoCmd.Hourglass False
+    varReturn = SysCmd(acSysCmdClearStatus)
+    Exit Sub
+Error_btnINE_Click:
+    Select Case Err
+        Case 3190
+            MsgBox "Para listados del INE, se deben señalar entre fechas, comprendiendo normalmente 7 días" & _
+            vbCrLf & vbCrLf & "Error nº " & Err & " en btnINE_Click " & vbCrLf & Err.Description
+        Case Else
+            MsgBox "Error nº " & Err & " en btnINE_Click " & vbCrLf & Err.Description
+            Resume Salir_btnINE_Click
+            Resume Next
+    End Select
+            
+End Sub
+
+Private Sub btnAceptar_Click()
+    Select Case Me.mrcINEAso '= 1 Then
+        Case 1
+            Call btnINE_Click
+        Case 2
+            Call btnAsociacion_Click
+        Case 3
+            Call btnTotalmensual_Click
+    End Select
+    
+End Sub
+
+Private Sub btnAsignarTipos_Click()
+    Dim strAplica As String
+    strAplica = SeleccionaID_SN("tbParcelasTipo", Nz(Me.INE_IdTipoParcelasADR, ""))
+    Me.INE_IdTipoParcelasADR = strAplica
+    PonValorParam "INE_IdTipoParcelasADR", strAplica
+End Sub
+
+Private Sub btnGenINE_Click()
+    On Error GoTo HandleError
+    Dim intAño As Integer, intR As Integer
+    intAño = Year(CDate(Me.txtDesde))
+    intR = MsgBox("¿Generar registros del INE de " & intAño & "?", vbQuestion + vbOKCancel)
+    If intR = vbOK Then GeneraFichaINE_Año intAño
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnMas_Click()
+    Call PonFecha("txtDesde", 1)
+    Call txtDesde_AfterUpdate
+End Sub
+
+Private Sub btnMas2_Click()
+    Call PonFecha("txtHasta", 1)
+    Call txtHasta_AfterUpdate
+End Sub
+
+Private Sub btnMenos_Click()
+    Call PonFecha("txtDesde", -1)
+    Call txtDesde_AfterUpdate
+End Sub
+
+Private Sub btnMenos2_Click()
+    Call PonFecha("txtHasta", -1)
+    Call txtHasta_AfterUpdate
+End Sub
+
+Private Sub btnTotalmensual_Click()
+    Dim strSQL As String, qdf As QueryDef, strIn As String, dt As Date, fld As DAO.Field
+    Dim strTitulo As String, strTitulo1 As String
+    Dim varReturn As Variant
+    On Error GoTo Error_btnTotalmensual_Click
+    DoCmd.Hourglass True
+    
+    strSQL = "SELECT Year([Fecha]) & '/' & Month([Fecha]) AS Mes, Sum(tbINE.Viajeros) AS [Entrada de Viajeros], Sum(tbINE.Pernoctaciones) AS [Total Pernoctaciones], Sum(tbINE.Parcelas) AS [" & g_strPHs & "]"
+    strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " WHERE Month([Fecha]) = " & Month(CDate(Me.txtDesde)) & " And Year([Fecha]) = " & Year(CDate(Me.txtDesde))
+    strSQL = strSQL & " AND tbINE.Pernoctaciones > 0"
+    strSQL = strSQL & " GROUP BY Year([Fecha]) & '/' & Month([Fecha]);"
+
+    Set qdf = CurrentDb.QueryDefs("qryListadoINE_TotalMEnsual")
+    qdf.SQL = strSQL
+    qdf.Close
+    DoCmd.Hourglass False
+    DoCmd.Hourglass True
+    If Me.mrcPantImp = 1 Then
+        DoCmd.OpenQuery "qryListadoINE_TotalMEnsual", acViewNormal, acReadOnly
+    Else
+        strTitulo1 = "Listados para el I.N.E."
+        strTitulo = strTitulo1 & vbCrLf & "Totales del mes " & Format(Me.txtDesde, "mmmm yyyy")
+        DoCmd.Hourglass True
+        strSQL = "SELECT [Fecha], Sum(tbINE.Viajeros) AS [Entrada de Viajeros], Sum(tbINE.Pernoctaciones) AS [Total pernoctaciones], Sum(tbINE.Parcelas) AS [" & g_strPHs & "]"
+        strSQL = strSQL & " FROM tbINE"
+        strSQL = strSQL & " WHERE (((Month([Fecha])) = " & Month(CDate(Me.txtDesde)) & ") And ((Year([Fecha])) = " & Year(CDate(Me.txtDesde)) & "))"
+        strSQL = strSQL & " AND Pernoctaciones > 0"
+        strSQL = strSQL & " GROUP BY Fecha"
+        If Me.mrcPantImp = 2 Then
+            ImprimirSQL_DOS1 strSQL, strTitulo, "111,102025,133,155,011", True
+        Else
+            ImprimirSQL_DOS1 strSQL, strTitulo, "111,102025,133,155,011", True, , True
+        End If
+        DoCmd.Hourglass False
+    End If
+    DoCmd.Hourglass False
+
+Salir_btnTotalmensual_Click:
+    DoCmd.Hourglass False
+    varReturn = SysCmd(acSysCmdClearStatus)
+    Exit Sub
+Error_btnTotalmensual_Click:
+    Select Case Err
+        Case 3190
+            MsgBox "Para listados del INE, se deben señalar entre fechas, comprendiendo normalmente 7 días" & _
+            vbCrLf & vbCrLf & "Error nº " & Err & " en btnTotalmensual_Click " & vbCrLf & Err.Description
+        Case Else
+            MsgBox "Error nº " & Err & " en btnTotalmensual_Click " & vbCrLf & Err.Description
+            Resume Salir_btnTotalmensual_Click
+            Resume Next
+    End Select
+            
+End Sub
+
+Private Sub cas6_AfterUpdate()
+    Dim ctl As Control
+    For Each ctl In Me.Controls
+        If InStr(ctl.Tag, "tarifapromedio") > 0 Then ctl.Visible = Me.cas6.Visible And Me.cas6
+    Next ctl
+End Sub
+
+Private Sub casIncluirFijos_AfterUpdate()
+    If Me.casIncluirFijos = True Then
+        Me.txtFijosSiNo = 5
+    Else
+        Me.txtFijosSiNo = 4
+    End If
+    
+End Sub
+
+Private Sub Form_Activate()
+    DoCmd.Maximize
+End Sub
+
+
+Private Sub Form_Load()
+    CargarParam Me, Me.Name
+    MascaraFechasForm Me
+    mrcINEAso_AfterUpdate
+    If g_strPHs = "" Then Call TipoAplicacion
+    Me.lblNoIncluirPH.Caption = "No incluir fichas sin " & g_strPHs
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    ComprobarParam Me, Cancel, False, Me.Name
+End Sub
+
+Private Sub ListadoINENoIncluirSinHabitaciones_AfterUpdate()
+    Call PonValorParamAC(, Me.Name)
+End Sub
+
+
+Private Sub mrcINEAso_AfterUpdate()
+    If Me.mrcINEAso = 1 Then
+        Me.txtHasta = Me.txtDesde + 6
+        'Me.ListadoINEVerCeros.Visible = True
+    Else
+        Me.ListadoINEVerCeros.Visible = False
+    End If
+    Me.cas2.Visible = Me.mrcINEAso = 1
+    Me.cas3.Visible = Me.mrcINEAso = 1
+    Me.cas4.Visible = Me.mrcINEAso = 1
+    Me.cas6.Visible = Me.mrcINEAso = 1
+    Call cas6_AfterUpdate
+End Sub
+
+Private Sub txtDesde_AfterUpdate()
+    Me.txtHasta = Me.txtDesde + 6
+End Sub
+
+Private Sub txtDesde_BeforeUpdate(Cancel As Integer)
+    If Not IsDate(Me.txtDesde) Then
+        MsgBox "Debe introducir una fecha"
+        Cancel = True
+    End If
+End Sub
+
+Private Sub txtDesde_KeyDown(KeyCode As Integer, Shift As Integer)
+    Dim varFecha As Variant
+    If KeyCode = vbKeyF4 Then
+        varFecha = adhDoCalendar(Me.txtDesde)
+        If IsDate(varFecha) Then
+            Me.txtDesde = varFecha
+            Call txtDesde_AfterUpdate
+        End If
+    End If
+End Sub
+
+Private Sub txtHasta_AfterUpdate()
+    If Me.mrcINEAso = 1 Then
+        Me.txtDesde = Me.txtHasta - 6
+    End If
+End Sub
+
+Private Sub txtHasta_BeforeUpdate(Cancel As Integer)
+    If Not IsDate(Me.txtHasta) Then
+        MsgBox "Debe introducir una fecha"
+        Cancel = True
+    End If
+End Sub
+
+Private Sub txtHasta_KeyDown(KeyCode As Integer, Shift As Integer)
+    Dim varFecha As Variant
+    If KeyCode = vbKeyF4 Then
+        varFecha = adhDoCalendar(Me.txtHasta)
+        If IsDate(varFecha) Then
+            Me.txtHasta = varFecha
+            Call txtHasta_AfterUpdate
+        End If
+    End If
+    
+End Sub
+
+Function ComprobarFichasINE() As Integer
+    On Error GoTo HandleError
+    Dim strSQL As String, rs As Recordset, strCri As String, intR As Integer
+    Dim intPase As Integer
+    DoCmd.Hourglass True
+    
+    intPase = 1
+Vuelta:
+    strSQL = "SELECT Distinct IdFichaCab"
+    'strSQL = strSQL & " From tbINE"
+    strSQL = strSQL & " FROM ((tbINE LEFT JOIN valPaises ON tbINE.Pais = valPaises.NombrePais) LEFT JOIN valProvincias ON tbINE.Provincia = valProvincias.NombreProvincia) LEFT JOIN valComunidadesAutonomas ON valProvincias.CodComunidad = valComunidadesAutonomas.CodComunidad"
+    strSQL = strSQL & " WHERE tbINE.Fecha Between " & CLng(CDate(Me.txtDesde)) & " And " & CLng(CDate(Me.txtHasta))
+    If intPase = 1 Then
+        'strSQL = strSQL & " AND (tbINE.Pais Is Null AND tbINE.Provincia Is Null)"
+        strSQL = strSQL & " AND (valPaises.NombrePais Is Null AND valComunidadesAutonomas.CodComunidad Is Null)"
+    Else
+        strSQL = strSQL & " AND Pernoctaciones=0"
+    End If
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    If Not rs.EOF Then
+        rs.MoveLast
+        rs.MoveFirst
+        If intPase = 1 Then
+            intR = MsgBox("Existe" & IIf(rs.RecordCount = 1, " 1 ficha", "n " & rs.RecordCount & " fichas") & " entre las fechas señaladas sin especificar provincia ni pais." & vbCrLf & "¿Quiere repasarlas antes de obtener el listado?", vbYesNoCancel + vbExclamation)
+        Else
+            intR = MsgBox("Existe" & IIf(rs.RecordCount = 1, " 1 ficha", "n " & rs.RecordCount & " fichas") & " entre las fechas señaladas sin especificar nº de pernoctaciones (pax)" & vbCrLf & "¿Quiere repasarlas antes de obtener el listado?", vbYesNoCancel + vbExclamation)
+        End If
+        If intR = vbYes Then
+            While Not rs.EOF
+                strCri = strCri & " OR IdFichaCab = " & rs("IdFichaCab")
+                rs.MoveNext
+            Wend
+            If Len(strCri) > 4 Then strCri = Mid(strCri, 5)
+            DoCmd.OpenForm "frmFichas", , , strCri
+            ComprobarFichasINE = False
+            GoTo HandleExit
+        ElseIf intR = vbCancel Then
+            ComprobarFichasINE = False
+            GoTo HandleExit
+        End If
+    End If
+    If intPase = 1 Then
+        intPase = 2
+        GoTo Vuelta
+    End If
+    ComprobarFichasINE = True
+HandleExit:
+    DoCmd.Hourglass False
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function

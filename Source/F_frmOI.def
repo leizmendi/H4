@@ -1,0 +1,92 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+Private Sub Form_BeforeInsert(Cancel As Integer)
+    Me.NumeroCorrelativo = NzCero(DMax("NumeroCorrelativo", "tbOI")) + 1
+    Me.IVA = IVASDporDefecto()
+End Sub
+
+Private Sub Form_Delete(Cancel As Integer)
+    MsgBox "Se deberá tener en cuenta esta modificación para mantener la numeración correlativa"
+End Sub
+
+Private Sub Form_Load()
+    On Error Resume Next
+    Me.lblImporte1.Caption = DLookup("Descripcion", "tbFPago", "Orden = '1'")
+    Me.lblImporte2.Caption = DLookup("Descripcion", "tbFPago", "Orden = '2'")
+    Me.lblImporte3.Caption = DLookup("Descripcion", "tbFPago", "Orden = '3'")
+    Me.lblImporte4.Caption = DLookup("Descripcion", "tbFPago", "Orden = '4'")
+    AjustarColumnas Me
+    If IsNull(DLookup("Traspasado", "tbOI_Rte", "Traspasado = False")) Then
+        DoCmd.GoToRecord , , acNewRec
+        Exit Sub
+    End If
+    Dim intR As Integer
+    intR = MsgBox("Existen registros en Otros Ingresos de Restaurante pendientes de traspasar, ¿Traspasar ahora?", vbQuestion + vbYesNo + vbDefaultButton1)
+    If intR = vbYes Then
+        Traspasar_Rte_a_Otros_Ingresos
+        Me.Requery
+    End If
+    DoCmd.GoToRecord , , acNewRec
+End Sub
+
+Private Sub IVA_AfterUpdate()
+    If Me.IVA > 1 Then
+        Me.IVA = Me.IVA / 100
+        Call IVA_AfterUpdate
+    End If
+End Sub
+
+Public Sub Traspasar_Rte_a_Otros_Ingresos()
+    On Error GoTo Error_Traspasar_Rte_a_Otros_Ingresos
+    Dim rs1 As Recordset, rs2 As Recordset
+    Dim strCodGrupo As String, sngIVA As Single, v As Variant
+    Dim r As Integer
+    'sngIVA = IVASDporDefecto()
+        
+    Set rs1 = CurrentDb.OpenRecordset("SELECT * FROM tbOI_Rte WHERE Traspasado = False", dbOpenDynaset)
+    Set rs2 = CurrentDb.OpenRecordset("tbOI", dbOpenDynaset)
+    While Not rs1.EOF
+        v = Nz(DLookup("CodNombreGrupo", "tbGruposDeIngresos", "DescripcionGrupo like '*" & Mid(rs1("Puesto"), 3) & "'"), "¿?")
+        rs2.FindFirst "Fecha = #" & Format(rs1("Fecha"), "mm/dd/yyyy") & "# AND CodGrupoIngresos = " & ConComillas(CStr(v)) & " AND IVA = " & ComaPunto(rs1("IVA")) & " AND NumeroCorrelativoAux = '" & Spz(rs1("Serie"), "-") & "'"
+        If rs2.NoMatch Then
+            rs2.AddNew
+            rs2("NumeroCorrelativo") = Nz(DMax("NumeroCorrelativo", "tbOI"), 0) + 1
+            rs2("NumeroCorrelativoAux") = Spz(rs1("Serie"), "-")
+            rs2("Fecha") = rs1("Fecha")
+            rs2("CodGrupoIngresos") = v
+            rs2("IVA") = rs1("IVA")
+            rs2("Concepto") = RecDerTop("Serie: " & rs1("Serie") & ", " & rs1("Concepto"), 0, 50)
+        Else
+            rs2.Edit
+        End If
+        'rs2("IVA") = sngIVA
+        rs2("Importe1") = rs1("Importe1")
+        rs2("Importe2") = rs1("Importe2")
+        rs2("Importe3") = rs1("Importe3")
+        rs2("Importe4") = rs1("Importe4")
+        rs2("ImporteTotal") = rs1("ImporteTotal")
+        rs2.Update
+        rs1.Edit
+        rs1("Traspasado") = True
+        rs1.Update
+        rs1.MoveNext
+    Wend
+Salir_Traspasar_Rte_a_Otros_Ingresos:
+    If r > 0 Then MsgBox r & " repetidos", vbExclamation
+    Exit Sub
+Error_Traspasar_Rte_a_Otros_Ingresos:
+    Select Case Err
+        Case 3022
+            r = r + 1
+            Resume Next
+        Case Else
+            MsgBox "Error nº " & Err & " en Traspasar_Rte_a_Otros_Ingresos" & vbCrLf & Err.Description
+            Resume Salir_Traspasar_Rte_a_Otros_Ingresos
+    End Select
+End Sub

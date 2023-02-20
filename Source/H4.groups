@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+<OASIS>
+  <GroupSettings>
+    <Grouping>
+      <CatFilter value=""/>
+      <CatFlags value="0"/>
+      <CatID value="3"/>
+      <CatName value="Personalizado"/>
+      <CatPosition value="3"/>
+      <CatSelectedObjectID value=""/>
+      <CatType value="4"/>
+      <GroupFlags value="0"/>
+      <GroupID value="9"/>
+      <GroupName value="Grupo personalizado 1"/>
+      <GroupObjectTypeGroup value="-1"/>
+      <GroupObjectID value="0"/>
+      <GroupPosition value="2"/>
+      <GTOID value=""/>
+      <GTOFlags value=""/>
+      <GTOIcon value=""/>
+      <GTOName value=""/>
+      <GTOObjectID value=""/>
+      <GTOPosition value=""/>
+      <ObjectName value=""/>
+      <ObjectType value=""/>
+    </Grouping>
+  </GroupSettings>
+</OASIS>

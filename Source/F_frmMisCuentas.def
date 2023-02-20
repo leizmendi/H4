@@ -1,0 +1,15 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+Private Sub NumCuenta_BeforeUpdate(Cancel As Integer)
+    Dim strCuenta As String, intRes As Integer
+    ' If Len(Me.NUMCUENTA) < 23 Then Exit Sub
+    ' strCuenta = Mid(Me.NUMCUENTA, 1, 4) & Mid(Me.NUMCUENTA, 6, 4) & Mid(Me.NUMCUENTA, 11, 2) & Mid(Me.NUMCUENTA, 14)
+    strCuenta = CompruebaDC(Me.NumCuenta, intRes)
+    If intRes = False Then Cancel = True
+End Sub

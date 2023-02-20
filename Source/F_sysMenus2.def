@@ -1,0 +1,44 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Compare Database
+Option Explicit
+
+Private Sub btnBusca_Click()
+    Me.NombreObjeto = Nz(BuscaAyuda("FORM0", Me.NombreObjeto, 2), Me.NombreObjeto)
+    Dim strSQL As String, rs As Recordset
+    strSQL = DLookup("strSQL", "sysBusquedas", "CodBusqueda = 'FORM0'")
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    rs.FindFirst "Id = " & Me.NombreObjeto
+    If Not rs.NoMatch Then Me.Leyenda = rs(1) & "-" & rs(2)
+    
+End Sub
+
+Private Sub Form_AfterDelConfirm(status As Integer)
+    Dim rs2 As Recordset
+    Dim strSQL As String
+    If status = acDeleteOK Then
+        strSQL = "SELECT * FROM sysMenus3 WHERE Menu = " & Me.IdComando
+        Set rs2 = CurrentDb.OpenRecordset(strSQL)
+        While Not rs2.EOF
+            rs2.Delete
+            rs2.MoveNext
+        Wend
+    End If
+        
+End Sub
+
+Private Sub Form_Delete(Cancel As Integer)
+    Dim intResp As Integer
+    intResp = MsgBox("¿Borrar el menú " & Me.Leyenda & " y todos sus comandos?", vbOKCancel + vbDefaultButton2 + vbQuestion)
+    If intResp = vbCancel Then
+        Cancel = True
+    End If
+End Sub
+
+Private Sub Menu_AfterUpdate()
+    Me.Orden = 0
+End Sub

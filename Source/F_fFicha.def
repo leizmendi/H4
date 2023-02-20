@@ -1,0 +1,2994 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+    
+    Dim gfAnteriorEstadoFicha As Integer
+    Dim gstrFichasBorradas As String
+    Dim gintLlamaForm_Unload As Integer
+    Dim gstrTeclas As String
+    Dim gintBloqueado As Integer
+    Dim gstrSelected As String
+    Dim gShift As Integer
+    Dim gintCrono As Integer, gintCronoMax As Integer
+    Public gintPrimeraEntradaViajero As Integer
+
+Private Sub altTarjeta_AfterUpdate()
+    Dim ctl As Control
+    For Each ctl In Me.Controls
+        If InStr(ctl.Tag, "Tarjeta") > 0 Then
+            If InStr(ctl.Tag, "TarjetaSI") > 0 Then
+                ctl.Visible = Me.altTarjeta = True
+            Else
+                ctl.Visible = Me.altTarjeta = False
+            End If
+        End If
+    Next ctl
+    If Me.altTarjeta = True Then Me.txtTagRFID.SetFocus
+End Sub
+
+Private Sub btn_cc_data_Click()
+    On Error GoTo HandleError
+    Dim strcc_data As String, intR As Integer
+    If Nz(Me.WuBookID, "") = "" Then
+        MsgBox "No existe registro de Reserva de Wubook", vbExclamation, "H4"
+        Exit Sub
+    End If
+    strcc_data = Nz(DLookup("cc_data", "wbReservations", "reservation_code = " & Me.WuBookID), "")
+    If "" & Me.NumeroTarjeta & Me.TitularTarjeta & Me.TarjetaCodigoSeguridad <> "" Then
+        intR = MsgBox("¿Sustituir datos de tarjeta existentes?", vbQuestion + vbOKCancel, "H4")
+        If intR = vbCancel Then Exit Sub
+    End If
+    Me.NumeroTarjeta = DimeCampoLista(strcc_data, "cc_number")
+    Me.TarjetaCodigoSeguridad = DimeCampoLista(strcc_data, "cc_cvv")
+    Me.TitularTarjeta = DimeCampoLista(strcc_data, "cc_owner")
+    Me.CaducaTarjeta = DimeCampoLista(strcc_data, "cc_expiring")
+    
+        
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btn3M_Click()
+    On Error GoTo HandleError
+    DoCmd.OpenForm "frm3M", , , , , acDialog
+    If Not IsOpenForm("frm3M") Then Exit Sub
+    Dim strData As String
+    strData = Nz(Forms("frm3M")("txtOutput"), "")
+    DoCmd.Close acForm, "frm3M"
+    If strData = "" Then Exit Sub
+    Dim viaJ As Viajero
+    viaJ = DatosViajeroZLM(strData)
+    Me.FechaExpedicion = viaJ.dtFechaExpedicion
+EsFecha:
+    If IsDate(Me.FechaExpedicion) Then
+        If CDate(Me.FechaExpedicion) > Date Then
+            Me.FechaExpedicion = DateAdd("yyyy", -5, CDate(Me.FechaExpedicion))
+            GoTo EsFecha
+        End If
+    End If
+    Me.FechaNacimiento = viaJ.dtFechaNacimiento
+    Me.ApellidosCliente = viaJ.strApellidos
+    Me.NombreCliente = viaJ.strNombre
+    Me.PaisCliente = viaJ.strNacionalidad
+    Me.SexoCliente = viaJ.strSexo
+    Me.TipoDocumento = viaJ.strTipoDoc
+    Me.DNICliente = viaJ.strNumDoc
+    Call DNICliente_AfterUpdate
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Public Sub btnAdd_Click()
+    On Error GoTo Error_btnAdd_Click
+    Dim dtF1 As Date, dtF2 As Date, intR As Integer
+    Dim intNoEsPrecioDia As Integer
+    If IsNull(Me.IdFichaCab) Then
+        MsgBox "Se deben introducir datos en la Cabecera de la ficha"
+        Me.txtFechaLlegada.SetFocus
+        Exit Sub
+    End If
+    If Me.AllowEdits = False Then
+        MsgBox "Para modificar la ficha se debe desbloquear (F8)"
+        Exit Sub
+    End If
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    Dim rs As Recordset, lngIdFichaDet As Long, lngIdSD As Long, intTotales As Integer, rsSD As Recordset, intEsSD As Integer
+    Dim curPU As Currency, strFun As String, frm As Form
+    Set rs = CurrentDb.OpenRecordset("SELECT * FROM tbFichasDet WHERE IdFichaCab = " & Me.IdFichaCab & " ORDER BY IdFichaDet", dbOpenDynaset)
+    Set rsSD = CurrentDb.OpenRecordset("tbServiciosdiarios", dbOpenSnapshot)
+DimeSD:
+    lngIdSD = Nz(BuscaAyuda("SD0", lngIdSD, 0), 0)
+    If lngIdSD = 0 Then GoTo Recalcular
+    rsSD.FindFirst "IdSD = " & lngIdSD
+    If rsSD.NoMatch Then
+        MsgBox "No se encontró IdSD = " & lngIdSD
+        GoTo Recalcular
+    End If
+    strFun = Nz(rsSD("Funcion"), "")
+    If strFun <> "" Then
+        Select Case strFun
+            Case "AlbaranConsumicion"
+                DoCmd.OpenForm "frmFun_" & strFun, , , , , acDialog
+                If IsOpenForm("frmFun_" & strFun) Then
+                    Set frm = Forms("frmFun_" & strFun)
+                    rs.AddNew
+                    rs("IdFichaCab") = Me.IdFichaCab
+                    lngIdFichaDet = rs("IdFichaDet")
+                    rs("IdSD") = lngIdSD
+                    rs("Concepto") = RecDerTop("Albarán nº" & frm.txtAlbaranNum & " (" & frm.txtFecha & ")", 0, 50)
+                    rs("IVA") = Nz(frm.cmbIVA, 0)
+                    rs("FechaFin") = Date
+                    rs("IdTipoParcela") = rsSD("IdTipoParcela")
+                    curPU = Nz(frm.txtImporte, 0)
+                    If frm.casIVAinc <> Me.IVAIncluido Then
+                        If Me.IVAIncluido = False Then
+                            curPU = curPU / (1 + rs("IVA"))
+                        Else
+                            curPU = curPU * (1 + rs("IVA"))
+                        End If
+                    End If
+                    curPU = Redondea(curPU, 2)
+                    rs("PrecioUnitario") = curPU
+                    DoCmd.Close acForm, "frmFun_" & strFun
+                    GoTo Grabar
+                Else
+                    GoTo DimeSD
+                End If
+        End Select
+    End If
+        
+    ' mirar si el último detalle es el mismo IdSD
+    If Nz(DameValorParam("FichasAlAñadirDetalleSumarUltimoSN"), True) = True Then
+        If Not rs.EOF Then
+           rs.MoveLast
+            If rs("IdSD") = lngIdSD Then
+                rs.Edit
+                rs("Cantidad") = rs("Cantidad") + 1
+                GoTo Grabar
+            End If
+        End If
+    End If
+    dtF1 = CDate(Nz(Me.txtFechaLlegada, Date))
+    dtF2 = dtF1
+Añadir:
+    rs.AddNew
+    rs("IdFichaCab") = Me.IdFichaCab
+    lngIdFichaDet = rs("IdFichaDet")
+    rs("IdSD") = lngIdSD
+    rs("Concepto") = rsSD("ServicioDiario")
+    rs("IVA") = Nz(DLookup("IVA", "tbTiposIVA", "TipoIVA = " & rsSD("TipoIVA")), IVASDporDefecto())
+    intEsSD = Nz(DLookup("EsSD", "tbGruposDeIngresos", "CodNombreGrupo = " & ConComillas(rsSD("CodGrupoIngresos"))), True)
+    If intEsSD = True Then
+        intNoEsPrecioDia = Nz(DLookup("NoEsPrecioDiario", "tbServiciosDiarios", "IdSD = " & lngIdSD), False)
+        If intNoEsPrecioDia Then
+            rs("FechaFin") = dtF1
+        Else
+            rs("FechaInicio") = dtF1
+        End If
+    Else
+        rs("FechaFin") = IIf(Date < dtF1, dtF1, Date)
+    End If
+    rs("IdTipoParcela") = rsSD("IdTipoParcela")
+    curPU = DamePrecioSD(lngIdSD, dtF2, Me.IVAIncluido, rs("IVA"), Nz(Nz(rs("FechaFin"), Me.txtFechaSalida), Date))
+    If dtF2 <> dtF1 And IsNull(rs("FechaFin")) Then
+        rs("FechaFin") = dtF2
+    End If
+    'If DameValorParam("IVAIncluidoEnPreciosSD") <> Me.IVAIncluido Then
+    '    If Me.IVAIncluido = False Then
+    '        curPU = curPU / (1 + rs("IVA"))
+    '    Else
+    '        curPU = curPU * (1 + rs("IVA"))
+    '    End If
+    'End If
+    curPU = Redondea(curPU, 2)
+    rs("PrecioUnitario") = curPU
+    Dim intEsPernoctacion As Integer, intPax As Integer, v As Variant
+    intEsPernoctacion = Nz(DLookup("Id", "tbParcelasYServiciosXDefecto", "IdSD = " & lngIdSD & " AND Principal = True"), 0)
+    intEsPernoctacion = intEsPernoctacion > 0
+    If intEsPernoctacion Then
+        intPax = 1
+        v = Nz(DimeTeclado(2, "Plazas ocupadas en " & rsSD("ServicioDiario"), intPax), "cancel")
+        If IsNumeric(v) Then
+            intPax = CInt(v)
+        Else
+            intPax = 0
+        End If
+        rs("PlazasOcupadas") = intPax
+    End If
+Grabar:
+    rs.Update
+    If dtF2 <> dtF1 Then
+        dtF1 = dtF2
+        GoTo Añadir
+    End If
+    If rs.EOF Then rs.MoveFirst
+    Me.lstDetalle.Requery
+    'Si existe Sala correspondiente a IdSD pregunta para hacer reserva
+    If Not IsNull(DLookup("IdSala", "tbSalas", "IdSD = " & lngIdSD)) Then
+        intR = MsgBox("¿Registrar ahora la reserva?", vbOKCancel + vbQuestion)
+        If intR = vbOK Then
+            Dim strXML As String
+            PonXML strXML, "Añadir", "BAI"
+            PonXML strXML, "IdFichaCab", Me.IdFichaCab
+            PonXML strXML, "Adultos", Me.Adultos
+            PonXML strXML, "Niños", Me.Niños
+            PonXML strXML, "IdSD", lngIdSD
+            PonXML strXML, "lngFecha", IIf(Date > CDate(Me.txtFechaLlegada), CLng(Date), CLng(CDate(Me.txtFechaLlegada)))
+            DoCmd.OpenForm "frmReservas", , , , acFormAdd, acDialog, strXML
+        End If
+    End If
+    If Nz(DameValorParam("FichasAlAñadirDetalleBucleSN"), True) Then GoTo DimeSD
+Recalcular:
+    Call RecalculaTotales
+Salir_btnAdd_Click:
+    Exit Sub
+Error_btnAdd_Click:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en btnAdd_Click" & vbCrLf & Err.Description
+            Resume Salir_btnAdd_Click
+    End Select
+End Sub
+
+Private Sub btnAddRFID_Click()
+    If Nz(Me.IdFichaCab, 0) = 0 Then Exit Sub
+    Dim strSN As String
+    strSN = Nz(DimeTeclado(2, "Lea tarjeta"), "")
+    If strSN <> "" Then
+        If PonTagRFID_IdFichaCab(strSN, Me.IdFichaCab) = True Then Me.txtTagRFID.Requery
+    End If
+End Sub
+
+Private Sub btnAgencia_Click()
+    Dim strXML As String
+    PonXML strXML, "FiltradoSN", "S"
+    DoCmd.OpenForm "frmClientes", , , "IdCliente = " & Nz(Me.IdAgencia, 0), , acDialog, strXML
+End Sub
+
+Private Sub btnAltWuBook_Click()
+    On Error GoTo HandleError
+    Dim ctl As Control, strXML As String, strWBfield As String, vWB As Variant, reservation_code As Long
+    Set ctl = Screen.PreviousControl
+    If Me.btnWBreservation.Visible = False Then GoTo HandleExit
+    reservation_code = Nz(Me.WuBookID, 0)
+    If reservation_code = 0 Then GoTo HandleExit
+    strXML = Nz(ctl.Tag, "")
+    strWBfield = Nz(DimeXML(strXML, "wb"), "")
+    If strWBfield <> "" Then
+        vWB = DLookup(strWBfield, "wbReservations", "reservation_code = " & reservation_code)
+        MensajeBusyBox vWB, strWBfield, True
+    End If
+HandleExit:
+    ctl.SetFocus
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnAplicarDto_Click()
+    If Me.AllowEdits Then
+        Dim intDecimales As Integer
+        intDecimales = Nz(DameValorParam("NumDecimalesEnDto"), 2)
+        If (gShift And acCtrlMask) > 0 Then
+            intDecimales = Nz(DimeTeclado(2, "Nº de decimales en Dto.", intDecimales), -1)
+            If intDecimales = -1 Then Exit Sub
+        End If
+            
+        AplicarDto intDecimales
+    End If
+End Sub
+
+Private Sub btnAplicarDto_KeyDown(KeyCode As Integer, Shift As Integer)
+    gShift = Shift
+End Sub
+
+Private Sub btnAplicarDto_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gShift = Shift
+End Sub
+
+Private Sub btnAsignarParcela_Click()
+    On Error GoTo HandleError
+    If Me.AllowEdits = False Then Exit Sub
+    Me.TipoDocumento.SetFocus
+    
+    If Me.Dirty Then RunCommand acCmdSaveRecord
+    DoCmd.OpenForm "frmAsignarParcelas", , , , , acDialog
+    'Me.txtFechaLlegada = Me.txtFechaLlegada 'para forzar evento after_update del form
+    'Call Form_AfterUpdate
+    Me.lstDetalle.Requery
+    Ficha_to_Planing Nz(Me.IdFichaCab, 0)
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnBorrar_Click()
+    On Error GoTo Error_btnBorrar_Click
+    Dim intR As Integer
+    If Me.AllowDeletions = False Then Exit Sub
+    intR = MsgBox("¿Borrar Ficha?", vbQuestion + vbOKCancel)
+    If intR = vbCancel Then Exit Sub
+    If Nz(Me.WuBookID, 0) <> 0 Then
+        Dim cWi As CWired, strResp As String
+        intR = MsgBox("¿Cancelar reserva en WuBook?", vbYesNoCancel + vbQuestion + vbDefaultButton1)
+        If intR = vbCancel Then Exit Sub
+        If intR = vbYes Then
+            Set cWi = New CWired
+            intR = cWi.CancelReservation(Me.IdFichaCab, , strResp, "Eliminada" & " desde H4")
+            If intR = True Then
+                MsgBox "Se canceló reserva nº " & Me.WuBookID & " en WuBook", vbInformation
+                CurrentDb.Execute "UPDATE wbReservations SET status=5 WHERE reservation_code = " & Me.WuBookID, dbFailOnError
+            Else
+                MsgBox "Error al cancelar reserva nº " & Me.WuBookID & " en WuBook", vbExclamation
+            End If
+        End If
+    End If
+    
+    DoCmd.RunCommand acCmdDeleteRecord
+    DoCmd.Close acForm, Me.Name
+Salir_btnBorrar_Click:
+    Exit Sub
+Error_btnBorrar_Click:
+    Select Case Err
+        Case 2046
+            MsgBox "No se puede borrar, antes se debe desbloquear la ficha"
+            Resume Salir_btnBorrar_Click
+        Case Else
+            MsgBox "Error nº " & Err & " en btnBorrar_Click" & vbCrLf & Err.Description
+            Resume Salir_btnBorrar_Click
+    End Select
+
+    
+End Sub
+
+Private Sub btnCambiarColumnas_Click()
+    If Me.SubfrmFichasDet.Visible Then
+        CambiarColumnas Me.SubfrmFichasDet.Form
+        Exit Sub
+    End If
+    If Me.btnCambiarColumnas.Tag = "1" Then
+        Me.lblImporte.Caption = "Importe"
+        Me.lblCantidad.Caption = "Cant."
+        Me.lstDetalle.ColumnWidths = "0 cm;1 cm;6 cm;1 cm;0 cm;1,805 cm;1,805 cm;1 cm;2 cm;0 cm;2 cm"
+        Me.btnCambiarColumnas.Tag = "0"
+    Else
+        Me.lblImporte.Caption = "IVA"
+        Me.lblCantidad.Caption = "Pax"
+        Me.lstDetalle.ColumnWidths = "0 cm;1 cm;6 cm;0 cm;1 cm;1,805 cm;1,805 cm;1 cm;2 cm;2 cm;0 cm"
+        Me.btnCambiarColumnas.Tag = "1"
+    End If
+End Sub
+
+Private Sub btnContadorE_Click()
+    If Not Me.AllowEdits Then Exit Sub
+    Dim cCE As New cContadorElectricidad
+    cCE.LeerContador Me.IdFichaCab
+    If Me.lstDetalle.Visible Then
+        Me.lstDetalle.Requery
+    Else
+        Me.SubfrmFichasDet.Requery
+    End If
+    Call RecalculaTotales
+End Sub
+
+Private Sub btnCuenta_Click()
+    Dim i As Integer
+    Dim intResp As Integer
+    On Error Resume Next
+    If Me.Dirty Then
+        RunCommand acCmdSaveRecord
+    End If
+    If IsNull(Me.txtFechaSalida) Then
+        MsgBox "Debe indicarse la fecha de salida"
+        Me.txtFechaSalida.SetFocus
+        Exit Sub
+    End If
+'    If CDate(Me.txtFechaSalida) <> Date And Not IsNull(DLookup("IdFichaCab", "tbFichasDet", "IdFichaCab = " & Me.IdFichaCab & " AND FechaFin = Null")) Then
+    If CDate(Me.txtFechaSalida) <> Date And Me.IdFactura = 0 Then
+        If DCount("IdFichaDet", "tbFichasDet", "IdFichaCab = " & Me.IdFichaCab & " AND IsNull(FechaFin)") > 0 Then
+            intResp = MsgBox("La fecha indicada de salida no es la actual, los totales referidos a Servicios Diarios en los que no se indique expresamente la fecha del fin de Servicio se calcularán con esta fecha: " & Me.txtFechaSalida, vbOKCancel + vbExclamation + vbDefaultButton2, "¿Fecha Salida?")
+            If intResp = vbCancel Then Exit Sub
+        End If
+    End If
+    If CerrarDetalleFicha(Me.IdFichaCab) = False Then
+        Me.lstDetalle.Requery
+        Exit Sub
+    End If
+    Me.lstDetalle.Requery
+    
+    Dim strXML As String, strResp As String, intR As Integer, intEmp As Integer
+    PonXML strXML, "FichaEstancia", "SI"
+    If Nz(Me.IdAgencia, 0) <> 0 Then PonXML strXML, "Empresa", "SI"
+    DoCmd.OpenForm "frmPreFactura", , , , , acDialog, strXML
+    If Not IsOpenForm("frmPreFactura") Then Exit Sub
+    strResp = CStr(Forms!frmprefactura.mrcImpMod)
+    intEmp = Nz(Me.IdAgencia, 0) <> 0 And Forms!frmprefactura.casEmpresa
+    DoCmd.Close acForm, "frmPreFactura"
+    Select Case strResp
+        Case "1"
+            ImprimirFicha Me.IdFichaCab, 2
+        Case "4"
+            ImprimirFicha Me.IdFichaCab, 1
+        Case "5"
+            ImprimirFicha Me.IdFichaCab, 3
+        Case "6"
+            Dim strFac As String, strPdfFic As String, strMensaje As String, dtIni As Date, lS As Long
+            strFac = CStr(Me.IdFichaCab)
+            If strFac <> "" Then
+                strPdfFic = DameValorParam("AplicacionCarpetaDatos") & "fichas\" & SoloNum(strFac) & ".pdf"
+                If Dir(strPdfFic) <> "" Then
+                    intR = vbNo 'MsgBox("¿Volver a generar la factura " & strFac & "?", vbYesNoCancel + vbQuestion)
+                    If intR = vbCancel Then Exit Sub
+                    If intR = vbNo Then GoTo EnviarEmail
+                End If
+            End If
+            ImprimirFicha Me.IdFichaCab, 4, strPdfFic
+EnviarEmail:
+            
+            strMensaje = Nz(DameValorParam("FacturasMensajeEnvioEmail"), "Adjuntamos factura")
+            dtIni = Now
+            While Dir(strPdfFic) = "" And lS < 30
+                DoEvents
+                lS = DateDiff("s", Now, dtIni)
+                SysCmd acSysCmdSetStatus, lS
+                
+            Wend
+            strPdfFic = strPdfFic & ";"
+            If Nz(DameValorParam("PuestoEnvioEmails_OS"), 1) = 1 Then
+                Mail_with_Attachement "Factura " & Me.txtIdFactura, strMensaje, Me.EMail, "", "", strPdfFic, Nz(DameValorParam("EmailsFirma"), "")
+            Else
+                send_email Me.EMail, "", "", "Factura " & Me.txtIdFactura, strMensaje & vbCrLf & Nz(DameValorParam("EmailsFirma"), ""), strPdfFic
+            End If
+            
+    End Select
+    
+    
+    'Dim intImpresionPor As Integer
+    'intImpresionPor = Nz(DameValorParam("FichasImpresionPor"), 1)
+    'If intImpresionPor = 2 Then
+    '    For i = 1 To Nz(DameValorParam("FichasNumCopias"), 1)
+    '        ImprimirFichaDOS Me.IdFichaCab, , True
+    '    Next i
+    'Else
+    '    Dim strRPT As String
+    '    strRPT = Nz(DameValorParam("CuentasRPT"), "rptCuentaA4")
+    '    If DameValorParam("ImpresionInformes") = 1 Then
+    '        For i = 1 To Nz(DameValorParam("FichasNumCopias"), 1)
+    '            DoCmd.OpenReport strRPT, , , "tbFichasCab.IdFichaCab = " & Me.IdFichaCab
+    '        Next i
+    '    Else
+    '        DoCmd.OpenReport strRPT, acViewPreview, , "tbFichasCab.IdFichaCab = " & Me.IdFichaCab
+    '    End If
+    'End If
+End Sub
+
+Public Sub btnDel_Click()
+    On Error GoTo HandleError
+    Dim v As Variant, intANotas As Integer, strANotas As String
+'    If Me.lstDetalle.ListIndex = -1 Then Exit Sub
+    Dim strSQL As String, intResp As Integer
+    Dim vItem As Variant, i As Integer
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        i = i + 1
+    Next vItem
+    If i = 0 Then Exit Sub
+    If Me.AllowEdits = False Then
+        MsgBox "Para modificar la ficha se debe desbloquear (F8)"
+        Exit Sub
+    End If
+    intANotas = (gShift And acCtrlMask) > 0
+    
+    intResp = MsgBox("¿Borrar la/s línea/s de detalle seleccionada/s? (" & IIf(i = 1, Me.lstDetalle.Column(2), i & " líneas") & ")" & IIf(intANotas, vbCrLf & "Se copiara detalle a Notas de la ficha", ""), vbOKCancel + vbQuestion)
+    If intResp = vbCancel Then Exit Sub
+    'si es línea de parcela actualizar panel
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        v = DLookup("Parcela", "tbFichasDet", "IdFichaDet = " & Me.lstDetalle.ItemData(vItem))
+        If Not IsNull(v) Then
+            CurrentDb.Execute "UPDATE tbParcelas SET tbParcelas.IdFicha = 0" _
+                        & " WHERE tbParcelas.NombreParcela ='" & v & "'", dbFailOnError
+            If IsOpenForm("frmPanel") Then
+                Call PintaBotones(Forms!frmPanel, CStr(v), , True)
+            End If
+        End If
+    Next vItem
+        
+    ''''''''''''''''''''''''''
+    Dim lngIdFichaDet As Long, cFD As New cFichaDet, strImporte As String
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        lngIdFichaDet = Me.lstDetalle.ItemData(vItem)
+        If intANotas Then
+            If cFD.FindFirst("IdFichaDet = " & lngIdFichaDet) Then
+                On Error Resume Next
+                strImporte = Format(cFD.Cantidad * cFD.PrecioUnitario * (cFD.Fecha_H - cFD.FechaInicio), "currency")
+                strANotas = strANotas & cFD.Cantidad & " " & cFD.Concepto & " " & cFD.FechaInicio & " a " & cFD.Fecha_H & " " & Format(cFD.PrecioUnitario, "#,##0.00 €/día") & ": " & strImporte & vbCrLf
+            End If
+        End If
+    '    AñadeParcelasDeFichaDetARecarga lngIdFichaDet
+        strSQL = "DELETE * FROM tbFichasDet WHERE IdFichaDet = " & lngIdFichaDet
+        CurrentDb.Execute strSQL, dbFailOnError
+    Next vItem
+    If Len(strANotas) > 2 Then
+        strANotas = RecDerTop(strANotas, 2, 0)
+        Me.Notas = IIf(Nz(Me.Notas, "") <> "", Me.Notas & vbCrLf, "") & strANotas
+    End If
+    Me.RecalculaTotales
+    Me.lstDetalle.Requery
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnDel_KeyDown(KeyCode As Integer, Shift As Integer)
+    gShift = Shift
+End Sub
+
+Private Sub btnDel_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gShift = Shift
+End Sub
+
+Private Sub btnDelRFID_Click()
+    If Nz(Me.IdFichaCab, 0) = 0 Then Exit Sub
+    If QuitaTarjetaRFID_Ficha(Me.IdFichaCab) = True Then Me.txtTagRFID.Requery
+End Sub
+
+Private Sub btnDescripCliente_Click()
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    If Not IsNull(Me.IdFichaCab) Then
+        DoCmd.OpenForm "frmFichasDescripCliente", , , "IdFichaCab = " & Me.IdFichaCab, , acDialog, Me.IdFichaCab
+    End If
+End Sub
+
+Private Sub btnDiaMas_Click()
+    On Error GoTo Error_btnDiaMas_Click
+    Dim vstrAux As Variant, Cancel As Integer
+    vstrAux = Me.txtFechaSalida
+    If Not IsDate(Me.txtFechaSalida) Then Me.txtFechaSalida = Me.txtFechaLlegada + 1
+    Me.txtFechaSalida = Me.txtFechaSalida + 1
+    Call txtFechaSalida_BeforeUpdate(Cancel)
+    If Cancel = True Then
+        Me.txtFechaSalida = vstrAux
+        Exit Sub
+    End If
+    Call txtFechaSalida_AfterUpdate
+Salir_btnDiaMas_Click:
+    Exit Sub
+Error_btnDiaMas_Click:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en btnDiaMas_Click" & vbCrLf & Err.Description
+            Resume Salir_btnDiaMas_Click
+    End Select
+End Sub
+
+Public Sub btnEdit_Click()
+    Dim vItem As Variant, i As Integer
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        i = i + 1
+    Next vItem
+    If i = 0 Then Exit Sub
+    If Me.AllowEdits = False Then
+        MsgBox "Para modificar la ficha se debe desbloquear (F8)"
+        Exit Sub
+    End If
+    If i > 1 Then
+        MsgBox "Se debe seleccionar una sóla línea para editar"
+        Exit Sub
+    End If
+    GuardaSeleccionDetalle
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        DoCmd.OpenForm "frmFichasDet_Intro", , , "IdFichaDet = " & Me.lstDetalle.ItemData(vItem), , acDialog, Me.IdFichaCab
+    Next vItem
+    Me.RecalculaTotales
+    Me.lstDetalle.Requery
+    MantenSeleccionDetalle
+End Sub
+
+Private Sub btnEntradaViajeros_Click()
+    On Error Resume Next
+    If IsNull(Me.IdFichaCab) Then Exit Sub
+    If Me.Dirty Then
+        DoCmd.RunCommand acCmdSaveRecord
+    End If
+    On Error GoTo Error_btnEntradaViajeros_Click
+    If Me.EstadoFicha = 1 Then Call btnCerrarFicha_Click
+    If Nz(DameValorParam("PartesPoliciaSegunPF"), 1) = 2 Then
+        If Me.NumeroPolicia = 0 Then
+            Me.NumeroPolicia = Nz(DMax("NumeroPolicia", "tbFichasCab"), 0) + 1
+            DoCmd.RunCommand acCmdSaveRecord
+        End If
+        DoCmd.OpenReport "rptFichaEntradaViajerosF", acViewPreview, , "IdFichaCab = " & Me.IdFichaCab
+        Exit Sub
+    End If
+    ' Si no existe ninguna entrada, añadir la de la ficha
+    Dim v As Variant, i As Integer
+    Dim lngIdParte As Long, strMSG As String
+    v = DLookup("NumParte", "tbPartesPolicia", "IdFichaCab = " & Me.IdFichaCab)
+    gintPrimeraEntradaViajero = False
+    If IsNull(v) Then
+        gintPrimeraEntradaViajero = True
+        Dim rs As Recordset
+        Set rs = CurrentDb.OpenRecordset("tbPartesPolicia", dbOpenDynaset)
+        rs.AddNew
+        rs("IdFichaCab") = Me.IdFichaCab
+        'rs("NumParte") = Nz(DMax("NumParte", "tbPartesPolicia"), 0) + 1
+        rs("TipoDocId") = Me.TipoDocumento
+        Select Case Me.TipoDocumento
+            Case "D", "C", "N"
+                rs("DocIdEspaña") = RecDerTop(QuitarGuion(Me.DNICliente), 0, 11)
+            Case Else
+                rs("DocIdExtranjeros") = RecDerTop(Me.DNICliente, 0, 14)
+        End Select
+        rs("FechaExpedicion") = Me.FechaExpedicion
+        i = InStr(Trim(Nz(Me.ApellidosCliente, "")), " ")
+        If i > 0 Then
+            rs("Apellido1") = UCase(RecDerTop(Left(Trim(Nz(Me.ApellidosCliente, "")), i - 1), 0, 30))
+            rs("Apellido2") = UCase(RecDerTop(Mid(Trim(Nz(Me.ApellidosCliente, "")), i + 1), 0, 30))
+        Else
+            rs("Apellido1") = UCase(RecDerTop(Trim(Nz(Me.ApellidosCliente, "")), 0, 30))
+        End If
+        rs("Nombre") = UCase(RecDerTop(Nz(Me.NombreCliente, ""), 0, 30))
+        rs("Sexo") = Me.SexoCliente
+        rs("FechaNacimientoAAAA") = Format(Me.FechaNacimiento, "yyyy")
+        rs("FechaNacimientoMM") = Format(Me.FechaNacimiento, "mm")
+        rs("FechaNacimientoDD") = Format(Me.FechaNacimiento, "dd")
+        rs("Pais") = UCase(RecDerTop(Nz(Me.PaisCliente, ""), 0, 21))
+        rs("FechaLlegada") = Me.FechaLlegada
+        lngIdParte = rs("IdPartePolicia")
+        
+        'otros datos
+        If Nz(Me.EMail, "") <> "" Then rs("Email") = Me.EMail
+        If Nz(Me.ProvinciaCliente, "") <> "" Then rs("ProvinciaCliente") = Me.ProvinciaCliente
+        If Nz(Me.CPCliente, "") <> "" Then rs("CPCliente") = Me.CPCliente
+        If Nz(Me.LocalidadCliente, "") <> "" Then rs("LocalidadCliente") = Me.LocalidadCliente
+        If Nz(Me.TelefonoCliente, "") <> "" Then rs("TelefonoCliente") = Me.TelefonoCliente
+        If Nz(Me.DireccionCliente, "") <> "" Then rs("DireccionCliente") = Me.DireccionCliente
+        rs.Update
+        If ValidarPartePolicia(lngIdParte, strMSG) = False Then MsgBox strMSG
+    End If
+    Dim strXML As String
+    PonXML strXML, "IdFichaCab", Me.IdFichaCab
+    PonXML strXML, "FechaLlegada", Me.FechaLlegada
+   
+    DoCmd.OpenForm "frmPartesPolicia", , , , , , strXML
+    
+    
+    
+    If IsNull(Me.IdFichaCab) Then
+        Exit Sub
+    End If
+    If Me.NumeroPolicia > 0 Then
+    Else
+        If Me.AllowEdits = False Then
+            MsgBox "Se debe poder modificar el registro para asignar el nº de parte de policía"
+            Exit Sub
+        End If
+        Me.NumeroPolicia = Nz(DMax("NumeroPolicia", "tbFichasCab"), 0) + 1
+    End If
+    On Error Resume Next
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+Salir_btnEntradaViajeros_Click:
+    Exit Sub
+Error_btnEntradaViajeros_Click:
+    Select Case Err
+        Case Else
+            MsgBox "error nº " & Err & " en btnEntradaViajeros_Click" & vbCrLf & Err.Description
+            Resume Salir_btnEntradaViajeros_Click
+    End Select
+End Sub
+
+
+Private Sub btnEnviaRecordatorio_Click()
+    On Error GoTo HandleError
+    DoCmd.RunCommand acCmdSaveRecord
+    EnviaRecordatorioReserva Me.IdFichaCab, True
+    Me.EnviarRecordatorioSN = False
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnEnviosEmail_Click()
+    Dim strXML As String
+    PonXML strXML, "IdFichaCab", Me.IdFichaCab
+    If Nz(Me.IdFactura, 0) <> 0 Then PonXML strXML, "IdFactura", Me.IdFactura
+    DoCmd.RunCommand acCmdSaveRecord
+    DoCmd.OpenForm "frmListaEmails", , , , , acDialog, strXML
+End Sub
+
+Private Sub btnFacturaParcial_Click()
+    Dim lngIdFac As Long, strResp As String
+    DoCmd.OpenForm "frmPreFactura", , , , , acDialog
+    If Not IsOpenForm("frmPreFactura") Then Exit Sub
+    strResp = CStr(Forms!frmprefactura.mrcImpMod)
+    DoCmd.Close acForm, "frmPreFactura"
+    If IsNumeric(Me.lstPagos.Column(5)) Then
+        lngIdFac = CLng(Me.lstPagos.Column(5))
+    End If
+    If lngIdFac <> 0 Then
+        Select Case strResp
+            Case "1"
+                ImprimirFactura lngIdFac
+            Case "2"
+                DoCmd.OpenForm "frmFacturas", , , "IdFactura = " & lngIdFac
+                Forms![frmFacturas].AllowAdditions = False
+            Case "4"
+                ImprimirFactura lngIdFac, 1
+            Case "5"
+                ImprimirFactura lngIdFac, 3
+            Case "6"
+                EnviarFacturaXEmail lngIdFac, Nz(Me.EMail, "")
+        End Select
+    End If
+End Sub
+
+Public Sub btnFacturarSN_Click()
+    Dim strSQL As String, intResp As Integer
+    Dim vItem As Variant, i As Integer, v As Variant
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        i = i + 1
+    Next vItem
+    If i = 0 Then Exit Sub
+    If Me.AllowEdits = False Then
+        MsgBox "Para modificar la ficha se debe desbloquear (F8)"
+        Exit Sub
+    End If
+    GuardaSeleccionDetalle
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        strSQL = "UPDATE tbFichasDet SET FacturarSN = Not FacturarSN WHERE IdFichaDet = " & Me.lstDetalle.ItemData(vItem)
+        CurrentDb.Execute strSQL, dbFailOnError
+    Next vItem
+    Me.lstDetalle.Requery
+    Me.RecalculaTotales
+    MantenSeleccionDetalle
+End Sub
+
+Private Sub btnFichaCliente_Click()
+On Error GoTo Err_btnFichaCliente_Click
+    Dim stDocName As String
+    Dim stLinkCriteria As String
+    Dim intResp As Integer, lngIdCli As Long, rs As Recordset
+    If Len(Me.DNICliente) < 2 Then
+        Exit Sub
+    End If
+    Set rs = CurrentDb.OpenRecordset("tbClientes", dbOpenDynaset)
+    rs.FindFirst "NIF = " & ConComillas(Me.DNICliente)
+    If rs.NoMatch Then
+        intResp = MsgBox("El Cliente no está en la base de clientes, ¿Desea añadirlo?", vbDefaultButton1 + vbYesNo)
+        If intResp = vbNo Then Exit Sub
+        rs.AddNew
+        rs("CodCliente") = Format(CLng(Nz(DMax("CodCliente", "tbClientes"), 0)) + 1, "00000")
+    Else
+        rs.Edit
+    End If
+    rs("NIF") = Me![DNICliente]
+    rs("NombreCli") = Me![NombreCliente]
+    rs("ApellidosCli") = Me![ApellidosCliente]
+'    rs("Contacto") = Me![Contacto]
+    rs("Direccion") = Me![DireccionCliente]
+    rs("Ciudad") = Me![LocalidadCliente]
+    rs("EdoOProv") = Me![ProvinciaCliente]
+    rs("CodPostal") = Me![CPCliente]
+    rs("Pais") = Me![PaisCliente]
+    rs("Telefono") = Me![TelefonoCliente]
+    rs("MatriculaVehiculo") = Me![MatriculaVehiculo]
+    rs("ModeloVehiculo") = Me![ModeloVehiculo]
+    lngIdCli = rs("IdCliente")
+    rs.Update
+    Dim strXML As String
+    PonXML strXML, "FiltradoSN", "S"
+    DoCmd.OpenForm "frmClientes", , , "IdCliente = " & lngIdCli, , acDialog, strXML
+Exit_btnFichaCliente_Click:
+    Exit Sub
+Err_btnFichaCliente_Click:
+    MsgBox Err.Description
+    Resume Exit_btnFichaCliente_Click
+End Sub
+
+Private Sub btnFLlegada_Click()
+    Dim varFecha As Variant
+    varFecha = adhDoCalendar(Me.txtFechaLlegada, 1, "Fecha LLEGADA")
+    If IsDate(varFecha) Then
+        Dim vstrAux As Variant, Cancel As Integer
+        vstrAux = Nz(Me.txtFechaLlegada, "")
+        Me.txtFechaLlegada = varFecha
+        Call txtFechaLlegada_BeforeUpdate(Cancel)
+        If Cancel = True Then
+            Me.txtFechaLlegada = vstrAux
+            Exit Sub
+        End If
+        Call txtFechaLlegada_AfterUpdate
+        Exit Sub
+    End If
+End Sub
+
+Private Sub btnFotos_Click()
+    Dim strXML As String
+    PonXML strXML, "IdFichaCab", Nz(Me.IdFichaCab, 0)
+    DoCmd.OpenForm "frmFichas_IMA", , , , , , strXML
+End Sub
+
+Private Sub btnFSalida_Click()
+    Call txtFechaSalida_KeyDown(vbKeyF4, False)
+End Sub
+
+Private Sub btnIdioma_Click()
+    Dim strXML As String
+    PonXML strXML, "IdIdioma", Nz(Me.IdIdioma, 0)
+    DoCmd.OpenForm "frmSeleccionarIdioma", , , , , acDialog, strXML
+    If IsOpenForm("frmSeleccionarIdioma") Then
+        Dim lngIdIdioma As Long
+        If Forms("frmSeleccionarIdioma")("lstIdiomas").ListIndex = -1 Then
+            lngIdIdioma = 0
+        Else
+            lngIdIdioma = Forms("frmSeleccionarIdioma")("lstIdiomas")
+        End If
+        Me.IdIdioma = lngIdIdioma
+        TraducirFicha Me.IdFichaCab, lngIdIdioma
+        DoCmd.Close acForm, "frmSeleccionarIdioma"
+        Me.lstDetalle.Requery
+    End If
+End Sub
+
+Private Sub btnIDSCAN_Click()
+    On Error GoTo Error_btnIDSCAN_Click
+    Dim strFile As String, strDefaultPath As String, intR As Integer, strXML As String
+    strDefaultPath = DirectorioDe(CurrentDb.Name) & Nz(DameValorParam("ICAR_CarpetaImagenes"), "icar\")
+    strFile = strDefaultPath & "F" & Me.IdFichaCab & "_doc.jpg"
+    If Dir(strFile) <> "" Then
+        intR = MsgBox("¿Ver imagen guardada?" & vbCrLf & "Si se pulsa NO se escaneará un nuevo documento", vbYesNoCancel)
+        If intR = vbCancel Then Exit Sub
+        If intR = vbYes Then
+            PonXML strXML, "DocImagePath", strFile
+            DoCmd.OpenForm "frmICAR_doc", , , , , acDialog, strXML
+            Exit Sub
+        End If
+    End If
+    If Not IsOpenForm("frmICAR") Then
+        DoCmd.OpenForm "frmICAR", , , , , acDialog
+    Else
+        Forms("frmICAR")("imgICAR").Picture = ""
+        Forms("frmICAR")("txtOutput") = ""
+        Forms("frmICAR").Visible = True
+        Forms("frmICAR").Form.SetFocus
+        Call Forms("frmICAR").btnEscanear_Click
+    End If
+Salir_btnIDSCAN_Click:
+    Exit Sub
+Error_btnIDSCAN_Click:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en btnIDSCAN_Click" & vbCrLf & Err.Description
+            Resume Salir_btnIDSCAN_Click
+    End Select
+End Sub
+
+Private Sub btnImporteSolicitado_Click()
+    Dim curTotal As Currency, curPorc As Currency, curImp As Currency
+    curPorc = Nz(DameValorParam("ReservasPorcentajeImporteSolicitado"), 25)
+    
+    curPorc = Nz(DimeTeclado(2, "Introduzca porcentaje para calcular el importe solicitado", curPorc), 0)
+    If curPorc = 0 Then Exit Sub
+    PonValorParam "ReservasPorcentajeImporteSolicitado", curPorc, 5
+    curTotal = Me.txtTotalFicha
+    curImp = Round(curTotal * curPorc / 100, 0)
+    Me.ReservaImporteSolicitado = curImp
+End Sub
+
+
+Private Sub btnListaSD_Click()
+    Dim strXML As String
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    PonXML strXML, "IdFichaCab", Me.IdFichaCab
+    DoCmd.OpenForm "frmListaSD_puntear", , , , , acDialog, strXML
+    Call RecalculaTotales
+    Me.Recalc
+End Sub
+
+Private Sub btnModi_Click()
+    DoCmd.GoToControl Screen.PreviousControl.Name
+    gintBloqueado = Not gintBloqueado
+    BloqueoFormulario Me, gintBloqueado
+End Sub
+
+Private Sub btnModiNP_Click()
+    If Me.AllowEdits = False Then
+        MsgBox "Se debe poder modificar el registro (F8)"
+        Exit Sub
+    End If
+    Me.NumeroPolicia.Enabled = True
+End Sub
+
+Private Sub btnNotas_Click()
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    If Not IsNull(Me.IdFichaCab) Then
+        DoCmd.OpenForm "frmFichasNotas", , , "IdFichaCab = " & Me.IdFichaCab, , acDialog, Me.IdFichaCab
+    End If
+    VerNotas
+End Sub
+
+Private Sub btnNotasParteG_Click()
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    If Not IsNull(Me.IdFichaCab) Then
+        DoCmd.OpenForm "frmFichasNotasParteG", , , "IdFichaCab = " & Me.IdFichaCab, , acDialog, Me.IdFichaCab
+    End If
+    VerNotas
+End Sub
+
+Public Sub btnObservaciones_Click()
+    Dim strOb As String, strXML As String
+    If IsNull(Me.IdFichaCab) Then Exit Sub
+    PonXML strXML, "Titulo", "Observaciones de la ficha: " & Me.IdFichaCab
+    DoCmd.OpenForm "frmFichasObservaciones", , , , , acDialog, strXML
+    If Not IsOpenForm("frmFichasObservaciones") Then Exit Sub
+    strOb = Nz(Forms("frmFichasObservaciones")("Observaciones"), "")
+    DoCmd.Close acForm, "frmFichasObservaciones"
+    LineaADetalle strOb, Me.IdFichaCab
+    Me.lstDetalle.Requery
+End Sub
+
+Private Sub btnPago_Click()
+    Dim intPagado As Integer
+    On Error GoTo Error_btnPago_Click
+    DoCmd.RunCommand acCmdSaveRecord
+    'On Error Resume Next
+    fNuevoPago "E", Me.IdFichaCab
+    Me.Recalc
+    CompruebaPagado
+    If Me.IdFactura = 0 And Me.EstadoFicha <> 10 Then
+        Dim intFNP As Integer, intR As Integer
+        intPagado = TotalFichaPagos(Me.IdFichaCab) >= TotalFicha(Me.IdFichaCab, 3)
+        If intPagado Then
+            intFNP = Nz(DameValorParam("FichasAlUltimoPagoFPN"), 3)
+            Select Case intFNP
+                Case 1, 2
+                    If intFNP = 1 Then
+                        intR = vbYes
+                    Else
+                        intR = MsgBox("¿Generar factura ahora?", vbYesNo + vbQuestion)
+                    End If
+                    If intR = vbYes Then
+                        DoCmd.RunCommand acCmdSaveRecord
+                        Call Form_Current
+                        If IsOpenForm("frmPanel") Then
+                            PintaBotones Forms!frmPanel, , Me.IdFichaCab
+                        End If
+                        FacturarFicha Me.IdFichaCab
+                        Call btnFacturarFicha_Click
+                    End If
+                    
+            End Select
+        End If
+    End If
+    MarcarPagadaSN Nz(Me.IdFactura, 0)
+    Me.txtPendiente.Visible = Me.txtPendiente <> 0
+
+Salir_btnPago_Click:
+    Exit Sub
+Error_btnPago_Click:
+    Select Case Err
+        Case 2046
+            Resume Next
+        Case Else
+            MsgBox "Error nº " & Err & " en btnPago_Click" & vbCrLf & Err.Description
+            Resume Salir_btnPago_Click
+    End Select
+End Sub
+
+Private Sub btnPagosPrevistos_Click()
+    Dim strXML As String
+    PonXML strXML, "IdFichaCab", Me.IdFichaCab
+    PonXML strXML, "Año", Year(Date)
+    PonXML strXML, "Titulo", "Pagos previstos de Ficha nº: " & Me.IdFichaCab
+    DoCmd.OpenForm "frmPagosPrevistos", , , , , , strXML
+End Sub
+
+Public Sub btnPax_Click()
+    If Me.lstHabitaciones.ListIndex = -1 Then
+        MsgBox "Se debe seleccionar una " & g_strPH
+        Me.lstHabitaciones.SetFocus
+        Exit Sub
+    End If
+    Call AsignarPlazas
+    Me.lstHabitaciones.SetFocus
+End Sub
+
+Private Sub btnPoliCheckIn_Click()
+    On Error GoTo HandleError
+    Dim strResponse As String, json As Object
+    Dim intR As Integer, rs As Recordset, rsC As Recordset
+    strResponse = PoliCheckIn_GetLast()
+    If strResponse = "" Then ' no se encuentra registro en el EndPoint last, no se ha escaneado busca en checkins online
+        strResponse = PoliCheckIn_GetCheckins_Ficha(Nz(Me.IdFichaCab, 0))
+        If strResponse = "" Then
+            MsgBox "No se encontró ficha en servidor de Poli Check-In", vbExclamation
+            GoTo HandleExit
+        End If
+        Set json = JsonConverter.ParseJson(strResponse)
+        Dim ch As Object, strTipo As String, intHayBooker As Integer, i As Integer
+        Set rs = CurrentDb.OpenRecordset("SELECT * FROM tbPartesPolicia WHERE IdFichaCab = " & Nz(Me.IdFichaCab, 0), dbOpenDynaset)
+        For Each ch In json("checkInInfos")
+            strTipo = PoliCheckIn_DimeTipoDoc(ch("documentType"))
+            rs.FindFirst "TipoDocId = '" & strTipo & "' AND (DocIdEspaña ='" & ch("documentId") & "' OR DocIdExtranjeros ='" & ch("documentId") & "')"
+            If rs.NoMatch Then
+                rs.AddNew
+                rs("IdFichaCab") = Nz(Me.IdFichaCab, 0)
+            Else
+                rs.Edit
+            End If
+            rs("TipoDocId") = strTipo
+            If strTipo = "D" Then
+                rs("DocIdEspaña") = ch("documentId")
+                rs("DocIdExtranjeros") = Null
+            Else
+                rs("DocIdExtranjeros") = ch("documentId")
+                rs("DocIdEspaña") = Null
+            End If
+            rs("FechaExpedicion") = CDate(Left(ch("expeditionDate"), 10))
+            rs("Apellido1") = ch("lastName1")
+            rs("Apellido2") = ch("lastName2")
+            rs("Nombre") = ch("firstName")
+            rs("Sexo") = ch("sex")
+            If ch("onlyYearOfBirthDate") Then
+                rs("FechaNacimientoAAAA") = Left(ch("birthDate"), 4)
+                rs("FechaNacimientoMM") = "01"
+                rs("FechaNacimientoDD") = "01"
+            Else
+                rs("FechaNacimientoAAAA") = Format(CDate(Left(ch("birthDate"), 10)), "yyyy")
+                rs("FechaNacimientoMM") = Format(CDate(Left(ch("birthDate"), 10)), "mm")
+                rs("FechaNacimientoDD") = Format(CDate(Left(ch("birthDate"), 10)), "dd")
+            End If
+            rs("Pais") = ch("nationality")
+            rs("FechaLlegada") = CDate(Left(ch("checkInDate"), 10))
+            On Error Resume Next
+            rs("Provincia") = ch("province")
+            On Error GoTo HandleError
+            rs.Update
+            'If ch("isBooker") And Not intHayBooker Then
+            If Nz(Me.DNICliente, "-") = "-" Then
+                Me.TipoDocumento = PoliCheckIn_DimeTipoDoc(ch("documentType"))
+                Me.DNICliente = ch("documentId")
+                Me.FechaExpedicion = CDate(Left(ch("expeditionDate"), 10))
+                Me.NombreCliente = ch("firstName")
+                Me.ApellidosCliente = Trim(ch("lastName1") & " " & ch("lastName2"))
+                Me.PaisCliente = ch("nationality")
+                Me.SexoCliente = ch("sex")
+                'Me.FechaNacimiento = CDate(Left(Json("birthDate"), 10))
+                Me.FechaNacimiento = CDate(Left(ch("birthDate"), 10))
+                'Comprobar si está en base de datos
+                Set rsC = CurrentDb.OpenRecordset("tbClientes", dbOpenSnapshot)
+                rsC.FindFirst "NIF = " & ConComillas(Nz(Me.DNICliente, ""))
+                If Not rsC.NoMatch Then
+                    intR = MsgBox("Cliente existente en base de datos, ¿Obtener datos de su ficha?", vbYesNo + vbQuestion)
+                    If intR = vbYes Then
+                        Call DNICliente_AfterUpdate
+                    End If
+                End If
+                intHayBooker = True
+            End If
+            i = i + 1
+        Next ch
+        MsgBox "Se recuperaron " & i & " registros del CheckIn-Online", vbInformation
+        GoTo HandleExit
+    End If
+    Set json = JsonConverter.ParseJson(strResponse)
+    Me.TipoDocumento = PoliCheckIn_DimeTipoDoc(json("documentType"))
+    Me.DNICliente = json("documentId")
+    Me.FechaExpedicion = CDate(Left(json("expeditionDate"), 10))
+    Me.NombreCliente = json("firstName")
+    Me.ApellidosCliente = Trim(json("lastName1") & " " & json("lastName2"))
+    Me.PaisCliente = json("nationality")
+    Me.SexoCliente = json("sex")
+    'Me.FechaNacimiento = CDate(Left(Json("birthDate"), 10))
+    Me.FechaNacimiento = CDate(Left(json("birthDate"), 10))
+    'Comprobar si está en base de datos
+    Set rs = CurrentDb.OpenRecordset("tbClientes", dbOpenSnapshot)
+    rs.FindFirst "NIF = " & ConComillas(Nz(Me.DNICliente, ""))
+    If Not rs.NoMatch Then
+        intR = MsgBox("Cliente existente en base de datos, ¿Obtener datos de su ficha?", vbYesNo + vbQuestion)
+        If intR = vbYes Then
+            Call DNICliente_AfterUpdate
+            GoTo PoliDelete
+        End If
+    End If
+    If Me.PaisCliente = "España" Then
+        Me.ProvinciaCliente = Nz(BuscaAyuda("PRVI", Me.ProvinciaCliente), Me.ProvinciaCliente)
+    End If
+PoliDelete:
+    PoliCheckIn_Delete
+HandleExit:
+    Exit Sub
+HandleError:
+    Select Case Err
+        Case 10001:
+            MsgBox "No se encontró Ficha en servidor de Poli Check-In", vbExclamation
+            Resume HandleExit
+        Case Else
+            MsgBox "Error nº " & Err & vbCrLf & Err.Description, vbExclamation
+            Resume HandleExit
+    End Select
+End Sub
+
+Private Sub btnPrintLecturasContadores_Click()
+    If IsNull(Me.IdFichaCab) Then Exit Sub
+    Dim strRPT As String, strW As String
+    strRPT = "rptContadorE_Lecturas"
+    strW = "A_IdFichaCab = " & Me.IdFichaCab
+    DoCmd.OpenReport strRPT, acViewPreview, , strW
+
+End Sub
+
+Private Sub btnSalir_Click()
+    DoCmd.Close
+End Sub
+
+Private Sub btnSelAgencia_Click()
+    Me.IdAgencia = Nz(BuscaAyuda("AG0", Me.IdAgencia, 1, , , , , , , , , "AG001"), Me.IdAgencia)
+    If Nz(Me.IdAgencia, 0) <> 0 Then 'ver si es empresa o no
+        If Nz(DLookup("Agencia", "tbClientes", "IdCliente = " & Me.IdAgencia), False) = False Then
+            CurrentDb.Execute "UPDATE tbClientes SET Agencia = True WHERE IdCliente = " & Me.IdAgencia, dbFailOnError
+            Me.IdAgencia.Requery
+        End If
+    End If
+    Call IdAgencia_AfterUpdate
+    Call IdAgencia_Click
+End Sub
+
+Private Sub btnSelCliente_Click()
+    If Me.AllowEdits = False Then Exit Sub
+    Me.DNICliente = Nz(BuscaAyuda("CL0", Me.DNICliente, 1), Me.DNICliente)
+    If Me.DNICliente = "-" Then Exit Sub
+    Call DNICliente_AfterUpdate
+End Sub
+
+Private Sub btnServiciosDia_Click()
+    If IsNull(Me.IdFichaCab) Then Exit Sub
+    If Me.Dirty Then
+        DoCmd.RunCommand acCmdSaveRecord
+    End If
+    DoCmd.OpenForm "frmAsignarServiciosDiarios", , , , , acDialog
+    Exit Sub
+    
+    
+    ' Si no existen registros en la Tabla, generarlos....
+    Dim v As Variant, strXML As String
+    v = DLookup("Fecha", "tbFichasDetServiciosXDia", "IdFichaCab = " & Me.IdFichaCab)
+    PonXML strXML, "IdFichaCab", Me.IdFichaCab
+    If IsNull(v) Then
+        DoCmd.OpenForm "frmGenerarSXD", , , , , acDialog, strXML
+        If IsOpenForm("frmGenerarSXD") Then
+            DoCmd.Close acForm, "frmGenerarSXD"
+            DoCmd.OpenForm "subfrmFichasDetServiciosXDia", acFormDS, , "IdFichaCab = " & Me.IdFichaCab, , , Me.IdFichaCab
+        End If
+    Else
+        DoCmd.OpenForm "subfrmFichasDetServiciosXDia", acFormDS, , "IdFichaCab = " & Me.IdFichaCab, , , strXML
+    End If
+End Sub
+
+Private Sub btnSincro_Click()
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    'If EnviaReserva_a_CR(Nz(Me.IdFichaCab, 0)) = True Then
+    '    Me.IdCR.ControlSource = "=dlookup('IdCR','tbCentralR_Fichas','IdGH = ' & [IdFichaCab])"
+    'End If
+End Sub
+
+Private Sub btnSMS_Click()
+    Dim strTipo As String, lngIdIdioma As Long
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    If Len(Nz(Me.TelefonoCliente, "")) < 9 Then
+        MsgBox "El teléfono debe tener al menos 9 dígitos", vbExclamation
+        Exit Sub
+    End If
+    strTipo = Nz(BuscaAyuda("SMSti", , 1, , , , True), "")
+    If strTipo = "" Then Exit Sub
+    If gShift And acCtrlMask <> 0 Then
+        DoCmd.OpenForm "frmSeleccionarIdioma", , , , , acDialog
+        If IsOpenForm("frmSeleccionarIdioma") Then
+            lngIdIdioma = Forms("frmSeleccionarIdioma")("lstIdiomas")
+            DoCmd.Close acForm, "frmSeleccionarIdioma"
+        End If
+    End If
+    If PonParrafoSMS(strTipo, Me.IdFichaCab, lngIdIdioma, Me.TelefonoCliente) = True Then
+        SendSMS Me.TelefonoCliente, DameValorParam("MensajeSMS_OK"), True, True
+    End If
+End Sub
+
+Private Sub btnSMS_KeyDown(KeyCode As Integer, Shift As Integer)
+    gShift = Shift
+End Sub
+
+Private Sub btnSMS_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gShift = Shift
+End Sub
+
+Public Sub btnTraspasarAFicha_Click()
+    Dim strSQL As String, intResp As Integer
+    Dim vItem As Variant, i As Integer, v As Variant
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        i = i + 1
+    Next vItem
+    If i = 0 Then Exit Sub
+    If Me.AllowEdits = False Then
+        MsgBox "Para modificar la ficha se debe desbloquear (F8)"
+        Exit Sub
+    End If
+    Dim lngIdFichaDestino As Long
+    lngIdFichaDestino = Nz(BuscaAyuda("FIT", , 2, True), 0)
+    If lngIdFichaDestino = 0 Then Exit Sub
+    If lngIdFichaDestino = -1 Then
+        intResp = MsgBox("¿Traspasar la/s línea/s de detalle seleccionada/s  (" & IIf(i = 1, Me.lstDetalle.Column(2), i & " líneas") & ")" & vbCrLf & "A una nueva Ficha de Estancia?", vbOKCancel + vbQuestion)
+    Else
+        intResp = MsgBox("¿Traspasar la/s línea/s de detalle seleccionada/s  (" & IIf(i = 1, Me.lstDetalle.Column(2), i & " líneas") & ")" & vbCrLf & "A la Ficha de Estancia Nº: " & lngIdFichaDestino & "?", vbOKCancel + vbQuestion)
+    End If
+    If intResp = vbCancel Then Exit Sub
+    If lngIdFichaDestino = -1 Then
+        CopiaCabeceraFicha Me.IdFichaCab, lngIdFichaDestino
+        If lngIdFichaDestino = -1 Then Exit Sub
+    End If
+    'si es línea de parcela actualizar panel
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        v = DLookup("Parcela", "tbFichasDet", "IdFichaDet = " & Me.lstDetalle.ItemData(vItem))
+        If Not IsNull(v) Then
+            CurrentDb.Execute "UPDATE tbParcelas SET tbParcelas.IdFicha = " & lngIdFichaDestino _
+                        & " WHERE tbParcelas.NombreParcela ='" & v & "'", dbFailOnError
+            If IsOpenForm("frmPanel") Then
+                Call PintaBotones(Forms!frmPanel, CStr(v), , True)
+            End If
+        End If
+    Next vItem
+        
+    ''''''''''''''''''''''''''
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        strSQL = "UPDATE tbFichasDet SET IdFichaCab = " & lngIdFichaDestino & " WHERE IdFichaDet = " & Me.lstDetalle.ItemData(vItem)
+        CurrentDb.Execute strSQL, dbFailOnError
+    Next vItem
+    If i > 1 Then
+        LineaADetalle "(->F." & lngIdFichaDestino & ") Se traspasaron " & i & " líneas a Ficha nº " & lngIdFichaDestino, Me.IdFichaCab, False, lngIdFichaDestino
+    Else
+        LineaADetalle "(->F." & lngIdFichaDestino & ") Se traspasó " & i & " línea a Ficha nº " & lngIdFichaDestino, Me.IdFichaCab, False, lngIdFichaDestino
+    End If
+    G_RecalculaTotales lngIdFichaDestino
+    Me.RecalculaTotales
+    Me.Requery
+End Sub
+
+Private Sub btnWBreservation_Click()
+    On Error GoTo HandleError
+    Dim intR As Integer, strResp As String, lngWuBookID As Long, intIgnoreR As Integer, intIgnoreA As Integer
+    Dim cWi As CWired, intOp As Integer, strMSG As String
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+OtraVuelta:
+    If Nz(Me.WuBookID, 0) = 0 Then
+        If Nz(DameValorParam("WubookAntesDeSubirComprobacionLightSN"), False) = True Then
+            'Antes de subir la reserva comprobar existentes
+            Dim dtD As Date, dtH As Date
+            Dim dtFMin As Date, dtFMax As Date
+            dtH = Date
+            dtD = Nz(DameValorParam("ComprobarReservasWB_UltimoHasta"), dtH - 15)
+            ComprobarReservasWB_EntreFechas dtD, dtH, False, dtFMin, dtFMax
+            PonValorParam "ComprobarReservasWB_UltimoHasta", dtH, 8
+        Else
+            SincroWuBook True, strMSG
+        End If
+        intR = SubeNewReservation_Ops(Me.IdFichaCab, intIgnoreR, intIgnoreA)
+        'intR = MsgBox("¿Enviar reserva a Wubook?", vbOKCancel + vbQuestion)
+        'If intR <> vbOK Then Exit Sub
+        If Not intR Then Exit Sub
+        Set cWi = New CWired
+        lngWuBookID = cWi.NewReservation(Me.IdFichaCab, , strResp, intIgnoreR, intIgnoreA)
+        'MsgBox strResp
+        If lngWuBookID <> 0 Then
+            Me.WuBookID = CLng(strResp)
+            If cWi.FetchBooking(lngWuBookID) = False Then Exit Sub
+            Dim vMark As Variant
+            vMark = Array("int", lngWuBookID)
+            If cWi.MarkBooks(vMark) = True Then
+                CurrentDb.Execute "UPDATE wbReservations SET MarkSN=True , MarkOK=True WHERE reservation_code = " & lngWuBookID, dbFailOnError
+                MsgBox "Se marcó reserva " & lngWuBookID & " como recibida", vbInformation
+                
+            Else
+                MsgBox "No se marcó reserva " & lngWuBookID & " como recibida", vbExclamation
+            End If
+            DoCmd.OpenForm "frm_wbReservations", , , "reservation_code = " & Me.WuBookID
+        End If
+    Else
+        DoCmd.OpenForm "frmPreReservation", , , , , acDialog
+        If Not IsOpenForm("frmPreReservation") Then Exit Sub
+        intOp = Forms("frmPreReservation").mrcOpts
+        DoCmd.Close acForm, "frmPreReservation"
+        Select Case intOp
+            Case 1
+                DoCmd.OpenForm "frm_wbReservations", , , "reservation_code = " & Me.WuBookID
+            Case 2, 3, 5
+                If intOp = 2 Then
+                    intR = MsgBox("¿Cancelar la reserva en WuBook?", vbExclamation + vbOKCancel)
+                ElseIf intOp = 3 Then
+                    intR = MsgBox("¿Actualizar disponibilidad en WuBook?" & vbCrLf & "Se actualizará entre fechas: del " & Me.txtFechaLlegada & " al " & Me.txtFechaSalida & " según la disponibilidad del actual planing en H4", vbExclamation + vbOKCancel)
+                Else ' 5
+                    intR = MsgBox("¿Modificar la reserva en WuBook?" & vbCrLf & "ATENCIÓN: WuBook enviará un mensaje automático de cancelación que puede confundir al cliente", vbExclamation + vbOKCancel)
+                End If
+                If intR <> vbOK Then Exit Sub
+                SincroWuBook True, strMSG
+                Set cWi = New CWired
+                If intOp = 2 Or intOp = 5 Then
+                    intR = cWi.CancelReservation(Me.IdFichaCab, , strResp, "Cancelada desde H4")
+                    If intR = True Then
+                        MsgBox "Se canceló reserva nº " & Me.WuBookID & " en WuBook", vbInformation
+                        CurrentDb.Execute "UPDATE wbReservations SET status=5 WHERE reservation_code = " & lngWuBookID, dbFailOnError
+                    Else
+                        MsgBox "Error al cancelar reserva nº " & Me.WuBookID & " en WuBook", vbExclamation
+                    End If
+                End If
+                If intOp = 5 Then
+                    Me.WuBookID = 0
+                    GoTo OtraVuelta
+                ElseIf intOp = 3 Then
+                    WB_UpdateAvail CDate(Me.txtFechaLlegada), CDate(Me.txtFechaSalida), False
+                Else
+                    If Me.cmbEstadoFicha <> 9 Then
+                        If Me.AllowEdits = False Then Me.AllowEdits = True
+                        Me.cmbEstadoFicha = 9
+                        Call cmbEstadoFicha_AfterUpdate
+                        DoCmd.RunCommand acCmdSaveRecord
+                    End If
+                End If
+            Case 4
+                Dim strRes As String, vNR As Variant
+                Set cWi = New CWired
+                If cWi.FetchBooking(Me.WuBookID, True, strRes, vNR) Then
+                    MsgBox "OK"
+                Else
+                    MsgBox "Fallo"
+                End If
+        End Select
+    End If
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnX_Click()
+    If Me.lstHabitaciones.ListIndex = -1 Then
+        MsgBox "Se debe seleccionar una " & g_strPH
+        Me.lstHabitaciones.SetFocus
+        Exit Sub
+    End If
+    Dim intR As Integer
+    If Me.lstHabitaciones.Column(2) = "X" Then
+        intR = MsgBox("¿Liberar del Panel?", vbYesNo + vbQuestion + vbDefaultButton1)
+        If intR = vbNo Then Exit Sub
+        Call LiberarDelPanel
+    Else
+        intR = MsgBox("¿Conectar al Panel?", vbYesNo + vbQuestion + vbDefaultButton1)
+        If intR = vbNo Then Exit Sub
+        Call ConectarAlPanel
+    End If
+    Me.lstHabitaciones.SetFocus
+End Sub
+
+Private Sub casIvaIncluido_AfterUpdate()
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    RecalculaTotales
+End Sub
+
+Private Sub casIvaIncluido_Click()
+    On Error Resume Next
+    If Me.casIvaIncluido = True Then
+        Me.casIvaIncluido.Top = Me.txtTotalFicha.Top
+        Me.lblIVAinc.Top = Me.txtTotalFicha.Top
+        Me.lblPrecio.Caption = "Precio (IVA inc.)"
+    Else
+        Me.casIvaIncluido.Top = Me.TotalBase.Top
+        Me.lblIVAinc.Top = Me.TotalBase.Top
+        Me.lblPrecio.Caption = "Pre.(IVA no inc.)"
+    End If
+
+End Sub
+
+Private Sub cmbEstadoFicha_AfterUpdate()
+    On Error GoTo HandleError
+    Me.ConfirmadaReserva.Visible = Me.cmbEstadoFicha.value = 1
+    Me.FechaReserva.Enabled = Me.cmbEstadoFicha.value = 1
+    Me.EnviarRecordatorioSN.Visible = Me.cmbEstadoFicha.value = 1
+    Me.btnEnviaRecordatorio.Visible = Me.cmbEstadoFicha.value = 1
+    Dim lngColores(1 To 10) As Long
+    lngColores(1) = G_lngColorReservas
+    lngColores(2) = G_lngColorActuales
+    lngColores(3) = G_lngColorFacturaPreparada
+    lngColores(4) = G_lngColorPagadoConCliente
+    lngColores(5) = G_lngColorAntigua
+    lngColores(6) = G_lngColorLimpieza
+    lngColores(7) = 0
+    lngColores(8) = 0
+    lngColores(9) = G_lngColorCancelada
+    lngColores(10) = G_lngColorFijos
+    Me.lblFicha.BackColor = lngColores(Me.cmbEstadoFicha.value)
+    Me.cmbEstadoFicha.BackColor = lngColores(Me.cmbEstadoFicha.value)
+    Me.Section(acHeader).BackColor = lngColores(Me.cmbEstadoFicha.value)
+    Call PonCaptions
+    Me.btnPagosPrevistos.Visible = Nz(Me.EstadoFicha, 2) = 10
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub cmbEstadoFicha_BeforeUpdate(Cancel As Integer)
+    Dim strParcelas As String, intResp As Integer
+    Select Case Me.cmbEstadoFicha
+        Case 1, 5
+            intResp = LiberarFichaDePanel(Me.IdFichaCab, , True)
+            If intResp > 0 Then
+                intResp = MsgBox("¿Desea liberar la/s " & g_strPH_s & " del panel?", vbDefaultButton1 + vbYesNo + vbQuestion)
+                If intResp = vbYes Then
+                    LiberarFichaDePanel (Me.IdFichaCab)
+                    Me.lstHabitaciones.Requery
+                End If
+            End If
+        Case 2
+            Dim strOcupadas As String
+            If AsignarFichaAPanel(Me.IdFichaCab, "TODAS", strOcupadas) = False Then
+                MsgBox "Se encontraron las siguientes " & g_strPHs & " ocupadas:" & vbCrLf & strOcupadas
+            End If
+            Me.lstHabitaciones.Requery
+            
+            
+    End Select
+
+End Sub
+
+Private Sub Detalle_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gintCrono = gintCronoMax
+End Sub
+
+Public Sub DNICliente_AfterUpdate()
+    Dim db As DAO.Database
+    Dim rs As Recordset
+    Dim strNifOld As String
+    On Error GoTo Error_DNICliente_AfterUpdate
+    strNifOld = Me.DNICliente
+    Me.DNICliente = SoloNum(Me.DNICliente, True)
+    If Me.TipoDocumento = "D" Or Me.TipoDocumento = "C" Then
+        If IsNumeric(Me.DNICliente) And Len(Me.DNICliente) = 8 Then
+            strNifOld = Format(Me.DNICliente, "#,##0") & "-" & letra_dni(Me.DNICliente)
+            Me.DNICliente = Me.DNICliente & letra_dni(Me.DNICliente)
+        End If
+    End If
+    If Me.TipoDocumento = "N" Then
+        If IsNumeric(Me.DNICliente) And Len(Me.DNICliente) = 7 Then
+            strNifOld = "X" & Format(Me.DNICliente, "#,##0") & "-" & letra_dni(Me.DNICliente)
+            Me.DNICliente = "X" & Me.DNICliente & letra_dni(Me.DNICliente)
+        End If
+    End If
+'    If Not IsNull(Me.NombreCliente) Or Not IsNull(Me.ApellidosCliente) Then
+'        Exit Sub
+'    End If
+    Set db = CurrentDb
+    Set rs = db.OpenRecordset("tbClientes", dbOpenSnapshot)
+    rs.FindFirst "NIF = " & ConComillas(Nz(Me.DNICliente, ""))
+    If Not rs.NoMatch Then
+CopiaCliente:
+        Me.txtCodCli = rs("CodCliente")
+        Me.NombreCliente = rs("NombreCli")
+        Me.ApellidosCliente = rs("ApellidosCli")
+        Me.DireccionCliente = rs("Direccion")
+        Me.LocalidadCliente = rs("Ciudad")
+        Me.ProvinciaCliente = rs("EdoOProv")
+        Me.PaisCliente = rs("Pais")
+        If InStr(rs("Telefono"), Nz(Me.TelefonoCliente, "?")) > 0 Then
+            Me.TelefonoCliente = rs("Telefono")
+        Else
+            Me.TelefonoCliente = RecDerTop(rs("Telefono") & "-" & Me.TelefonoCliente, 0, 50)
+        End If
+        Me.CPCliente = rs("CodPostal")
+        'Me.Contacto = rs("Contacto")
+        'Me.MatriculaVehiculo = rs("MatriculaVehiculo")
+        'Me.ModeloVehiculo = rs("ModeloVehiculo")
+        If rs("Descuento") > 0 And Me.Dto = 0 Then
+            Me.Dto = rs("Descuento")
+        End If
+        If Len(rs("Notas")) > 0 Then
+            MsgBox rs("Notas"), , "Notas del Cliente"
+        End If
+        If Len(rs("Observaciones")) > 0 Then
+            If InStr(Nz(Me.Notas, ""), rs("Observaciones")) = 0 Then
+                Me.Notas = Trim(Me.Notas & " -> " & rs("Observaciones"))
+            End If
+        End If
+        If Len(rs("EMail")) > 0 Then
+            If InStr(Nz(Me.EMail, ""), rs("EMail")) = 0 Then
+                Me.EMail = Trim(Me.EMail & " " & rs("EMail"))
+            End If
+        End If
+        Me.FechaNacimiento = rs("FechaNacimiento")
+        Me.TipoDocumento = rs("TipoDocumento")
+        Me.SexoCliente = rs("SexoCliente")
+        Me.FechaExpedicion = rs("FechaExpedicion")
+        Me.Dto = rs("Descuento")
+        MsgBox "Cliente existente en la base de datos", vbInformation, "H4"
+    Else
+        rs.FindFirst "NIF = " & ConComillas(strNifOld)
+        If Not rs.NoMatch Then
+            Me.DNICliente = strNifOld
+            GoTo CopiaCliente
+        End If
+    End If
+Salir_DNICliente_AfterUpdate:
+    Exit Sub
+Error_DNICliente_AfterUpdate:
+    Select Case Err
+        'Case 2424
+        Case Else
+            MsgBox Err.Description & ", Error nº " & Err.Number _
+            & vbCrLf & "En DNICliente_AfterUpdate"
+    End Select
+    Resume Salir_DNICliente_AfterUpdate
+
+End Sub
+
+
+Private Sub DNICliente_KeyDown(KeyCode As Integer, Shift As Integer)
+    Dim stDocName As String, v As Variant
+    If Me.AllowEdits = False Then Exit Sub
+    If KeyCode = vbKeyF4 Then
+        If Me.DNICliente.Locked = True Then Exit Sub
+'        stDocName = "frmSeleccionarCliente"
+'        DoCmd.OpenForm stDocName, , , , , acDialog
+        Me.DNICliente = Nz(BuscaAyuda("CL0", Me.DNICliente, 1), Me.DNICliente)
+        Call DNICliente_AfterUpdate
+        KeyCode = 0
+    End If
+    If KeyCode = vbKeyRight And (Shift And acCtrlMask) Then
+        Call btnFichaCliente_Click
+        KeyCode = 0
+    End If
+End Sub
+
+Private Sub EncabezadoDelFormulario_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gintCrono = gintCronoMax
+End Sub
+
+Private Sub Form_Activate()
+    Me.lstPagos.Requery
+End Sub
+
+ Private Sub Form_AfterDelConfirm(status As Integer)
+    On Error GoTo Error_Form_AfterDelConfirm
+    If status <> acDeleteOK Then
+        gstrFichasBorradas = ""
+        Exit Sub
+    End If
+    Dim rs As Recordset
+    Dim strSQL As String
+    strSQL = "SELECT tbParcelas.IdFicha, tbParcelas.NombreParcela"
+    strSQL = strSQL & " FROM tbParcelas"
+    strSQL = strSQL & " WHERE tbParcelas.IdFicha = "
+    Dim i As Integer, j As Integer, lngIdFicha As Long
+    i = 1
+    j = 1
+    If gstrFichasBorradas = "" Then gstrFichasBorradas = Me.IdFichaCab & ","
+    While i > 0
+        i = InStr(j, gstrFichasBorradas, ",")
+        If i > 0 Then
+            lngIdFicha = CLng(Mid(gstrFichasBorradas, j, i - j))
+'            ActualizarTbOcupadas lngIdFicha, True
+            strSQL = strSQL & lngIdFicha & " OR tbParcelas.IdFicha = "
+            j = i + 1
+            Ficha_to_Planing lngIdFicha
+        End If
+        
+    Wend
+    If j > 1 Then strSQL = Left(strSQL, Len(strSQL) - 25)
+    gstrFichasBorradas = ""
+    Set rs = CurrentDb.OpenRecordset(strSQL)
+    While Not rs.EOF
+        rs.Edit
+        rs!IdFicha = 0
+        rs.Update
+        If IsOpenForm("frmPanel") Then
+            PintaBotones Forms!frmPanel, rs("NombreParcela")
+        End If
+        rs.MoveNext
+    Wend
+Salir_Form_AfterDelConfirm:
+    Exit Sub
+Error_Form_AfterDelConfirm:
+    Select Case Err
+        Case Else
+            MsgBox "error nº " & Err & " en Form_AfterDelConfirm" & vbCrLf & Err.Description
+            Resume Salir_Form_AfterDelConfirm
+    End Select
+End Sub
+
+Private Sub Form_AfterInsert()
+    Me.IdFichaCab.Visible = True
+    CargaListas
+End Sub
+
+Private Sub Form_AfterUpdate()
+    'MsgBox "Form_AfterUpdate"
+    Dim intR As Integer
+    On Error GoTo Error_Form_AfterUpdate
+    If IsOpenForm("frmPanel") Then
+        PintaBotones Forms!frmPanel, , Me.IdFichaCab
+    End If
+    'Dim cF As New cFichaCab
+    'cF.FindFirst "IdFichaCab = " & Me.IdFichaCab
+    'cF.Detalle_to_Planing
+    Ficha_to_Planing Nz(Me.IdFichaCab, 0)
+    PintaParcelaSiHayPlano , Me.IdFichaCab
+    If IsNull(Me.DNICliente) Then Exit Sub
+    If Me.DNICliente = "-" Then Exit Sub
+    If Me.DNICliente = "" Then Exit Sub
+    GrabaCliente Me, Nz(Me.txtCodCli, "")
+    'FichaAlPlani Me.IdFichaCab
+    If Me.EstadoFicha = 5 Then GeneraFichaINE Me.IdFichaCab
+Exit Sub
+    
+    'Dim rs As Recordset
+    'Set rs = CurrentDb.OpenRecordset("tbClientes")
+    'rs.FindFirst "NIF = '" & Me.DNICliente & "'"
+    'If rs.NoMatch Then
+    '    If Not IsNull(Me.txtCodCli) Then
+    '        rs.FindFirst "CodCliente = " & ConComillas(Me.txtCodCli)
+    '        If Not rs.NoMatch Then
+    '            If Me.txtCodCli = "00000" Then
+    '                rs.AddNew
+    '                rs("CodCliente") = Format(CLng(DMax("CodCliente", "tbClientes")) + 1, "00000")
+    '                GoTo Grabar
+    '            Else
+    '                intR = MsgBox("¿Modificar NIF de " & rs("NombreCli") & " " & rs("ApellidosCli") & " de " & rs("NIF") & " a " & Me.DNICliente & "?", vbQuestion + vbOKCancel)
+    '            End If
+    '            If intR = vbCancel Then
+    '                intR = MsgBox("¿Añadir Ficha de Cliente " & Me.NombreCliente & " " & Me.ApellidosCliente & " NIF: " & Me.DNICliente & "?", vbQuestion + vbOKCancel)
+    '                If intR = vbCancel Then Exit Sub
+    '                rs.AddNew
+    '                rs("CodCliente") = Format(CLng(DMax("CodCliente", "tbClientes")) + 1, "00000")
+    '                GoTo Grabar
+    '            End If
+    '            rs.Edit
+    '            GoTo Grabar
+    '        End If
+    '    Else
+    '        rs.AddNew
+    '        rs("CodCliente") = Format(CLng(Nz(DMax("CodCliente", "tbClientes"), 0)) + 1, "00000")
+    '        GoTo Grabar
+    '    End If
+    'Else
+    '    rs.Edit
+    'End If
+'Grabar:
+    ''rs("NIF") = Me![DNICliente]
+    'rs("NombreCli") = Me![NombreCliente]
+    'rs("ApellidosCli") = Me![ApellidosCliente]
+'   ' rs("Contacto") = Me![Contacto]
+    'rs("Direccion") = Me![DireccionCliente]
+    'rs("Ciudad") = Me![LocalidadCliente]
+    'rs("EdoOProv") = Me![ProvinciaCliente]
+    'rs("CodPostal") = Me![CPCliente]
+    'rs("Pais") = Me![PaisCliente]
+    'rs("Telefono") = Me![TelefonoCliente]
+    'rs("TelefonoSoloNum") = SoloNum(Nz(Me![TelefonoCliente], ""))
+    ''rs("MatriculaVehiculo") = Me![MatriculaVehiculo]
+    ''rs("ModeloVehiculo") = Me![ModeloVehiculo]
+    'rs("FechaNacimiento") = Me.FechaNacimiento
+    'rs("EMail") = Me.EMail
+    'rs("TipoDocumento") = Me.TipoDocumento
+    'rs("SexoCliente") = Me.SexoCliente
+    'rs("FechaExpedicion") = Me.FechaExpedicion
+    'If Nz(Me.IdAgencia, 0) = 0 Then
+    '    rs("Descuento") = Me.Dto
+    'End If
+    'rs.Update
+Salir_Form_AfterUpdate:
+    Exit Sub
+Error_Form_AfterUpdate:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en Form_AfterUpdate" & vbCrLf & Err.Description
+            Resume Salir_Form_AfterUpdate
+            Resume Next
+    End Select
+End Sub
+
+Private Sub Form_BeforeInsert(Cancel As Integer)
+    Me.IdFichaCab = Nz(DMax("IdFichaCab", "tbFichasCab"), 0) + 1
+    Me.casIvaIncluido = DameValorParam("IVAIncluidoEnFacturasYFichas")
+End Sub
+
+Public Sub Form_Current()
+    'MsgBox "Currenting"
+    On Error GoTo HandleError
+    Dim intBloq As Integer
+    Me.txtCodCli = DLookup("CodCliente", "tbClientes", "NIF = " & ConComillas(Nz(Me.DNICliente, "")))
+    CargaListas
+    'Me.lstHabitaciones.Requery
+    'Me.lstDetalle.Requery
+    'Me.lstPagos.Requery
+    Me.lstPagos = Null
+    Call lstPagos_Click
+    Call casIvaIncluido_Click
+    Call cmbEstadoFicha_AfterUpdate
+    Call IdAgencia_Click
+    Call IdProcedencia_AfterUpdate
+    If Me.cmbEstadoFicha > 3 Then
+        intBloq = True
+    Else
+        intBloq = False
+    End If
+    If intBloq <> gintBloqueado Then
+        gintBloqueado = intBloq
+        BloqueoFormulario Me, gintBloqueado
+    End If
+    VerNotas
+    Me.txtPendiente.Visible = Me.txtPendiente <> 0
+    
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub Form_Delete(Cancel As Integer)
+    On Error GoTo HandleError
+    If Not IsNull(DLookup("IdCajaDet", "tbCajaDet", "IdFrom = " & Me.IdFichaCab & " AND Origen = 'E'")) Then
+        MsgBox "Se deben eliminar pagos de la ficha " & Me.IdFichaCab & " antes de borrarla"
+        Cancel = True
+        Exit Sub
+    End If
+    gstrFichasBorradas = gstrFichasBorradas & Me.IdFichaCab & ","
+    AñadeParcelasDeFichaARecarga Me.IdFichaCab
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Public Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+    Call ControlTeclas(Me, KeyCode, Shift, gstrTeclas)
+    gShift = Shift
+    gintCrono = 0
+End Sub
+
+Private Sub Form_Load()
+    On Error GoTo HandleError
+    Dim rs As Recordset, lngIdFichaCab  As Long
+    'Traducir me
+    Me.btnAsignarParcela.Caption = "(A)signar" & vbCrLf & g_strPH
+    'Me.txtNumHab.Format = "0 " & g_strPH_s & ";;"
+    gstrTeclas = "|CTRL_0|#txtFechaLlegada#"
+    gstrTeclas = gstrTeclas & "|CTRL_1|#lstDetalle#"
+    gstrTeclas = gstrTeclas & "|CTRL_2|#lstPagos#"
+    gstrTeclas = gstrTeclas & "|CTRL_A|#btnAsignarParcela#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_I|#btnIdioma#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_F|#btnFacturarFicha#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_N|#btnFacturarSN#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_O|#btnObservaciones#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_S|#btnServiciosDia#¬"
+'    gstrTeclas = gstrTeclas & "|CTRL_T|#altTotalesSXD#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_P|#btnPolicia#¬"
+    gstrTeclas = gstrTeclas & "|CTRL_F2|#btnAdd#¬"
+    gstrTeclas = gstrTeclas & "|F6|#btnCuenta#¬"
+    gstrTeclas = gstrTeclas & "|F7|#btnFacturarFicha#¬"
+    gstrTeclas = gstrTeclas & "|F11|#btnPago#¬"
+    gstrTeclas = gstrTeclas & "|F5|#btnCerrarFicha#¬"
+    gstrTeclas = gstrTeclas & "|F10|#btnCambiarColumnas#¬"
+    gstrTeclas = gstrTeclas & "|ALT_F7|#btnFichaCliente#¬"
+    gstrTeclas = gstrTeclas & "|F3|#btnNotas#¬"
+    gstrTeclas = gstrTeclas & "|ALT_W|#btnAltWuBook#¬"
+    Dim strOpenArgs As String
+    strOpenArgs = Nz(Me.OpenArgs, "")
+    If strOpenArgs = "Nueva Ficha" Then
+        Set rs = Me.RecordsetClone
+        rs.AddNew
+        lngIdFichaCab = Nz(DMax("IdFichaCab", "tbFichasCab"), 0) + 1
+        rs("IdFichaCab") = lngIdFichaCab
+        rs("IVAIncluido") = Nz(DameValorParam("IVAIncluidoEnFacturasYFichas"), True)
+        
+        rs.Update
+        AbrirFichaNum lngIdFichaCab
+'        DoCmd.GoToRecord acDataForm, Me.Name, acNewRec
+    ElseIf strOpenArgs = "Fichas Marcadas" Then
+        Me.RecordSource = "SELECT tbFichasCab.* FROM tbFichasCab INNER JOIN auxFichasCab_Marcar ON tbFichasCab.IdFichaCab = auxFichasCab_Marcar.IdFichaCab"
+        
+    End If
+    If True Then 'Me.OpenArgs = "Mod" Then
+        Me.btnSalir.Visible = True
+        Me.btnModi.Left = Me.btnSalir.Left - Me.btnModi.Width
+        Me.btnBorrar.Left = Me.btnModi.Left - Me.btnBorrar.Width
+        Me.btnBorrar.Visible = True
+        Me.btnBuscar.Left = Me.btnBorrar.Left - Me.btnBuscar.Width
+    Else
+        Me.btnSalir.Visible = False
+        Me.btnBorrar.Visible = False
+        Me.btnModi.Left = Me.btnSalir.Left
+    End If
+    Call LST_FRM
+    Call CentrarTodoFRM(Me, Me.cdrCentrar, , False)
+    Me.btnIDSCAN.Visible = g_ICAR
+    Me.btn3M.Visible = g_3M
+    Me.btnPoliCheckIn.Visible = g_PoliCheckIn
+    Me.WuBookID.Visible = g_SincroWB 'Nz(DameValorParam("SincroAH_SincroSN"), False) = True
+    Me.btn_cc_data.Tag = IIf(g_SincroWB, "TarjetaSINoDesbloquear", "NoDesbloquear")
+    Me.btnAltWuBook.Visible = g_SincroWB
+    Me.btnWBreservation.Visible = Me.WuBookID.Visible
+    Me.btnContadorE.Visible = g_Fijos
+    Me.btnPrintLecturasContadores.Visible = g_Fijos
+    Me.btnServiciosDia.Visible = Nz(DameValorParam("PartesG_Comedor"), True)
+    Me.txtTotalServicios.Visible = Me.btnServiciosDia.Visible
+    Me.btnDescripCliente.Visible = Nz(DameValorParam("PartesG_Desayunos"), False)
+    Me.DescripcionCliente.Visible = Me.btnDescripCliente.Visible
+    Me.btnCuenta.Caption = Nz(DameValorParam("Fichas_NombreDocumento"), "Cuenta") & vbCrLf & "-F6-"
+    If strOpenArgs = "Es Nueva" Then If Nz(DameValorParam("ListaServiciosAbrirAutoEnNuevasSN"), False) = True Then Call btnListaSD_Click
+    Me.btnNotasParteG.Visible = Nz(DameValorParam("FichasVerNotasPG"), True)
+    Me.NotasParteG.Visible = Me.btnNotasParteG.Visible
+    If Me.NotasParteG.Visible Then
+        Me.Notas2.Height = Me.NotasParteG.Top - Me.Notas2.Top - 50
+        Me.NotasParteG.Height = Me.EncabezadoDelFormulario.Height - Me.NotasParteG.Top - 50
+    Else
+        Me.Notas2.Height = Me.EncabezadoDelFormulario.Height - Me.Notas2.Top - 50
+    End If
+    Me.cmbEstadoFicha.Height = Me.EncabezadoDelFormulario.Height - Me.cmbEstadoFicha.Top - 50
+    gintCronoMax = Nz(DameValorParam("FichasCronoMax"), 0)
+    If gintCronoMax > 0 Then
+        Me.TimerInterval = 1000
+    Else
+        Me.TimerInterval = 0
+    End If
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gShift = Shift
+    gintCrono = gintCronoMax
+End Sub
+
+Private Sub Form_Timer()
+    On Error GoTo HandleError
+Ini:
+    If gintCrono = 0 Then gintCrono = gintCronoMax
+    If gintCrono > 0 Then
+        If gintCrono <= 5 Then
+            If Not IsOpenForm("frmBusyBox") Then
+                gintCrono = 0
+                GoTo Ini
+            End If
+        End If
+        gintCrono = gintCrono - 1
+        SysCmd acSysCmdSetStatus, gintCrono
+        If gintCrono < 6 Then MensajeBusyBox "Guardando ficha en " & gintCrono & " seg.", "Se guarda ficha", True
+        If gintCrono <= 0 Then
+            MensajeBusyBox "", , True
+            DoCmd.Close acForm, Me.Name
+        End If
+    End If
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+        
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    On Error GoTo HandleError
+'    MsgBox "Unloading"
+    Dim vR As Variant, intR As Integer
+    If IsOpenForm("frmPlaning") Then
+        vR = SysCmd(acSysCmdSetStatus, "Actualizando Planing")
+        Call Forms("frmPlaning").Form_Load
+        vR = SysCmd(acSysCmdClearStatus)
+    End If
+    If IsOpenForm("frmPlaningH") Then
+        vR = SysCmd(acSysCmdSetStatus, "Actualizando Planing")
+        CargarPlanningH Nz(Forms("frmPlaningH").txtFechaIni, Date), Forms("frmPlaningH").subfrmPlanning.Form, , True
+        'Call Forms("frmPlaningH").Form_Load
+        vR = SysCmd(acSysCmdClearStatus)
+    End If
+    If IsOpenForm("frmCuadroOcupacion") Then
+        vR = SysCmd(acSysCmdSetStatus, "Actualizando Cuadro Ocupación")
+        'CargarPlanningH Nz(Forms("frmPlaningH").txtFechaIni, Date), Forms("frmPlaningH").subfrmPlanning.Form, , True
+        Call Forms("frmCuadroOcupacion").My_Form_Activate
+        vR = SysCmd(acSysCmdClearStatus)
+    End If
+    If IsOpenForm("frmFichasAbiertas") Then
+        Forms("frmFichasAbiertas").lstActuales.Requery
+        Forms("frmFichasAbiertas").Visible = True
+        Forms("frmFichasAbiertas").Form.SetFocus
+    End If
+    If IsOpenForm("frmWubookReservations") Then Forms("frmWubookReservations").Visible = True
+    'If Nz(Me.IdFichaCab, 0) > 0 Then Ficha_to_Planing Me.IdFichaCab
+    AñadeParcelasDeFichaARecarga Nz(Me.IdFichaCab, 0)
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub IdAgencia_Click()
+    Me.SuReferencia.Visible = Nz(Me.IdAgencia, 0) <> 0
+End Sub
+
+Private Sub IdAgencia_Enter()
+    Me.IdAgencia.Requery
+End Sub
+
+
+Private Sub IdFichaCab_KeyDown(KeyCode As Integer, Shift As Integer)
+    On Error GoTo HandleError
+    If (Shift And acCtrlMask) <> 0 Then
+        If KeyCode = vbKeyF12 And Me.EstadoFicha = 10 Then
+            Dim intR As Integer
+            KeyCode = 0
+            intR = MsgBox("¿Modificar nº de ficha?", vbOKCancel + vbQuestion + vbDefaultButton2)
+            If intR = vbOK Then
+                Dim lngIdFicha As Long
+                lngIdFicha = Me.IdFichaCab
+                lngIdFicha = Nz(MyInputBox("Introduzca nuevo nº de ficha: ", "Nº de Ficha", CStr(lngIdFicha), "000000"), 0)
+                If lngIdFicha = 0 Then Exit Sub
+                Me.IdFichaCab = lngIdFicha
+            End If
+        End If
+    End If
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub IdProcedencia_AfterUpdate()
+    Me.lblIdProcedencia.BackColor = SpNz(Me.IdProcedencia.Column(3), 0)
+    Me.lblIdProcedencia.BackStyle = IIf(Me.lblIdProcedencia.BackColor = 0, 0, 1)
+End Sub
+
+Private Sub lstFichasEnlazadas_DblClick(Cancel As Integer)
+    If Me.lstFichasEnlazadas.ListIndex = -1 Then Exit Sub
+    AbrirFichaNum CLng(Me.lstFichasEnlazadas)
+End Sub
+
+Private Sub lstPagos_Click()
+    If CLng(Nz(Me.lstPagos.Column(5), 0)) > 0 Then
+        Me.txtNumFacturaDet.Visible = True
+        Me.btnFacturaParcial.Visible = True
+    Else
+        Me.txtNumFacturaDet.Visible = False
+        Me.btnFacturaParcial.Visible = False
+    End If
+End Sub
+
+Private Sub SubfrmFichasDet_Exit(Cancel As Integer)
+    If Me.Dirty Then
+        DoCmd.RunCommand acCmdSaveRecord
+    End If
+End Sub
+
+Private Sub IdAgencia_AfterUpdate()
+    On Error GoTo HandleError
+    Me.Dto = Me.IdAgencia.Column(2)
+    If Me.IdFactura = 0 And Me.IdAgencia.Column(3) = True Then
+        Me.IdFactura = -1
+    End If
+    Dim db As DAO.Database
+    Dim rs As Recordset
+    Set db = CurrentDb
+    Set rs = db.OpenRecordset("tbClientes")
+    rs.FindFirst "IdCliente = " & Nz(Me.IdAgencia, 0)
+    If Not rs.NoMatch Then
+        If Len(rs("Notas")) > 0 Then
+            MsgBox rs("Notas"), , "Notas de la Empresa"
+        End If
+        If Len(rs("Observaciones")) > 0 Then
+            If InStr(Nz(Me.Notas, ""), rs("Observaciones")) = 0 Then
+                Me.Notas = Trim(Me.Notas & " -> " & rs("Observaciones"))
+            End If
+        End If
+        If rs("Descuento") > 0 And Me.Dto = 0 Then
+            Me.Dto = rs("Descuento")
+        End If
+        If Len(rs("EMail")) > 0 Then
+            If InStr(Nz(Me.EMail, ""), rs("EMail")) = 0 Then
+                On Error Resume Next
+                Me.EMail = Trim(Me.EMail & " " & rs("EMail"))
+            End If
+        End If
+    End If
+    
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub lstDetalle_DblClick(Cancel As Integer)
+    Call btnEdit_Click
+End Sub
+
+Private Sub lstDetalle_KeyDown(KeyCode As Integer, Shift As Integer)
+    Select Case KeyCode
+        Case vbKeyReturn
+            Call btnEdit_Click
+        Case vbKeyDelete
+            Call btnDel_Click
+        Case vbKeyAdd
+            Call btnAdd_Click
+    End Select
+End Sub
+
+
+Private Sub txtFechaLlegada_BeforeUpdate(Cancel As Integer)
+    Dim i As Integer, lngIdFicha As Long, datSalida As Date
+    If Not IsDate(Me.txtFechaLlegada) Then Exit Sub
+    If Not IsDate(Me.txtFechaSalida) Then Exit Sub
+    If Me.txtFechaLlegada > Me.txtFechaSalida Then
+        Me.txtFechaSalida = Me.txtFechaLlegada + 1
+    End If
+    
+    For i = 0 To Me.lstHabitaciones.ListCount - 1
+        lngIdFicha = Me.IdFichaCab
+        If ComprobarReservas(Me.txtFechaLlegada, datSalida, Me.lstHabitaciones.Column(1, i), lngIdFicha) = False Then
+            MsgBox "La " & g_strPH & Me.lstHabitaciones.Column(1, i) & " está reservada por la ficha nº: " & lngIdFicha
+            Cancel = True
+        End If
+    Next i
+End Sub
+
+Private Sub txtFechaLlegada_KeyDown(KeyCode As Integer, Shift As Integer)
+    If KeyCode = vbKeyReturn And IsNull(Me.txtFechaSalida) Then
+        Call txtFechaLlegada_AfterUpdate
+    End If
+    If KeyCode = vbKeyUp Then
+        Me.IdFichaCab.SetFocus
+        KeyCode = 0
+        Exit Sub
+    End If
+    If Me.AllowEdits = False Then Exit Sub
+    If KeyCode = vbKeyF4 Then
+        Call btnFLlegada_Click
+    End If
+End Sub
+
+Private Sub txtFechaLlegada_AfterUpdate()
+    On Error GoTo Error_txtFechaLlegada_AfterUpdate
+    If Me.txtFechaLlegada > Date Then
+        Me.cmbEstadoFicha = 1
+        Call cmbEstadoFicha_AfterUpdate
+    End If
+    Dim strSQL As String, rs As Recordset, intResp As Integer
+    Dim lngIdFichaOcupa  As Long
+    If IsNull(Me.IdFichaCab) Then
+        Me.txtFechaSalida = Me.txtFechaLlegada + 1
+        DoCmd.RunCommand acCmdSaveRecord
+    End If
+    strSQL = "SELECT tbFichasDet.IdFichaCab, tbFichasDet.FechaInicio, tbFichasDet.Parcela, IIf(IsNull([FechaFin]),[FechaSalida],[FechaFin]) AS FHasta"
+    strSQL = strSQL & " FROM tbFichasCab INNER JOIN tbFichasDet ON tbFichasCab.IdFichaCab = tbFichasDet.IdFichaCab"
+    strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & ") AND ((tbFichasDet.FechaInicio) Is Not Null And (tbFichasDet.FechaInicio)<>#" & Format(Me.txtFechaLlegada, "mm/dd/yyyy") & "#));"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenDynaset)
+    If rs.EOF Then
+    Else
+        intResp = MsgBox("Atención existen Registros en el Detalle de la ficha con fecha de Inicio diferente a la de la cabecera, ¿Desea modificar todos a " & Me.txtFechaLlegada & "?, ", vbQuestion + vbYesNo)
+        If intResp = vbYes Then
+            While Not rs.EOF
+                If Len(rs("Parcela")) > 0 Then
+                    lngIdFichaOcupa = ComprobarDisponibilidad(rs("Parcela"), CDate(Me.txtFechaLlegada), rs("FHasta"), rs("IdFichaCab"))
+                    If lngIdFichaOcupa <> 0 Then
+                        MsgBox "No se puede modificar la " & rs("Parcela") & " por encontrarse ocupada por la ficha: " & lngIdFichaOcupa
+                        GoTo Siguiente
+                    End If
+                End If
+                rs.Edit
+                rs("FechaInicio") = Me.txtFechaLlegada
+                rs.Update
+Siguiente:
+                rs.MoveNext
+            Wend
+            Me.lstDetalle.Requery
+            Call Me.RecalculaTotales
+        End If
+    End If
+Salir_txtFechaLlegada_AfterUpdate:
+    Exit Sub
+Error_txtFechaLlegada_AfterUpdate:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en txtFechaLlegada_AfterUpdate" & vbCrLf & Err.Description
+            Resume Salir_txtFechaLlegada_AfterUpdate
+            Resume Next
+    End Select
+End Sub
+
+Private Sub txtFechaSalida_BeforeUpdate(Cancel As Integer)
+'    Call txtFechaLlegada_BeforeUpdate(Cancel)
+    Dim strSQL As String, lngIdFichaOcupa As Long, rs As Recordset
+    strSQL = "SELECT tbFichasDet.IdFichaCab, tbFichasDet.FechaInicio, tbFichasDet.FechaFin, Parcela"
+    strSQL = strSQL & " FROM tbFichasDet"
+    strSQL = strSQL & " WHERE tbFichasDet.IdFichaCab=" & Me.IdFichaCab & ""
+    strSQL = strSQL & " AND tbFichasDet.FechaFin Is Null"
+    strSQL = strSQL & " AND tbFichasDet.Parcela Is Not Null"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenDynaset)
+    While Not rs.EOF
+        lngIdFichaOcupa = ComprobarDisponibilidad(rs("Parcela"), rs("FechaInicio"), Nz(Me.txtFechaSalida, rs("FechaInicio") + 1), Me.IdFichaCab)
+        If lngIdFichaOcupa <> 0 Then
+            MsgBox "No se puede modificar la fecha de salida por encontrarse ocupada la " & rs("Parcela") & " en la ficha nº: " & lngIdFichaOcupa & vbCrLf & "(Se debería indicar antes fecha de salida en detalle)", vbExclamation
+            Cancel = True
+            SendKeys "{ESC}"
+            Exit Sub
+        End If
+        rs.MoveNext
+    Wend
+
+End Sub
+
+Private Sub txtFechaSalida_Exit(Cancel As Integer)
+'    If IsNull(Me.txtFechaSalida) Then
+'        MsgBox "Se debe introducir un fecha"
+'        Cancel = True
+'    End If
+End Sub
+
+Private Sub txtFechaSalida_KeyDown(KeyCode As Integer, Shift As Integer)
+    On Error GoTo HandleError
+    If Me.AllowEdits = False Then Exit Sub
+    Dim varFecha As Variant
+    If KeyCode <> vbKeyF4 And KeyCode <> vbKeyAdd And KeyCode <> vbKeySubtract And KeyCode <> 187 And KeyCode <> 189 Then Exit Sub
+    If KeyCode = vbKeyF4 Then
+        If IsNull(Me.txtFechaSalida) Then
+            Me.txtFechaSalida = Me.txtFechaLlegada
+        End If
+        varFecha = adhDoCalendar(CDate(Me.txtFechaSalida), 1, "Fecha SALIDA")
+    End If
+    If KeyCode = vbKeyAdd Or KeyCode = 187 Then
+        varFecha = CDate(Nz(Me.txtFechaSalida, Me.txtFechaLlegada)) + 1
+    End If
+    If KeyCode = vbKeySubtract Or KeyCode = 189 Then
+        varFecha = CDate(Me.txtFechaSalida) - 1
+    End If
+    If Not IsDate(varFecha) Then Exit Sub
+    Dim vstrAux As Variant, Cancel As Integer
+    vstrAux = Me.txtFechaSalida
+    Me.txtFechaSalida = varFecha
+    Call txtFechaSalida_BeforeUpdate(Cancel)
+    If Cancel = True Then
+        Me.txtFechaSalida = vstrAux
+        Exit Sub
+    End If
+    Call txtFechaSalida_AfterUpdate
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub txtFechaSalida_AfterUpdate()
+    On Error GoTo HandleError
+    Dim strSQL As String, rs As Recordset, intResp As Integer
+    DoCmd.RunCommand acCmdSaveRecord
+    'strSQL = "SELECT tbFichasDet.IdFichaCab, tbFichasDet.FechaFin"
+    'strSQL = strSQL & " FROM tbFichasDet"
+    'strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & ") AND ((tbFichasDet.FechaFin) Is Not Null And (tbFichasDet.FechaFin)<>#" & Format(Me.txtFechaSalida, "mm/dd/yyyy") & "#));"
+    'Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenDynaset)
+    If True Then 'rs.EOF Then
+    Else
+        'intResp = MsgBox("Atención existen Registros en el Detalle de la ficha con fecha de Fin diferente a la de la cabecera, ¿Desea modificar todos a " & Me.txtFechaSalida & "?, ", vbQuestion + vbYesNo)
+        'If intResp = vbYes Then
+        '    While Not rs.EOF
+        '        rs.Edit
+        '        rs("FechaFin") = Me.txtFechaSalida
+        '        rs.Update
+        '        rs.MoveNext
+        '    Wend
+        'End If
+    End If
+    ComprobarPreciosTemporadas Me.IdFichaCab
+    Call Me.RecalculaTotales
+    Me.lstDetalle.Requery
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnCerrarFicha_Click()
+    Dim intRes As Integer, strResp As String
+    If IsNull(Me.IdFichaCab) Then Exit Sub
+VerEstadoFicha:
+    Select Case Me.cmbEstadoFicha
+        Case 1, 5
+            intRes = MsgBox("¿Quiere pasar la ficha a actual?", vbDefaultButton1 + vbYesNo + vbQuestion)
+            If intRes = vbNo Then Exit Sub
+            Dim strSQL As String, rs As Recordset
+            strSQL = "SELECT tbFichasDet.IdFichaCab, tbFichasDet.Parcela, tbParcelas.IdFicha"
+            strSQL = strSQL & " FROM tbParcelas INNER JOIN tbFichasDet ON tbParcelas.NombreParcela = tbFichasDet.Parcela"
+            strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & "));"
+            Set rs = CurrentDb.OpenRecordset(strSQL)
+            intRes = vbCancel
+            While Not rs.EOF
+                If rs("IdFicha") <> 0 And rs("IdFicha") <> rs("IdFichaCab") Then
+                    intRes = MsgBox("La " & g_strPH & " " & rs("Parcela") & " figura actualmente como ocupada. ¿Asignarla ahora a esta ficha?", vbYesNoCancel + vbQuestion)
+                    If intRes = vbCancel Then Exit Sub
+                    strResp = strResp & rs("Parcela") & "¬" & IIf(intRes = vbYes, "S", "N") & "|"
+                End If
+                rs.MoveNext
+            Wend
+            Me.cmbEstadoFicha = 2
+            If rs.RecordCount > 0 Then
+                rs.MoveLast
+            End If
+            While Not rs.BOF
+                If rs("IdFicha") <> 0 And InStr(strResp, rs("Parcela") & "¬S|") = 0 Then
+                Else
+                    rs.Edit
+                    rs("IdFicha") = rs("IdFichaCab")
+                    rs.Update
+                End If
+                rs.MovePrevious
+            Wend
+            Call Form_Current
+            If IsOpenForm("frmPanel") Then
+                PintaBotones Forms!frmPanel, , Me.IdFichaCab
+            End If
+            Exit Sub
+        Case 2
+            If Me.IdFactura <> 0 Then
+                If TotalFichaPagos(Me.IdFichaCab) < TotalFicha(Me.IdFichaCab, 3) Then
+                    intRes = MsgBox("No se ha realizado el pago correspondiente, quedará la ficha pendiente de pago", vbInformation + vbOKCancel)
+                    If intRes = vbCancel Then Exit Sub
+                End If
+                intRes = MsgBox("¿Quiere pasar la ficha a limpieza?", vbDefaultButton1 + vbYesNoCancel + vbQuestion)
+                If intRes = vbCancel Then Exit Sub
+                Me.cmbEstadoFicha = IIf(intRes = vbYes, 6, 5)
+            Else
+                intRes = MsgBox("¿Quiere facturar la ficha?", vbDefaultButton1 + vbYesNoCancel + vbQuestion)
+                If intRes = vbCancel Then Exit Sub
+                If intRes = vbYes Then
+                    Call btnFacturarFicha_Click
+                Else
+                    Me.cmbEstadoFicha = 3
+                    GoTo VerEstadoFicha
+                End If
+            End If
+        Case 3, 4
+            If TotalFichaPagos(Me.IdFichaCab) < TotalFicha(Me.IdFichaCab, 3) Then
+                intRes = MsgBox("No se ha realizado el pago correspondiente, quedará la ficha pendiente de pago", vbInformation + vbOKCancel)
+                If intRes = vbCancel Then Exit Sub
+            End If
+            intRes = MsgBox("¿Quiere pasar la ficha a limpieza?", vbDefaultButton1 + vbYesNoCancel + vbQuestion)
+            If intRes = vbCancel Then Exit Sub
+            Me.cmbEstadoFicha = IIf(intRes = vbYes, 6, 5)
+        Case 6
+            intRes = MsgBox("¿Quiere cerrar la ficha?", vbDefaultButton1 + vbYesNo + vbQuestion)
+            If intRes = vbNo Then Exit Sub
+            Me.cmbEstadoFicha = 5
+    End Select
+    Me.AllowEdits = True
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+    If IsOpenForm("frmPanel") Then
+        PintaBotones Forms!frmPanel, , Me.IdFichaCab
+    End If
+    Call Form_Current
+    If Me.cmbEstadoFicha = 5 Then
+        LimpiaDatosTarjeta Me.IdFichaCab
+        If CerrarDetalleFicha(Me.IdFichaCab) = False Then
+            Exit Sub
+        End If
+        GeneraFichaINE Me.IdFichaCab
+        If LiberarFichaDePanel(Me.IdFichaCab, , True) > 0 Then
+            intRes = MsgBox("¿Quiere librar la/s " & g_strPHs & "?", vbDefaultButton1 + vbYesNo + vbQuestion)
+            If intRes = vbNo Then Exit Sub
+            LiberarFichaDePanel (Me.IdFichaCab)
+        End If
+        If IsOpenForm("frmPanel") Then
+            PintaBotones Forms!frmPanel, , Me.IdFichaCab, True
+        End If
+        If Me.AllowEdits = False Then
+            Me.AllowEdits = True
+        End If
+        'Me.cmbEstadoFicha = 5
+    End If
+CerrarTalVez:
+    If Me.FilterOn = True And gintLlamaForm_Unload = False Then
+        DoCmd.Close
+    End If
+    
+
+End Sub
+
+Private Sub btnFacturarFicha_Click()
+    Dim strCrit As String, strSQL As String, rs As Recordset, strXML As String
+    Dim strResp As String, strSerie As String, intR As Integer
+    On Error GoTo Error_btnFacturarFicha_Click
+    
+    If Me.Dirty Then DoCmd.RunCommand acCmdSaveRecord
+'Generar factura
+    Dim intResp As Integer
+    If IsNull(Me.txtFechaSalida) Then
+        MsgBox "Debe indicarse la fecha de salida"
+        Me.txtFechaSalida.SetFocus
+        Exit Sub
+    End If
+'If CDate(Me.txtFechaSalida) <> Date And Not IsNull(DLookup("IdFichaCab", "tbFichasDet", "IdFichaCab = " & Me.IdFichaCab & " AND FechaFin = Null")) Then
+    If CDate(Me.txtFechaSalida) <> Date And Me.IdFactura = 0 Then
+        If DCount("IdFichaDet", "tbFichasDet", "IdFichaCab = " & Me.IdFichaCab & " AND IsNull(FechaFin)") > 0 Then
+            intResp = MsgBox("La fecha indicada de salida no es la actual, los totales referidos a Servicios Diarios en los que no se indique expresamente la fecha del fin de Servicio se calcularán con esta fecha: " & Me.txtFechaSalida, vbOKCancel + vbExclamation + vbDefaultButton2, "¿Fecha Salida?")
+            If intResp = vbCancel Then Exit Sub
+        End If
+    End If
+BucleOpcion:
+    'strResp = InputBox("1: IMPRIMIR FACTURA" & vbCrLf & vbCrLf & "2: MODIFICAR FACTURA", , "1")
+    'If strResp = "" Then Exit Sub
+    'If strResp <> "1" And strResp <> "2" Then GoTo BucleOpcion
+    PonXML strXML, "Factura", "SI"
+    If Me.ApellidosCliente = "VENTA SERVICIO" Then PonXML strXML, "FormatoTiqueSN", "S"
+    Dim strFacturar_a_NIF As String
+    If Nz(Me.IdAgencia, "") <> "" Then
+        strFacturar_a_NIF = Nz(DLookup("NIF", "tbClientes", "IdCliente = " & Me.IdAgencia), "-")
+    Else
+        strFacturar_a_NIF = Nz(Me.DNICliente, "-")
+    End If
+    PonXML strXML, "Facturar_a_NIF", strFacturar_a_NIF
+    DoCmd.OpenForm "frmPreFactura", , , , , acDialog, strXML
+    If Not IsOpenForm("frmPreFactura") Then Exit Sub
+    Dim intFTique As Integer
+    Dim lngIdFac As Long
+    strResp = CStr(Forms!frmprefactura.mrcImpMod)
+    If Forms("frmPreFactura").cmbIdFac.Visible Then
+        lngIdFac = Nz(Forms("frmPreFactura").cmbIdFac, 0)
+    Else
+        lngIdFac = 0
+    End If
+    intFTique = Nz(Forms!frmprefactura.casFormatoTique, False)
+    DoCmd.Close acForm, "frmPreFactura"
+    If strResp = "3" Then ' dejar pendiente de facturar
+        Me.IdFactura = -1
+        DoCmd.RunCommand acCmdSaveRecord
+        GoTo Salir_btnFacturarFicha_Click
+    End If
+        
+    If Me.IdFactura <= 0 Then
+        If strResp <> "7" Then
+            strSerie = Nz(DameValorParam("PuestoSerie"), "")
+            FacturarFicha Me.IdFichaCab
+        Else
+            If lngIdFac = 0 Then
+                MsgBox "No se seleccionó factura", vbExclamation
+                Exit Sub
+            End If
+            'Me.IdFactura = lngIdFac
+            FacturarFicha Me.IdFichaCab, , True, lngIdFac
+            'DoCmd.RunCommand acCmdSaveRecord
+        End If
+    Else
+        If strResp = "7" Then
+            MsgBox "Se debe grabar la ficha como pendiente de facturar antes de volver a asignar a factura ", vbExclamation
+            Exit Sub
+        End If
+    End If
+    Call Form_Current
+    If IsOpenForm("frmPanel") Then
+        PintaBotones Forms!frmPanel, , Me.IdFichaCab
+    End If
+VerFacturas:
+    If Not IsNull(Me.IdFactura) And Me.IdFactura <> 0 Then
+        Select Case strResp
+            Case "1"
+                ImprimirFactura Me.IdFactura, 2, , intFTique
+            Case "2"
+                DoCmd.OpenForm "frmFacturas", , , "IdFactura = " & Me.IdFactura
+                Forms![frmFacturas].AllowAdditions = False
+            Case "4"
+                ImprimirFactura Me.IdFactura, 1, , intFTique
+            Case "5"
+                ImprimirFactura Me.IdFactura, 3
+            Case "6"
+                EnviarFacturaXEmail Me.IdFactura, Nz(Me.EMail, "")
+            Case "7"
+                'Se hace la operación antes
+                'MsgBox "Se debe marcar la ficha como pendiente de facturar antes de añadir a factura existente", vbInformation
+                'lngIdFac = Nz(BuscaAyuda("FAC0", , 1), 0)
+                'If lngIdFac = 0 Then
+                '    MsgBox "No se seleccionó factura", vbExclamation
+                '    Exit Sub
+                'End If
+                'Me.IdFactura = lngIdFac
+                'FacturarFicha
+                'DoCmd.RunCommand acCmdSaveRecord
+            Case "8"
+                ImprimirFactura Me.IdFactura, 5
+                
+        End Select
+    End If
+    If Me.lstFichasEnlazadas.ListCount > 0 Then
+        'MsgBox "Atención a las fichas enlazadas"
+    End If
+    Ficha_to_Planing Nz(Me.IdFichaCab, 0)
+Salir_btnFacturarFicha_Click:
+    Exit Sub
+Error_btnFacturarFicha_Click:
+    Select Case Err
+        Case 2046
+            Resume Next
+        Case Else
+            MsgBox "Error nº " & Err & " en btnFacturarFicha_Click" & vbCrLf & Err.Description
+            Resume Salir_btnFacturarFicha_Click
+    End Select
+'    Call Form_Current
+End Sub
+
+
+Private Sub btnImprimirEntrada_Click()
+    Dim i As Integer
+    Dim strXML As String, strResp As String, intR As Integer, intEmp As Integer
+    Dim strFilePDF As String, strAdjuntos As String
+    On Error GoTo Error_btnImprimirEntrada_Click
+ '   On Error Resume Next
+    If Me.Dirty Then RunCommand acCmdSaveRecord
+    Dim strFC As String, strRPT As String, strEmail As String, intOpt As Integer
+    If Me.EstadoFicha = 1 Then
+        Text2Clipboard Nz(Me.EMail, "?")
+        'On Error Resume Next
+        'Me.EMail.SetFocus
+        'DoCmd.RunCommand acCmdCopy
+        'Me.btnImprimirEntrada.SetFocus
+        'On Error GoTo Error_btnImprimirEntrada_Click
+        
+        PonXML strXML, "Reserva", "SI"
+        If Nz(Me.IdAgencia, 0) <> 0 Then PonXML strXML, "Empresa", "SI"
+        DoCmd.OpenForm "frmPreFactura", , , , , acDialog, strXML
+        If Not IsOpenForm("frmPreFactura") Then Exit Sub
+        intOpt = Forms("frmPreFactura").mrcImpMod
+        DoCmd.Close acForm, "frmPreFactura"
+        
+        
+        'PonValorParam "DetalleEstancia", DetalleDeUnaFicha(Me.IdFichaCab, True, Nz(DameValorParam("FichasEspecificarHabitacionEnDetalleFicha"), False), , , 0, True), 12
+        If Nz(DameValorParam("FichasConfirmacionAW"), 2) = 2 Then
+            If intOpt = 1 Then 'vista pevia
+                strFilePDF = GenerarConfirmacionReserva(Me.IdFichaCab, 2, False, Nz(Me.EMail, ""))
+            Else
+                strFilePDF = GenerarConfirmacionReserva(Me.IdFichaCab, 2, , Nz(Me.EMail, ""))
+            End If
+        Else
+            strFilePDF = GenerarConfirmacionReserva(Me.IdFichaCab, 1)
+        End If
+        If strFilePDF = "" Then
+            MsgBox "No se generó confirmación de reserva", vbExclamation
+            Exit Sub
+        End If
+        
+        Dim strAsunto As String, strMensaje As String
+        strAsunto = DameValorParam("EstablecimientoNombre") & ", Reserva confirmada #" & Me.IdFichaCab
+        'strMensaje = Nz(DameValorParam("ParrafoConfirmacionMensajeEmail_OK"), "Buenos días, " & vbCrLf & "Enviamos confirmación de reserva en fichero adjunto.")
+        
+        strEmail = Nz(Me.EMail, "")
+        strAdjuntos = strFilePDF & ";" & DameValorParam("FichasConfirmacionAdjuntarFicheros")
+        
+        If intOpt = 1 Then
+            'OpenFile strFilePDF ' no porque se queda el word en edición
+            Dim strSQL As String
+            'strSQL = "INSERT INTO tbEnviosEmail ( Ahora, To, CC, Bcc, Asunto, Body, Firma, Adjuntos, IdFactura, IdFichaCab )"
+            'strSQL = strSQL & " SELECT Now() as ahora, '" & strEmail & "' AS to, '' AS cc, '' AS bcc" _
+            '                & ", '" & Replace(strAsunto, "'", "`") & "' as asunto, 'Documento word de confirmación de reserva' as body, '' as firma" _
+            '                & ", '' as adjuntos, null as idfactura, " & Me.IdFichaCab & " as idfichacab"
+            'CurrentDb.Execute strSQL, dbFailOnError
+            
+        ElseIf intOpt = 6 Then
+            If PonParrafoConfirmacionReserva(Me.IdFichaCab, True, True) = True Then
+                strMensaje = Nz(DameValorParam("ParrafoConfirmacionMensajeEmail_OK"), "Buenos días, " & vbCrLf & "Enviamos confirmación de reserva en fichero adjunto.")
+                strEmail = Nz(MyInputBox("Enviar a email:", "Dirección de email donde enviar:", strEmail, , , strAdjuntos), "")
+                If strEmail = "" Then
+                    MsgBox "Se canceló el envío por email", vbInformation
+                Else
+                    Envia_Email strAsunto, strMensaje, strEmail, , , strAdjuntos, Nz(DameValorParam("EmailsFirma"), ""), , , Me.IdFichaCab
+                End If
+            End If
+        End If
+        Exit Sub
+    End If
+    Dim intImpresionPor As Integer
+    If InStr(Me.btnImprimirEntrada.Caption, "Contrato") > 0 Then
+        strFC = "Contratos"
+        strRPT = "rptContrato_Fijos"
+    Else
+        strFC = "Fichas"
+        strRPT = Nz(DameValorParam("FichasRPT"), "rptFicha_A5")
+    End If
+    intImpresionPor = Nz(DameValorParam(strFC & "ImpresionPor"), 1)
+    If intImpresionPor = 2 Then
+        If strFC = "Contratos" Then
+            MsgBox "No implementada la impresión de Contratos por DOS" & vbCrLf & "Se debe cambiar la opción correspondiente en Parametros - Contratos"
+            Exit Sub
+        End If
+        For i = 1 To Nz(DameValorParam(strFC & "NumCopias"), 1)
+            ImprimirFichaDOS Me.IdFichaCab
+        Next i
+    Else
+        If DameValorParam("ImpresionInformes") = 1 Then
+            For i = 1 To Nz(DameValorParam(strFC & "NumCopias"), 1)
+                DoCmd.OpenReport strRPT, , , "tbFichasCab.IdFichaCab = " & Me.IdFichaCab
+            Next i
+        Else
+            DoCmd.OpenReport strRPT, acViewPreview, , "tbFichasCab.IdFichaCab = " & Me.IdFichaCab
+        End If
+    End If
+Salir_btnImprimirEntrada_Click:
+    Exit Sub
+Error_btnImprimirEntrada_Click:
+    Select Case Err
+        Case Else
+            MsgBox "error nº " & Err & " en btnImprimirEntrada_Click" & vbCrLf & Err.Description
+            Resume Salir_btnImprimirEntrada_Click
+    End Select
+End Sub
+
+Private Sub btnImprimirRecibo_Click()
+    On Error Resume Next
+    If Me.lstPagos.ListIndex = -1 Then
+        MsgBox "Se debe seleccionar un pago para imprimir el recibo"
+        Exit Sub
+    End If
+    ImprimirRecibo Me.lstPagos
+End Sub
+
+
+
+Public Function MisBotones(strNombreBoton As String)
+    Select Case strNombreBoton
+        Case "btnAdd"
+            Call btnAdd_Click
+        Case "btnAsignarParcela"
+            Call btnAsignarParcela_Click
+        Case "btnFacturarFicha"
+            Call btnFacturarFicha_Click
+        Case "btnCerrarFicha"
+            Call btnCerrarFicha_Click
+        Case "btnPago"
+            Call btnPago_Click
+        Case "btnCambiarColumnas"
+            Call btnCambiarColumnas_Click
+        Case "btnFichaCliente"
+            Call btnFichaCliente_Click
+        Case "btnNotas"
+            Call btnNotas_Click
+        Case "btnServiciosDia"
+            Call btnServiciosDia_Click
+'        Case "altTotalesSXD"
+'            Me.altTotalesSXD = Not (Nz(Me.altTotalesSXD, False))
+'            Call altTotalesSXD_AfterUpdate
+        Case "btnCuenta"
+            Call btnCuenta_Click
+        Case "btnIdioma"
+            Call btnIdioma_Click
+        Case "btnObservaciones"
+            Call btnObservaciones_Click
+        Case "btnFacturarSN"
+            Call btnFacturarSN_Click
+    End Select
+End Function
+
+
+Private Sub VerNotas()
+    Dim lngBackColor As Long, lngBool As Long
+    If Len(Me.Notas) > 0 Then
+        'lngBackColor = 8421631 ' Rojo
+        'Me.cdrNotas.Visible = True
+        'Me.btnNotas.FontBold = True
+        Me.btnNotas.FontItalic = True
+        Me.lblHayNota.Visible = True
+    Else
+        'lngBackColor = 16777215 'Blanco
+        'Me.cdrNotas.Visible = False
+        'Me.btnNotas.FontBold = False
+        Me.btnNotas.FontItalic = False
+        Me.lblHayNota.Visible = False
+    End If
+'    lngBool = fCmdButTextPic(Me.btnNotas, lngBackColor)
+End Sub
+
+Public Function RecalculaTotales()
+    On Error GoTo HandleError
+    Dim intR As Integer
+    G_RecalculaTotales Me.IdFichaCab
+    Me.Recalc
+    If Me.IdFactura > 0 Then
+        If Abs(ComprobarFacturable_FacturaDeFicha(Me.IdFichaCab)) > 0.5 Then
+'        If DLookup("[TotalBase] + [TotalIVA]", "tbFichasCab_Totales", "IdFichaCab = " & Me.IdFichaCab) <> DLookup("[TotalBase] + [TotalIVA]", "tbFacturasCab", "IdFactura = " & Me.IdFactura) Then
+            Select Case Nz(DameValorParam("FichasYFacturasMantenerIgual"), 1)
+                Case True
+                Case Else
+                    intR = MsgBox("¿Modificar Factura igual que la Ficha?", vbYesNo + vbQuestion)
+                    If intR = vbNo Then Exit Function
+            End Select
+            Call CopiarFichaAFactura(Nz(Me.IdFichaCab, 0))
+        End If
+        If Me.EstadoFicha = 4 Then
+            If TotalFicha(Me.IdFichaCab, 3) - TotalFichaPagos(Me.IdFichaCab) > 0.5 Then
+                Me.EstadoFicha = 3
+                Call cmbEstadoFicha_AfterUpdate
+            End If
+        End If
+    End If
+    AsignarServiciosDia Nz(Me.IdFichaCab, 0)
+    Me.txtPendiente.Visible = Me.txtPendiente <> 0
+    
+    
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+
+
+Private Sub AplicarDto(Optional intDecimales As Integer = 2)
+    Dim strSQL As String, rs0 As Recordset, rs1 As Recordset, rs2 As Recordset
+    Dim curTotal As Currency, intHayVarios As Integer
+    Dim lngIdSD As Long
+    Dim vIt As Variant, intHaySel As Integer
+    On Error GoTo Error_AplicarDto
+    
+'    If Me.Dto = 0 Then Exit Sub
+'    strSQL = "DELETE tbFichasDet.IdFichasDet, tbFichasDet.DtoSN"
+'    strSQL = strSQL & " FROM tbFichasDet"
+'    strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & ") AND ((tbFichasDet.DtoSN)=True));"
+'    CurrentDb.Execute strSQL, dbFailOnError
+'    strSQL = "SELECT DISTINCTROW tbFichasDet.IVA, Sum([tbFichasDet]![Cantidad]*[tbFichasDet]![PrecioUnitario]*(IIf(IsNull([tbFichasDet]![FechaInicio]),1,FechaH([IdFichaDet])-[tbFichasDet]![FechaInicio]))) AS Importe, tbGruposDeIngresos.IdEmpresa"
+'    strSQL = strSQL & " FROM tbGruposDeIngresos RIGHT JOIN (tbServiciosDiarios RIGHT JOIN tbFichasDet ON tbServiciosDiarios.IdSD = tbFichasDet.IdSD) ON tbGruposDeIngresos.CodNombreGrupo = tbServiciosDiarios.CodGrupoIngresos"
+'    strSQL = strSQL & " GROUP BY tbFichasDet.IdFichaCab, tbFichasDet.IVA, tbGruposDeIngresos.IdEmpresa"
+'    strSQL = strSQL & " HAVING (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & "))"
+'    strSQL = strSQL & " ORDER BY tbFichasDet.IVA;"
+
+    CurrentDb.Execute "DELETE * FROM auxFichasDetAplicarDto", dbFailOnError
+    'Set rs = CurrentDb.OpenRecordset("auxFichasDetAplicarDto", dbOpenDynaset)
+    For Each vIt In Me.lstDetalle.ItemsSelected
+        CurrentDb.Execute "INSERT INTO auxFichasDetAplicarDto(IdFichaDet) SELECT " & Me.lstDetalle.ItemData(vIt) & " as IdFichaDet", dbFailOnError
+        intHaySel = True
+    Next vIt
+    If Not intHaySel Then
+        CurrentDb.Execute "INSERT INTO auxFichasDetAplicarDto(IdFichaDet) SELECT IdFichaDet FROM tbFichasDet WHERE IdFichaCab = " & Nz(Me.IdFichaCab, 0), dbFailOnError
+    End If
+    strSQL = "SELECT DISTINCTROW tbFichasDet.IVA, Sum([tbFichasDet]![Cantidad]*[tbFichasDet]![PrecioUnitario]*(IIf(IsNull([tbFichasDet]![FechaInicio]),1,FechaH([tbFichasDet]![IdFichaDet])-[tbFichasDet]![FechaInicio]))) AS Importe"
+    strSQL = strSQL & " FROM tbFichasDet INNER JOIN auxFichasDetAplicarDto ON tbFichasDet.IdFichaDet = auxFichasDetAplicarDto.IdFichaDet"
+    strSQL = strSQL & " GROUP BY tbFichasDet.IVA, tbFichasDet.IdFichaCab"
+    strSQL = strSQL & " HAVING (((tbFichasDet.IdFichaCab)=" & Me.IdFichaCab & "))"
+    strSQL = strSQL & " ORDER BY tbFichasDet.IVA;"
+    Set rs0 = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    Set rs1 = CurrentDb.OpenRecordset("tbFichasDet", dbOpenDynaset)
+    If Not rs0.EOF Then
+        rs0.MoveLast
+        rs0.MoveFirst
+        If rs0.RecordCount > 1 Then
+            intHayVarios = True
+        End If
+    End If
+    While Not rs0.EOF
+        curTotal = Redondea(-1 * rs0("Importe") * Me.Dto, intDecimales)
+        If curTotal = 0 Then GoTo Siguiente
+''''''''''''''''''''' Localizar un IdSD''''''''''''''''''''''''''
+'        strSQL = "SELECT TOP 1 tbServiciosDiarios.IdSD"
+'        strSQL = strSQL & " FROM tbGruposDeIngresos INNER JOIN tbServiciosDiarios ON tbGruposDeIngresos.CodNombreGrupo = tbServiciosDiarios.CodGrupoIngresos"
+'        strSQL = strSQL & " WHERE (((tbGruposDeIngresos.IdEmpresa) = " & rs0("IdEmpresa") & "))"
+'        strSQL = strSQL & " ORDER BY tbServiciosDiarios.CodSD;"
+'        Set rs2 = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+'        If rs2.EOF Then
+'            lngIdSD = Nz(DLookup("IdSD", "tbServiciosDiarios"), 0)
+'        Else
+'            rs2.MoveFirst
+'            lngIdSD = rs2("IdSD")
+'        End If
+'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+        rs1.AddNew
+        rs1("IdFichaCab") = Me.IdFichaCab
+'        rs1("IdSD") = lngIdSD
+        rs1("IdSD") = Null
+        rs1("DtoSN") = True
+'        rs1("Concepto") = "*Descuento: " & Nz(DLookup("Empresa", "tbEmpresas", "IdEmpresa = " & rs0("IdEmpresa")), "-") & ", " & Format(Me.Dto, "Percent")
+        rs1("Concepto") = "*Descuento: " & Format(Me.Dto, "Percent")
+        If intHayVarios Then
+            rs1("Concepto") = rs1("Concepto") & "( IVA " & Format(rs0("IVA"), "percent") & ")"
+        End If
+        rs1("Cantidad") = 1
+        rs1("PrecioUnitario") = curTotal
+        rs1("IVA") = rs0("IVA")
+        'rs1("RecEq") = rs0("RecEq")
+        rs1.Update
+Siguiente:
+        rs0.MoveNext
+    Wend
+    Me.lstDetalle.Requery
+    RecalculaTotales
+Salir_AplicarDto:
+    Exit Sub
+Error_AplicarDto:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en AplicarDto" & vbCrLf & Err.Description
+            Resume Salir_AplicarDto
+            Resume Next
+    End Select
+End Sub
+
+
+Private Sub LST_FRM()
+    Dim intVerLST As Integer, ctl As Control
+    If DameValorParam("FichasVerLST_FRM") = 1 Then
+        intVerLST = True
+    Else
+        intVerLST = False
+    End If
+    For Each ctl In Me.Controls
+        If InStr(ctl.Tag, "LST") > 0 Then
+            ctl.Visible = intVerLST
+        ElseIf InStr(ctl.Tag, "FRM") > 0 Then
+            ctl.Visible = Not intVerLST
+        End If
+    Next ctl
+        
+End Sub
+
+
+
+Public Function QuitarGuion(strDNI As String) As String
+    Dim i As Integer
+Ini:
+    i = InStr(strDNI, "-")
+    If i > 0 Then
+        strDNI = Left(strDNI, i - 1) & Mid(strDNI, i + 1)
+        GoTo Ini
+    End If
+    QuitarGuion = strDNI
+End Function
+
+Private Sub CargaListas()
+    Dim strSQL As String, strFormatDate As String
+    strFormatDate = IIf(Nz(DameValorParam("FormatoFechaEUS_SN"), False), "yy/MM/dd", "dd/MM/yy")
+    strSQL = "SELECT DISTINCTROW tbFichasDet.IdFichaDet, tbServiciosDiarios.CodSD AS Código, tbFichasDet.Concepto, tbFichasDet.Cantidad AS Cant, tbFichasDet.PlazasOcupadas AS Pax, Format([FechaInicio],'" & strFormatDate & "') AS Desde, Format([FechaFin],'" & strFormatDate & "') AS Hasta, IIf(IsNull(tbFichasDet!FechaInicio),1,FechaH([IdFichaDet])-tbFichasDet!FechaInicio) AS Dias, llenaizq(Format([PrecioUnitario],'Fixed'),10) AS Precio, LlenaIzq(Format(tbFichasDet.IVA,'percent'),10), Iif(Nz(FacturarSN,False),' ','N') & LlenaIzq(Format(tbFichasDet!Cantidad*tbFichasDet!PrecioUnitario*[Dias],'Fixed'),9) AS Importe"
+    strSQL = strSQL & " FROM tbServiciosDiarios RIGHT JOIN tbFichasDet ON tbServiciosDiarios.IdSD = tbFichasDet.IdSD"
+    strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCab) = " & Nz(Me.IdFichaCab, 0) & "))"
+    strSQL = strSQL & " ORDER BY tbFichasDet.IdFichaDet;"
+    Me.lstDetalle.RowSource = strSQL
+    If g_strPH = "" Then Call TipoAplicacion
+    strSQL = "SELECT DISTINCTROW tbFichasDet.IdFichaDet, tbFichasDet.Parcela AS [" & g_strPH & "], IIf(IsNull(tbParcelas!NombreParcela),'-','X') AS X, tbFichasDet.PlazasOcupadas AS Pax, LibreHasta([Parcela],[FechaInicio]) AS [Libre hasta]"
+    strSQL = strSQL & " FROM tbFichasDet LEFT JOIN tbParcelas ON (tbFichasDet.IdFichaCab = tbParcelas.IdFicha) AND (tbFichasDet.Parcela = tbParcelas.NombreParcela)"
+    strSQL = strSQL & " WHERE (((tbFichasDet.Parcela) Is Not Null) And ((tbFichasDet.IdFichaCab) = " & Nz(Me.IdFichaCab, 0) & "))"
+    strSQL = strSQL & " ORDER BY tbParcelas.Orden;"
+    Me.lstHabitaciones.RowSource = strSQL
+    strSQL = "SELECT tbCajaDet.IdCajaDet, tbCajaDet.Fecha, tbCajaDet_Concepto.Concepto, tbFPago.Descripcion, LlenaIzq(Format([Cantidad],'Currency'),14) AS Expr1, tbCajaDet.IdFParcial"
+    strSQL = strSQL & " FROM (tbFPago RIGHT JOIN tbCajaDet ON tbFPago.CodFPago = tbCajaDet.CodFPago) LEFT JOIN tbCajaDet_Concepto ON tbCajaDet.IdCajaDet = tbCajaDet_Concepto.IdCajaDet"
+    strSQL = strSQL & " WHERE (((tbCajaDet.IdFrom)=" & Nz(Me.IdFichaCab, 0) & ") AND ((tbCajaDet.Origen)='E')) OR (((tbCajaDet.IdFrom)=" & Nz(Me.IdFactura, 0) & ") AND ((tbCajaDet.Origen)='F'));"
+    Me.lstPagos.RowSource = strSQL
+    strSQL = "SELECT DISTINCTROW tbFichasDet.IdFichaCab AS [Fichas enlazadas]"
+    strSQL = strSQL & " FROM tbFichasDet"
+    strSQL = strSQL & " WHERE tbFichasDet.IdFichaCabDestino>0 AND tbFichasDet.IdFichaCabDestino=" & Nz(Me.IdFichaCab, -1)
+    strSQL = strSQL & " UNION ALL SELECT DISTINCTROW tbFichasDet.IdFichaCabDestino AS [Fichas enlazadas]"
+    strSQL = strSQL & " FROM tbFichasDet"
+    strSQL = strSQL & " WHERE (((tbFichasDet.IdFichaCabDestino)>0) AND ((tbFichasDet.IdFichaCab)=" & Nz(Me.IdFichaCab, 0) & "));"
+    Me.lstFichasEnlazadas.RowSource = strSQL
+
+End Sub
+
+Public Sub GuardaSeleccionDetalle()
+    Dim vItem As Variant
+    gstrSelected = ""
+    For Each vItem In Me.lstDetalle.ItemsSelected
+        gstrSelected = gstrSelected & "#" & Me.lstDetalle.Column(0, vItem)
+    Next vItem
+End Sub
+
+Public Sub MantenSeleccionDetalle()
+    Dim i As Integer
+    For i = 0 To Me.lstDetalle.ListCount - 1
+        If InStr(gstrSelected, "#" & Me.lstDetalle.Column(0, i)) > 0 Then
+            Me.lstDetalle.Selected(i) = True
+        Else
+            Me.lstDetalle.Selected(i) = False
+        End If
+    Next i
+End Sub
+
+
+Public Sub LineaADetalle(strLinea As String, lngIdFichaCab As Long, Optional intFacturarSN As Integer = True, Optional vlngIdFichaCabDestino As Variant = Null)
+    Dim rs As Recordset
+    Set rs = CurrentDb.OpenRecordset("tbFichasDet", dbOpenDynaset)
+    rs.AddNew
+    rs("IdFichaCab") = lngIdFichaCab
+    rs("IdSD") = Null
+    rs("Concepto") = RecDerTop(strLinea, 0, 50)
+    rs("Cantidad") = 0
+    rs("IVA") = IVASDporDefecto()
+    rs("FacturarSN") = intFacturarSN
+    rs("IdFichaCabDestino") = vlngIdFichaCabDestino
+    rs.Update
+End Sub
+
+
+
+Public Function EditLines(strColumna As String)
+    On Error GoTo Error_EditLines
+    If Me.NombreCliente.Locked Then Exit Function
+    Dim vIt As Variant, intCol, strMask As String
+    Dim strDefault As String, vR As Variant, strField As String, strSQL As String
+    If Me.lstDetalle.ItemsSelected.Count = 0 Then
+        MsgBox "Se deben seleccionar las líneas a modificar", vbExclamation
+        Exit Function
+    End If
+    Select Case strColumna
+        Case "Desde"
+            intCol = 4
+            strMask = "00/00/0099;0"
+            strField = "FechaInicio"
+        Case "Hasta"
+            intCol = 5
+            strMask = "00/00/0099;0"
+            strField = "FechaFin"
+        Case "Cantidad"
+            If Me.lblCantidad.Caption = "Cant." Then
+                intCol = 3
+                strMask = "#099"
+                strField = "Cantidad"
+            Else
+                intCol = 3
+                strMask = "#099"
+                strField = "PlazasOcupadas"
+            End If
+        Case "Precio"
+            intCol = 7
+            strMask = "#0999.99;0"
+            strField = "PrecioUnitario"
+        Case "Codigo"
+            intCol = 1
+            strField = "IdSD"
+    End Select
+    For Each vIt In Me.lstDetalle.ItemsSelected
+        strDefault = Me.lstDetalle.Column(intCol, vIt)
+        Exit For
+    Next vIt
+    If strColumna = "Codigo" Then
+        Dim lngIdSD As Long
+        lngIdSD = Nz(DLookup("IdSD", "tbServiciosDiarios", "CodSD = '" & strDefault & "'"), 0)
+        lngIdSD = Nz(BuscaAyuda("SD0", lngIdSD, 0), 0)
+        If lngIdSD = 0 Then GoTo Salir_EditLines
+        Dim cFD As New cFichaDet
+        
+        For Each vIt In Me.lstDetalle.ItemsSelected
+            If cFD.FindFirst("IdFichaDet = " & Me.lstDetalle.ItemData(vIt)) = True Then
+                cFD.IdSD = lngIdSD
+                cFD.Update
+            End If
+        Next vIt
+    Else
+        vR = MyInputBox("Introduzca " & strColumna, strColumna, strDefault, strMask)
+        If IsNull(vR) Then GoTo Salir_EditLines
+        If strColumna = "Desde" Or strColumna = "Hasta" Then
+            vR = CLng(CDate(vR))
+        Else
+            vR = ComaPunto(vR)
+        End If
+        strSQL = "UPDATE tbFichasDet SET " & strField & " = " & vR
+        strSQL = strSQL & " WHERE IdFichaDet = "
+        
+        For Each vIt In Me.lstDetalle.ItemsSelected
+            CurrentDb.Execute strSQL & Me.lstDetalle.ItemData(vIt), dbFailOnError
+        Next vIt
+    End If
+    GuardaSeleccionDetalle
+    Me.RecalculaTotales
+    Me.lstDetalle.Requery
+    MantenSeleccionDetalle
+Salir_EditLines:
+    Exit Function
+Error_EditLines:
+    Select Case Err
+        Case Else
+            MsgBox "Error Nº " & Err & " en EditLines" & vbCrLf & Err.Description
+            Resume Salir_EditLines
+    End Select
+
+End Function
+
+Public Sub PonCaptions()
+    Select Case Me.cmbEstadoFicha.value
+        Case 10
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_10"), "Cerrar Ficha -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_10"), "Imprimir &Contrato")
+        Case 1
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_1"), "Actual -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_1"), "Confirmar &Reserva")
+        Case 2
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_2"), "Cerrar Ficha -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_2"), "Imprimir Albarán")
+        Case 3
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_3"), "Cerrar Ficha -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_3"), "Imprimir &Entrada")
+        Case 4
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_4"), "Cerrar Ficha -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_4"), "Imprimir &Entrada")
+        Case 5
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_5"), "Actual -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_5"), "Imprimir &Entrada")
+        Case 6
+            Me.btnCerrarFicha.Caption = SpNz(DameValorParam("Fichas_btnCerrarFichaCaption_6"), "Cerrar Ficha -F5-")
+            Me.btnImprimirEntrada.Caption = SpNz(DameValorParam("Fichas_btnImprimirEntradaCaption_6"), "Imprimir &Entrada")
+    End Select
+End Sub
+
+Private Sub txtTagRFID_AfterUpdate()
+    If Nz(Me.txtTagRFID, "") <> "" Then
+        If PonTagRFID_IdFichaCab(Me.txtTagRFID, Nz(Me.IdFichaCab, 0)) = True Then
+            MsgBox "Se asignó la Ficha: " & Me.IdFichaCab & " a la tarjeta RFID: " & Me.txtTagRFID, vbInformation
+        End If
+        Me.txtTagRFID = ""
+        DoCmd.GoToControl "txtTagRFID"
+    End If
+End Sub
+
+Public Sub CompruebaPagado()
+    On Error GoTo Error_CompruebaPagado
+    Dim intCambia As Integer, intR As Integer
+    If Me.cmbEstadoFicha >= 1 And Me.cmbEstadoFicha <= 3 Then 'Then
+        If TotalFichaPagos(Nz(Me.IdFichaCab, 0)) >= TotalFicha(Me.IdFichaCab, 3) Then
+            intR = MsgBox("¿Modificar estado de ficha a PAGADO?", vbYesNo)
+            If intR = vbYes Then
+                Me.cmbEstadoFicha = 4
+                intCambia = True
+            End If
+        End If
+    ElseIf Me.cmbEstadoFicha = 4 Then
+        If TotalFichaPagos(Nz(Me.IdFichaCab, 0)) < TotalFicha(Me.IdFichaCab, 3) Then
+            intR = MsgBox("¿Modificar estado de ficha a ACTUAL (no pagado)?", vbYesNo)
+            If intR = vbYes Then
+                Me.cmbEstadoFicha = 2
+                intCambia = True
+            End If
+        End If
+    End If
+    If intCambia Then Call cmbEstadoFicha_AfterUpdate
+Salir_CompruebaPagado:
+    Exit Sub
+Error_CompruebaPagado:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en CompruebaPagado" & vbCrLf & Err.Description
+            Resume Salir_CompruebaPagado
+    End Select
+End Sub

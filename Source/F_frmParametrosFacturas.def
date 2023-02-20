@@ -1,0 +1,96 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Compare Database
+Option Explicit
+
+Private Sub btmImgFondo_Click()
+    If Me.FacturasImagenFondo.Enabled = False Then Exit Sub
+    Me.FacturasImagenFondo.SetFocus
+    Dim s As String
+    s = AbrirDialogo(, , , , "Indicar Fichero de Fondo de factura", "Fondo de factura", , , , , , , True, 4)
+
+    If s <> "" Then
+        Me.FacturasImagenFondo = s
+    End If
+End Sub
+
+Private Sub btnVerFactu_Click()
+    Dim lngId As Long, strCrit As String, intCancel As Integer
+    ComprobarParam Me, intCancel
+    If intCancel Then Exit Sub
+    Dim strSerie As String, strXML As String
+    strSerie = Nz(DameValorParam("PuestoSerie"), "")
+    PonXML strXML, "Serie", strSerie
+    lngId = Nz(DMax("IdFactura", "tbFacturasCab", "Serie " & IIf(strSerie = "", "=''", "='" & strSerie & "'")), 0)
+    If lngId > 0 Then
+        strCrit = "IdFacturaCab = " & lngId
+    End If
+    
+    DoCmd.OpenReport Me.FacturasRPT, acViewPreview, , strCrit, , strXML
+End Sub
+
+Private Sub btnVerFactuPDF_Click()
+    Dim lngId As Long, strCrit As String, intCancel As Integer
+    ComprobarParam Me, intCancel
+    If intCancel Then Exit Sub
+    Dim strSerie As String, strXML As String
+    strSerie = Nz(DameValorParam("PuestoSerie"), "")
+    PonXML strXML, "Serie", strSerie
+    PonXML strXML, "PDFsn", "S"
+    lngId = Nz(DMax("IdFactura", "tbFacturasCab", "Serie " & IIf(strSerie = "", "=''", "='" & strSerie & "'")), 0)
+    If lngId > 0 Then
+        strCrit = "IdFacturaCab = " & lngId
+    End If
+    
+    DoCmd.OpenReport Nz(Me.FacturasRPTpdf, Me.FacturasRPT), acViewPreview, , strCrit, , strXML
+End Sub
+
+Private Sub FacturasImagenFondoSN_AfterUpdate()
+    Me.FacturasImagenFondo.Enabled = Nz(Me.FacturasImagenFondoSN, False) = True
+End Sub
+
+Private Sub FacturasLineasDetalle_AfterUpdate()
+    If IsNull(Me.FacturasLineasDetalle) Then
+        Me.FacturasLineasDetalle = 10
+    End If
+End Sub
+
+Private Sub FacturasNumCopias_AfterUpdate()
+    If IsNull(Me.FacturasNumCopias) Then
+        Me.FacturasNumCopias = 1
+    End If
+End Sub
+
+Private Sub Form_Load()
+    CargarParam Me
+    Call FacturasImpresionPor_AfterUpdate
+    Call FacturasImagenFondoSN_AfterUpdate
+    CargarImpresorasCmb Me.FacturasImpresoraWindows
+    On Error Resume Next
+    Dim str As String
+    str = Parent.Caption
+    If Err = 0 Then Me.btnSalir.Visible = False
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    ComprobarParam Me, Cancel
+End Sub
+
+Private Sub FacturasImpresionPor_AfterUpdate()
+    Dim intAct As Integer
+    Dim ctl As Control
+    If Me.FacturasImpresionPor = 1 Then
+        intAct = False
+    Else
+        intAct = True
+    End If
+    Me.FacturasLetraCN.Enabled = intAct
+    Me.FacturasMargenIzdo.Enabled = intAct
+    Me.FacturasMargenSup.Enabled = intAct
+    Me.FacturasImpresora.Enabled = intAct
+    Me.FacturasImpresoraWindows.Enabled = Not intAct
+End Sub

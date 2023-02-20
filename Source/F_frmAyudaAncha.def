@@ -1,0 +1,215 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+Option Compare Database
+Option Explicit
+    Dim gstrOpenArg As String, gv As Variant, glb As ListBox, gDblClick As Integer
+    Dim gBMultiSelect As Boolean
+
+Private Sub btnAceptar_Click()
+    Me.Visible = False
+End Sub
+
+Private Sub btnAdd_Click()
+    Me.btnAdd.Tag = "ADD"
+    Me.Visible = False
+End Sub
+
+Private Sub btnBorrar_Click()
+    Me.btnBorrar.Tag = "BORRAR"
+    Me.Visible = False
+End Sub
+
+Private Sub btnCancelar_Click()
+    DoCmd.Close
+End Sub
+
+Private Sub Form_Open(Cancel As Integer)
+    On Error GoTo HandleError
+    Dim i As Integer, strXML As String, sCaption As String
+    strXML = Nz(Me.OpenArgs, "")
+    gstrOpenArg = Nz(DimeXML(strXML, "CodBusqueda"), "")
+    gv = DimeXML(strXML, "ValorDefecto")
+    sCaption = Nz(DimeXML(strXML, "Titulo"), "")
+    If sCaption <> "" Then Me.Caption = sCaption
+    gDblClick = Nz(DimeXML(strXML, "DblClick"), "N") = "S"
+    Me.btnAdd.Visible = gintAdd
+    Me.btnBorrar.Visible = gintDel
+    Me.lst.Visible = False
+    Me.lst2.Visible = False
+
+    If Nz(DimeXML(strXML, "MultiSelectSN"), "N") = "N" Then
+        Set glb = Me.lst
+        Me.lst.Visible = True
+        gBMultiSelect = False
+    Else
+        Set glb = Me.lst2
+        Me.lst2.Visible = True
+        gBMultiSelect = True
+    End If
+    glb.ColumnHeads = Nz(DimeXML(strXML, "CabecerasLista"), True)
+    If Nz(DimeXML(strXML, "ListaValoresSN"), "N") = "S" Then
+        glb.RowSourceType = "Lista de Valores"
+    Else
+        glb.RowSourceType = "Tabla/Consulta"
+    End If
+    CargaLista
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Public Sub CargaLista()
+    On Error GoTo HandleError
+    Dim strSQL As String, rs As Recordset, strV As String, i As Integer, j As Integer
+    strSQL = "SELECT * FROM sysBusquedas WHERE CodBusqueda Like '" & gstrOpenArg & "*' AND Predeterminada = True"
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    rs.MoveFirst
+    glb.RowSource = rs("strSQL")
+    glb.ColumnCount = rs("NumColumnas")
+    glb.BoundColumn = rs("ColumnaDependiente")
+    glb.ColumnWidths = Nz(rs("AnchoColumnas"), "")
+'    If rs("AnchoLst") > 0 Then
+'        glb.Width = rs("AnchoLst") * 567
+'        Me.Width = glb.Width
+'    End If
+'    If rs("AltoLst") > 0 Then
+'        glb.Height = rs("AltoLst") * 567
+'        Me.Detalle.Height = glb.Height
+'    End If
+    Me.Caption = rs("Titulo")
+    If gBMultiSelect = False Then
+        glb.value = gv
+    Else
+        Dim c As Integer
+        If Nz(gv, "") <> "" Then
+            Dim vA As Variant
+            strV = "|"
+            vA = Split(gv, ",")
+            For i = 0 To UBound(vA)
+                strV = strV & vA(i) & "|"
+            Next i
+            
+            For i = 0 To glb.ListCount - 1
+                glb.Selected(i) = InStr(strV, "|" & glb.ItemData(i) & "|") > 0
+                If glb.Selected(i) Then c = c + 1
+                If c > UBound(vA) Then Exit For
+            Next i
+        End If
+    End If
+    If Len(rs("CodOtraBusqueda")) > 0 Then
+        Me.lblOtra.Caption = Nz(rs("TextoOtra"), "")
+        Me.lblOtra.Tag = rs("CodOtraBusqueda")
+    Else
+        Me.lblOtra.Caption = ""
+        Me.lblOtra.Tag = ""
+    End If
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub Lst_DblClick(Cancel As Integer)
+    Call btnAceptar_Click
+End Sub
+
+Private Sub lst2_DblClick(Cancel As Integer)
+    If gDblClick Then
+        Me.Tag = "DblClick"
+    Else
+        Me.Tag = ""
+    End If
+    Call btnAceptar_Click
+End Sub
+
+Private Sub Lst_KeyDown(KeyCode As Integer, Shift As Integer)
+    On Error GoTo HandleError
+    Dim intCtrlDown As Integer
+    intCtrlDown = (Shift And acCtrlMask) > 0
+    If KeyCode = vbKeyF4 Then
+        If Me.lblOtra.Tag = "" Then Exit Sub
+'        gstrOpenArg = Me.lblOtra.Tag
+        Dim strSQL As String
+        strSQL = "UPDATE sysBusquedas SET sysBusquedas.Predeterminada = False"
+        strSQL = strSQL & " WHERE (((sysBusquedas.CodBusqueda) Like'" & gstrOpenArg & "*') AND Predeterminada = True);"
+        CurrentDb.Execute strSQL, dbFailOnError
+        strSQL = "UPDATE sysBusquedas SET sysBusquedas.Predeterminada = True"
+        strSQL = strSQL & " WHERE (((sysBusquedas.CodBusqueda)='" & Me.lblOtra.Tag & "'));"
+        CurrentDb.Execute strSQL, dbFailOnError
+        CargaLista
+        KeyCode = 0
+    End If
+    If KeyCode = vbKeyF5 Then
+        KeyCode = 0
+        Static strBusq As String, intOtra As Integer
+        strBusq = InputBox(vbCrLf & vbCrLf & vbCrLf & "Busca en " & glb.Column(1, 0), "Introduzca texto a buscar ", strBusq)
+        If strBusq <> "" Then
+            Dim rs As Recordset, vId As Variant
+            Set rs = CurrentDb.OpenRecordset(glb.RowSource, dbOpenSnapshot)
+            If glb.Name = "lst" Then
+                If glb.ListIndex <> -1 Then
+                    vId = glb
+                End If
+            Else
+                If glb.ItemsSelected.Count > 0 Then
+                    vId = glb.ItemData(glb.ItemsSelected(glb.ItemsSelected.Count - 1))
+                End If
+            End If
+            If Not IsNull(vId) And Not IsEmpty(vId) Then
+                Select Case rs.Fields(0).Type
+                    Case dbText
+                        rs.FindFirst rs(0).Name & " = '" & vId & "'"
+                    Case dbDate
+                        rs.FindFirst rs(0).Name & " = #" & vId & "#"
+                    Case Else
+                        rs.FindFirst rs(0).Name & " = " & vId
+                End Select
+                If Not rs.NoMatch Then
+                    rs.MoveNext
+                End If
+            End If
+                
+            intOtra = False
+OtraVez:
+            While Not rs.EOF
+                If Not rs.EOF Then
+                    If rs(1) Like "*" & ConAcentos(strBusq) & "*" Then
+                        If glb.Name = "lst" Then
+                            glb = rs(0)
+                        Else
+                            'SetSelItems glb, ""
+                            SetSelItems glb, "|" & rs(0) & "|"
+                            'Scroll_ListBox_Selected glb
+                        End If
+                        GoTo HandleExit
+                    End If
+                End If
+                rs.MoveNext
+            Wend
+            If Not intOtra Then
+                intOtra = True
+                rs.MoveFirst
+                GoTo OtraVez
+            End If
+        End If
+    End If
+HandleExit:
+    
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub lst2_KeyDown(KeyCode As Integer, Shift As Integer)
+    Call Lst_KeyDown(KeyCode, Shift)
+End Sub

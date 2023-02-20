@@ -1,0 +1,30 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+
+Private Sub btnAceptar_Click()
+    Me.Visible = False
+End Sub
+
+Private Sub btnCancelar_Click()
+    DoCmd.Close acForm, Me.Name
+End Sub
+
+Private Sub Form_Open(Cancel As Integer)
+    Dim strXML As String
+    strXML = Nz(Me.OpenArgs, "")
+    Me.Caption = Nz(DimeXML(strXML, "Titulo"), "Actualizar Wubook")
+    Me.Etiqueta1.Caption = Nz(DimeXML(strXML, "Prompt"), "Introduzca nuevos valores a aplicar en Wubook")
+    Me.txtPrecio = Nz(DimeXML(strXML, "Precio"), "0")
+    'Me.txtPrecio.InputMask = "9990.99;0"
+    Me.txtMaxStay = Nz(DimeXML(strXML, "MaxStay"), "0")
+    'Me.txtMaxStay.InputMask = "09"
+    Me.txtMinStay = Nz(DimeXML(strXML, "MinStay"), "0")
+    'Me.txtMinStay.InputMask = "09"
+    Me.txtDisponibilidad = Nz(DimeXML(strXML, "Disponibilidad"), "0")
+    'Me.txtDisponibilidad.InputMask = "09"
+End Sub

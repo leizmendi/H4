@@ -1,0 +1,387 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+
+
+Option Compare Database
+Option Explicit
+
+Private Sub btnDn0_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus0.ListIndex = -1 Then Exit Sub
+    i = DMax("Orden", "sysMenus1")
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus0.RowSource)
+    rs.FindFirst "Menu = " & Me.lstMenus0
+    If Not rs.NoMatch Then
+        rs.Edit
+        rs("Orden") = j
+        rs.Update
+    End If
+    Me.lstMenus0.Requery
+    Me.lstMenus1.Requery
+
+End Sub
+
+Private Sub btnDn1_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus1.ListIndex = -1 Then Exit Sub
+    i = Me.lstMenus1.Column(2)
+    If i = DMax("Orden", "sysMenus1") Then Exit Sub
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus1.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            rs.Edit
+            rs("Orden") = i
+            rs.Update
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus0.Requery
+    Me.lstMenus1.Requery
+
+End Sub
+
+Private Sub btnDn2_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    Dim lstMenu As Control
+    If Me.lstMenus2.ListIndex = -1 Then Exit Sub
+    
+    If Me.mrcMenu_0_1 = 0 Then
+        Set lstMenu = Me.lstMenus0
+    Else
+        Set lstMenu = Me.lstMenus1
+    End If
+    i = Me.lstMenus2.Column(6)
+    If i = DMax("Orden", "sysMenus2", "Menu = " & lstMenu.value) Then Exit Sub
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus2.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            rs.Edit
+            rs("Orden") = i
+            rs.Update
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus2.Requery
+End Sub
+
+Private Sub btnDn20_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus20.ListIndex = -1 Then Exit Sub
+    i = NuloEs(DMax("Orden", "sysMenus2", "Menu = " & IIf(Me.mrcMenu_0_1 = 0, Me.lstMenus0, Me.lstMenus1)), 0)
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus20.RowSource)
+    rs.FindFirst "IdComando = " & Me.lstMenus20
+    If Not rs.NoMatch Then
+        rs.Edit
+        rs("Orden") = j
+        rs.Update
+    End If
+    Me.lstMenus20.Requery
+    Me.lstMenus2.Requery
+End Sub
+
+Private Sub btnDn3_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    Dim lstMenu As Control
+    If Me.lstMenus3.ListIndex = -1 Then Exit Sub
+    i = Me.lstMenus3.Column(5)
+    If i = DMax("Orden", "sysMenus3", "Menu = " & Me.lstMenus2) Then Exit Sub
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus3.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            rs.Edit
+            rs("Orden") = i
+            rs.Update
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus3.Requery
+End Sub
+
+Private Sub btnDn30_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus30.ListIndex = -1 Then Exit Sub
+    i = NuloEs(DMax("Orden", "sysMenus3", "Menu = " & Me.lstMenus2), 0)
+    j = i + 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus30.RowSource)
+    rs.FindFirst "IdComando = " & Me.lstMenus30
+    If Not rs.NoMatch Then
+        rs.Edit
+        rs("Orden") = j
+        rs.Update
+    End If
+    Me.lstMenus30.Requery
+    Me.lstMenus3.Requery
+End Sub
+
+Private Sub btnGensysListas_Click()
+    If Me.lstMenus1.ListIndex = -1 Then Exit Sub
+    Dim rs1 As Recordset, rs2 As Recordset, strSQL As String
+    Set rs1 = CurrentDb.OpenRecordset(Me.lstMenus2.RowSource, dbOpenSnapshot)
+    Dim strCod As String, intResp As Integer, i As Integer
+    strCod = NuloEs(DLookup("ListasVarias", "sysMenus1", "Menu = " & Me.lstMenus1), "")
+    strCod = InputBox("Prefijo de Lista a Generar (XXXXX)", , strCod)
+    If strCod = "" Then Exit Sub
+    strCod = RecDerTop(strCod & "XXXXX", 0, 5)
+    If Not IsNull(DLookup("Orden", "sysListasVarias", "Referencia = " & ConComillas(strCod))) Then
+        intResp = MsgBox("Se borrarán registros de listas varias con Referencia = " & strCod, vbExclamation + vbOKCancel + vbDefaultButton2)
+        If intResp = vbCancel Then Exit Sub
+    End If
+    strSQL = "DELETE * FROM sysListasVarias WHERE Referencia = " & ConComillas(strCod)
+    CurrentDb.Execute strSQL, dbFailOnError
+    strSQL = "SELECT DISTINCTROW sysMenus2.Orden, sysMenus2.Leyenda, sysMenus2.TipoObjeto, sysMenus2.NombreObjeto, sysMenus2.Argumentos"
+    strSQL = strSQL & " FROM sysMenus2"
+    strSQL = strSQL & " WHERE (((sysMenus2.menu) = " & Me.lstMenus1 & "))"
+    strSQL = strSQL & " AND (((sysMenus2.Orden) > 0))"
+    strSQL = strSQL & " ORDER BY sysMenus2.Orden;"
+    Set rs1 = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    Set rs2 = CurrentDb.OpenRecordset("sysListasVarias", dbOpenDynaset)
+    While Not rs1.EOF
+        rs2.AddNew
+        i = i + 1
+        rs2("Referencia") = strCod
+        rs2("Orden") = i
+        rs2("Leyenda") = rs1("Leyenda")
+        rs2("TipoObjeto") = rs1("TipoObjeto")
+        rs2("NombreObjeto") = rs1("NombreObjeto")
+        rs2("Argumentos") = rs1("Argumentos")
+        rs2.Update
+        rs1.MoveNext
+    Wend
+    MsgBox "Se generaron " & i & " líneas en Listas Varias con la Referencia" & strCod
+End Sub
+
+Private Sub btnUp1_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus1.ListIndex = -1 Then Exit Sub
+    i = Me.lstMenus1.Column(2)
+    If i = 1 Then
+        intRes = MsgBox("¿Deshabilitar el menú " & Me.lstMenus1.Column(1) & "?", vbOKCancel + vbQuestion + vbDefaultButton2)
+        If intRes = vbCancel Then Exit Sub
+    End If
+    j = i - 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus1.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            If j <> 0 Then
+                rs.Edit
+                rs("Orden") = i
+                rs.Update
+            End If
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        ElseIf j = 0 Then
+            rs.Edit
+            rs("Orden") = rs("Orden") - 1
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus0.Requery
+    Me.lstMenus1.Requery
+End Sub
+
+Private Sub btnUp2_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus2.ListIndex = -1 Then Exit Sub
+    i = Me.lstMenus2.Column(6)
+    If i = 1 Then
+        intRes = MsgBox("¿Deshabilitar el comando " & Me.lstMenus2.Column(1) & "?", vbOKCancel + vbQuestion + vbDefaultButton2)
+        If intRes = vbCancel Then Exit Sub
+    End If
+    j = i - 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus2.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            rs.Edit
+            rs("Orden") = i
+            rs.Update
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        ElseIf j = 0 Then
+            rs.Edit
+            rs("Orden") = rs("Orden") - 1
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus2.Requery
+    Me.lstMenus20.Requery
+End Sub
+
+
+Private Sub btnUp3_Click()
+    Dim rs As Recordset, i As Integer, j As Integer, intRes As Integer
+    If Me.lstMenus3.ListIndex = -1 Then Exit Sub
+    i = Me.lstMenus3.Column(5)
+    If i = 1 Then
+        intRes = MsgBox("¿Deshabilitar el comando " & Me.lstMenus3.Column(1) & "?", vbOKCancel + vbQuestion + vbDefaultButton2)
+        If intRes = vbCancel Then Exit Sub
+    End If
+    j = i - 1
+    Set rs = CurrentDb.OpenRecordset(Me.lstMenus3.RowSource)
+    While Not rs.EOF
+        If rs("Orden") = j Then
+            rs.Edit
+            rs("Orden") = i
+            rs.Update
+        ElseIf rs("Orden") = i Then
+            rs.Edit
+            rs("Orden") = j
+            rs.Update
+        ElseIf j = 0 Then
+            rs.Edit
+            rs("Orden") = rs("Orden") - 1
+            rs.Update
+        End If
+        rs.MoveNext
+    Wend
+    Me.lstMenus3.Requery
+    Me.lstMenus30.Requery
+End Sub
+
+Private Sub Form_Load()
+    Call lstMenus1_Click
+    Call lstMenus2_Click
+End Sub
+
+Private Sub lstMenus0_Click()
+    Dim strSQL As String
+    strSQL = "SELECT DISTINCTROW sysMenus2.IdComando, sysMenus2.Leyenda, IIf([TipoObjeto]=0,' + ','') AS Expr1, sysMenus2.TipoObjeto, sysMenus2.NombreObjeto, sysMenus2.Menu, sysMenus2.Orden"
+    strSQL = strSQL & " FROM sysMenus2"
+    strSQL = strSQL & " WHERE (((sysMenus2.menu) = " & Me.lstMenus0 & "))"
+    strSQL = strSQL & " ORDER BY sysMenus2.Orden;"
+    Me.lstMenus2.RowSource = strSQL
+    Me.lstMenus1 = ""
+    Me.lstMenus2.Requery
+    Me.lstMenus3.Requery
+    Me.mrcMenu_0_1 = 0
+End Sub
+
+Private Sub lstMenus1_Click()
+    Dim strSQL As String
+    'strSQL = "SELECT DISTINCTROW sysMenus2.IdComando, sysMenus2.Leyenda, IIf([TipoObjeto]=0,' + ','') AS Expr1, sysMenus2.TipoObjeto, sysMenus2.NombreObjeto, sysMenus2.Menu, sysMenus2.Orden"
+    strSQL = "SELECT DISTINCTROW sysMenus2.IdComando, sysMenus2.Leyenda, Modulo, sysMenus2.TipoObjeto, sysMenus2.NombreObjeto, sysMenus2.Menu, sysMenus2.Orden"
+    strSQL = strSQL & " FROM sysMenus2"
+    'strSQL = strSQL & " FROM sysMenus2 LEFT JOIN sysModulos ON sysMenus2.Modulo = sysModulos.IdModulo"
+    strSQL = strSQL & " WHERE (((sysMenus2.menu) = " & Me.lstMenus1 & "))"
+    strSQL = strSQL & " AND (((sysMenus2.Orden) > 0))"
+    strSQL = strSQL & " ORDER BY sysMenus2.Orden;"
+    Me.lstMenus2.RowSource = strSQL
+    strSQL = "SELECT DISTINCTROW sysMenus2.IdComando, sysMenus2.Leyenda, IIf([TipoObjeto]=0,' + ','') AS Expr1, sysMenus2.TipoObjeto, sysMenus2.NombreObjeto, sysMenus2.Menu, sysMenus2.Orden"
+    strSQL = strSQL & " FROM sysMenus2"
+    strSQL = strSQL & " WHERE (((sysMenus2.menu) = " & Me.lstMenus1 & "))"
+    strSQL = strSQL & " AND (((sysMenus2.Orden) = 0))"
+    strSQL = strSQL & " ORDER BY sysMenus2.Orden;"
+    Me.lstMenus20.RowSource = strSQL
+    Me.lstMenus0 = ""
+    Me.lstMenus2.Requery
+    Me.lstMenus20.Requery
+    Me.lstMenus3.Requery
+    Me.mrcMenu_0_1 = 1
+End Sub
+
+Private Sub lstMenus1_DblClick(Cancel As Integer)
+    If Me.lstMenus1.ListIndex = -1 Then Exit Sub
+    DoCmd.OpenForm "sysMenus1", , , "Menu = " & Me.lstMenus1
+End Sub
+
+Private Sub lstMenus2_Click()
+    Dim strSQL As String
+    strSQL = "SELECT DISTINCTROW sysMenus3.IdComando, sysMenus3.Leyenda, sysMenus3.TipoObjeto, sysMenus3.NombreObjeto, sysMenus3.Menu, sysMenus3.Orden"
+    strSQL = strSQL & " FROM sysMenus3"
+    strSQL = strSQL & " WHERE (((sysMenus3.menu) = " & Me.lstMenus2 & "))"
+    strSQL = strSQL & " AND (((sysMenus3.Orden) > 0))"
+    strSQL = strSQL & " ORDER BY sysMenus3.Orden;"
+    Me.lstMenus3.RowSource = strSQL
+    strSQL = "SELECT DISTINCTROW sysMenus3.IdComando, sysMenus3.Leyenda, sysMenus3.TipoObjeto, sysMenus3.NombreObjeto, sysMenus3.Menu, sysMenus3.Orden"
+    strSQL = strSQL & " FROM sysMenus3"
+    strSQL = strSQL & " WHERE (((sysMenus3.menu) = " & Me.lstMenus2 & "))"
+    strSQL = strSQL & " AND (((sysMenus3.Orden) = 0))"
+    strSQL = strSQL & " ORDER BY sysMenus3.Orden;"
+    Me.lstMenus30.RowSource = strSQL
+    Me.lstMenus3.Requery
+    Me.lstMenus30.Requery
+    Me.lblAccion.Caption = ""
+    Select Case Me.lstMenus2.Column(3)
+        Case 0
+        Case 1
+            Me.lblAccion.Caption = "Abre formulario: " & Me.lstMenus2.Column(4)
+        Case 11
+            Me.lblAccion.Caption = "Abre formulario (hoja de datos): " & Me.lstMenus2.Column(4)
+        Case 12
+            Me.lblAccion.Caption = "Abre formulario (diálogo): " & Me.lstMenus2.Column(4)
+        Case 2
+            Me.lblAccion.Caption = "Abre consulta: " & Me.lstMenus2.Column(4)
+        Case 3
+            Me.lblAccion.Caption = "Imprime informe: " & Me.lstMenus2.Column(4)
+        Case 31
+            Me.lblAccion.Caption = "Vista previa informe: " & Me.lstMenus2.Column(4)
+    End Select
+    If Me.lstMenus2.Column(3) >= 1000 Then
+        Me.lblAccion.Caption = "Ejecuta procedimiento o función: " & Me.lstMenus2.Column(4)
+    End If
+        
+End Sub
+
+Private Sub lstMenus2_DblClick(Cancel As Integer)
+    DoCmd.OpenForm "sysMenus2", , , "IdComando = " & NuloEs(Me.lstMenus2, 0)
+End Sub
+
+Private Sub lstMenus20_DblClick(Cancel As Integer)
+    Call btnDn20_Click
+End Sub
+
+Private Sub lstMenus3_Click()
+    Me.lblAccion.Caption = ""
+    Select Case Me.lstMenus3.Column(2)
+        Case 0
+        Case 1
+            Me.lblAccion.Caption = "Abre formulario: " & Me.lstMenus3.Column(3)
+        Case 11
+            Me.lblAccion.Caption = "Abre formulario (hoja de datos): " & Me.lstMenus3.Column(3)
+        Case 12
+            Me.lblAccion.Caption = "Abre formulario (diálogo): " & Me.lstMenus3.Column(3)
+        Case 2
+            Me.lblAccion.Caption = "Abre consulta: " & Me.lstMenus3.Column(3)
+        Case 3
+            Me.lblAccion.Caption = "Imprime informe: " & Me.lstMenus3.Column(3)
+        Case 31
+            Me.lblAccion.Caption = "Vista previa informe: " & Me.lstMenus3.Column(3)
+    End Select
+    If Me.lstMenus3.Column(2) >= 1000 Then
+        Me.lblAccion.Caption = "Ejecuta procedimiento o función: " & Me.lstMenus3.Column(3)
+    End If
+
+End Sub
+
+Private Sub lstMenus3_DblClick(Cancel As Integer)
+    DoCmd.OpenForm "sysMenus3", , , "IdComando = " & Me.lstMenus3
+End Sub
+
+Private Sub lstMenus30_DblClick(Cancel As Integer)
+    Call btnDn30_Click
+End Sub

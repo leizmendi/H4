@@ -1,0 +1,390 @@
+CodeBehindForm
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = True
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Compare Database
+Option Explicit
+    Dim gX As Single, gShift As Integer
+    
+Private Sub btnD_Click()
+    Me.txtDesde = Nz(adhDoCalendar(Me.txtDesde), Me.txtDesde)
+    Carga_lstReservas
+End Sub
+
+Private Sub btnFetchBookingCodes_Click()
+    Dim cW As CWired, vRC As Variant, i As Integer, strRC_ As String, intR As Integer
+    On Error GoTo HandleError
+    Dim dtFMin As Date, dtFMax As Date
+    ComprobarReservasWB_EntreFechas CDate(Me.txtDesde), CDate(Me.txtHasta), True, dtFMin, dtFMax
+    Me.lstReservas.Requery
+    If IsOpenForm("frmPlaningG") Then
+        Dim dtIniPlan As Date, dtFinPlan As Date
+        dtIniPlan = CDate(Forms("frmPlaningG").txtFechaIni)
+        dtFinPlan = dtIniPlan + Nz(DameValorParam("PlanningGNumCols"), 14)
+        If dtFMin <= dtFinPlan And dtFMax >= dtIniPlan Then
+            Call Forms("frmPlaningG").txtFechaIni_AfterUpdate
+        End If
+    End If
+    
+HandleExit:
+    On Error Resume Next
+    cW.ReleaseToken
+    Exit Sub
+HandleError:
+     MsgBox Err.Description
+    Resume HandleExit
+    'If strMSG <> "" Then MsgBox strMSG, vbInformation
+End Sub
+
+Private Sub btnH_Click()
+    Me.txtHasta = Nz(adhDoCalendar(Me.txtHasta), Me.txtHasta)
+    Carga_lstReservas
+End Sub
+
+Private Sub btnOrdenE_Click()
+    Dim strOrder As String, strOrderH4 As String
+    strOrder = "date_arrival"
+    If Me.btnOrdenE.Picture Like "*A.bmp" Then
+        strOrder = "date_arrival DESC, date_departure DESC"
+        strOrderH4 = "FechaLlegada DESC, FechaSalida DESC"
+    Else
+        strOrder = "date_arrival, date_departure"
+        strOrderH4 = "FechaLlegada, FechaSalida"
+    End If
+    PonValorParam "WBreservasOrden", strOrder, 10
+    PonValorParam "WBreservasOrdenH4", strOrderH4, 10
+    Carga_lstReservas
+End Sub
+
+Private Sub btnOrdenR_Click()
+    Dim strOrder As String, strOrderH4 As String
+    strOrder = "wbReservations.reservation_code"
+    strOrderH4 = "IdFichaCab"
+    If Me.btnOrdenR.Picture Like "*A.bmp" Then
+        strOrder = strOrder & " DESC"
+        strOrderH4 = strOrderH4 & " DESC"
+    Else
+    End If
+    PonValorParam "WBreservasOrden", strOrder, 10
+    PonValorParam "WBreservasOrdenH4", strOrderH4, 10
+    Carga_lstReservas
+
+End Sub
+
+Public Sub Carga_lstReservas()
+    On Error GoTo HandleError
+    Dim strSQL As String, strOrder As String
+    'strSQL = "SELECT wbReservations.reservation_code, wbReservations.status, wbReservations.date_arrival AS Entrada, wbReservations.date_departure AS Salida, [customer_name] & ' ' & [customer_surname] AS Cliente, IIf([MarkSN],'X','-') AS Importada"
+    'strSQL = strSQL & " From wbReservations"
+    'strSQL = "SELECT wbReservations.reservation_code, wbR_status.status, wbReservations.date_arrival AS Entrada, wbReservations.date_departure AS Salida, [customer_name] & ' ' & [customer_surname] AS Cliente, IIf([MarkSN],'X','-') AS Importada"
+    'strSQL = strSQL & " FROM wbReservations LEFT JOIN wbR_status ON wbReservations.status = wbR_status.status_code"
+    If Me.mrcVerTEF = 4 Then
+        strSQL = "SELECT wbReservations.reservation_code, wbR_status.status, Format([FechaReserva],'dd/mm/yy')  AS recibida, FechaLlegada AS Entrada, FechaSalida AS Salida, [NombreCliente] & ' ' & [ApellidosCliente] AS Cliente, tbFichasCab.IdFichaCab AS Ficha"
+        strSQL = strSQL & " FROM tbFichasCab LEFT JOIN (wbReservations LEFT JOIN wbR_status ON wbReservations.status = wbR_status.status_code) ON tbFichasCab.WuBookID = wbReservations.reservation_code"
+        strSQL = strSQL & " WHERE wbReservations.reservation_code Is Null AND FechaLlegada >= " & CLng(Date)
+        strOrder = Nz(DameValorParam("WBreservasOrdenH4"), "FechaLlegada, FechaSalida")
+    Else
+        strSQL = "SELECT wbReservations.reservation_code, wbR_status.status, Iif(IsNull(deleted_at), date_received, deleted_at) AS recibida, wbReservations.date_arrival AS Entrada, wbReservations.date_departure AS Salida, [customer_name] & ' ' & [customer_surname] AS Cliente, tbFichasCab.IdFichaCab AS Ficha, IIf(Nz([VistaSN],False),'X','-') AS Vista"
+        'strSQL = strSQL & " FROM tbFichasCab RIGHT JOIN (wbReservations LEFT JOIN wbR_status ON wbReservations.status = wbR_status.status_code) ON tbFichasCab.WuBookID = wbReservations.reservation_code"
+        strSQL = strSQL & " FROM (tbFichasCab RIGHT JOIN (wbReservations LEFT JOIN wbR_status ON wbReservations.status = wbR_status.status_code) ON tbFichasCab.WuBookID = wbReservations.reservation_code) LEFT JOIN wbReservations_VistaSN ON wbReservations.reservation_code = wbReservations_VistaSN.reservation_code"
+
+        strSQL = strSQL & " WHERE True"
+        If Me.mrcVerTEF = 1 Then
+        ElseIf Me.mrcVerTEF = 2 Then
+            If IsDate(Me.txtDesde) Then strSQL = strSQL & " AND date_departure >= " & CLng(CDate(Me.txtDesde))
+            If IsDate(Me.txtHasta) Then strSQL = strSQL & " AND date_arrival <= " & CLng(CDate(Me.txtHasta))
+        Else
+            If IsDate(Me.txtDesde) Then strSQL = strSQL & " AND date_received >= " & CLng(CDate(Me.txtDesde))
+            If IsDate(Me.txtHasta) Then strSQL = strSQL & " AND date_received <= " & CLng(CDate(Me.txtHasta))
+        End If
+        If Me.cmbStatus <> 0 Then strSQL = strSQL & " AND wbReservations.status = " & Me.cmbStatus
+        strOrder = Nz(DameValorParam("WBreservasOrden"), "wbReservations.date_arrival, wbReservations.date_departure")
+    End If
+    strSQL = strSQL & " ORDER BY " & strOrder
+    If InStr(strOrder, "date_arrival") = 1 Or InStr(strOrder, "FechaLlegada") = 1 Then
+        Me.btnOrdenR.Picture = ""
+        Me.btnOrdenRec.Picture = ""
+        If InStr(strOrder, "DESC") > 0 Then
+            Me.btnOrdenE.Picture = CarpetaImagenes & "BMP\OrdenZ.bmp"
+        Else
+            Me.btnOrdenE.Picture = CarpetaImagenes & "BMP\OrdenA.bmp"
+        End If
+    ElseIf InStr(strOrder, "Iif(IsNull(wbReservations.deleted_at)") = 1 Or InStr(strOrder, "FechaReserva") = 1 Then
+        Me.btnOrdenR.Picture = ""
+        Me.btnOrdenE.Picture = ""
+        If InStr(strOrder, "DESC") > 0 Then
+            Me.btnOrdenRec.Picture = CarpetaImagenes & "BMP\OrdenZ.bmp"
+        Else
+            Me.btnOrdenRec.Picture = CarpetaImagenes & "BMP\OrdenA.bmp"
+        End If
+    Else
+        Me.btnOrdenE.Picture = ""
+        Me.btnOrdenRec.Picture = ""
+
+        If InStr(strOrder, "DESC") > 0 Then
+            Me.btnOrdenR.Picture = CarpetaImagenes & "BMP\OrdenZ.bmp"
+        Else
+            Me.btnOrdenR.Picture = CarpetaImagenes & "BMP\OrdenA.bmp"
+        End If
+    End If
+    Me.lstReservas.RowSource = strSQL
+    
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnOrdenRec_Click()
+    Dim strOrder As String, strOrderH4 As String
+    strOrder = "date_received"
+    If Me.btnOrdenRec.Picture Like "*A.bmp" Then
+        strOrder = "Iif(IsNull(wbReservations.deleted_at), wbReservations.date_received, wbReservations.deleted_at) DESC, date_arrival DESC, date_departure DESC"
+        strOrderH4 = "FechaReserva DESC, FechaLlegada DESC, FechaSalida DESC"
+    Else
+        strOrder = "Iif(IsNull(wbReservations.deleted_at), wbReservations.date_received, wbReservations.deleted_at), date_arrival, date_departure"
+        strOrderH4 = "FechaReserva, FechaLlegada, FechaSalida"
+    End If
+    PonValorParam "WBreservasOrden", strOrder, 10
+    PonValorParam "WBreservasOrdenH4", strOrderH4, 10
+    Carga_lstReservas
+End Sub
+
+Private Sub btnR_Click()
+    On Error GoTo HandleError
+    If Me.lstReservas.ListIndex = -1 Then
+        MsgBox "Se debe seleccionar una reserva", vbExclamation
+        Exit Sub
+    End If
+    Dim intR As Integer
+    intR = MsgBox("¿Volver recibir la reserva desde Wubook?", vbOKCancel + vbQuestion, "Recibir reserva de Wubook")
+    If intR = vbCancel Then Exit Sub
+    Dim cW As CWired
+    Set cW = New CWired
+    cW.CargaCredenciales
+    cW.GetToken
+    cW.FetchBooking Me.lstReservas
+    
+    Importa_wbReservation Me.lstReservas
+    Me.lstReservas.Requery
+    MsgBox "OK", vbInformation, "Reserva importada"
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnSendDameReservas_Click()
+    Dim strMSG As String
+    On Error GoTo HandleError
+    SincroWuBook True, strMSG
+    Me.lstReservas.Requery
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+    'If strMSG <> "" Then MsgBox strMSG, vbInformation
+End Sub
+
+Private Sub btnVistaSN_Click()
+    If Me.lstReservas.ListIndex = -1 Then Exit Sub
+    WbReservation_VistaSN Me.lstReservas
+    Me.lstReservas.Requery
+End Sub
+
+Private Sub btnWBreservation_Click()
+    On Error GoTo HandleError
+    If Me.lstReservas.ListIndex = -1 Then
+        MsgBox "Hay que seleccionar una reserva de la lista", vbInformation, "H4"
+        Exit Sub
+    End If
+    If SpNz(Me.lstReservas.Column(0), 0) > 0 Then Exit Sub
+    Dim lngIdFichaCab As Long, intIgnoreR As Integer, intIgnoreA As Integer, intR As Integer, intListCount As Integer, intSubeMas As Integer
+    Dim strMSG As String
+    
+    If (gShift And acCtrlMask) <> 0 Then
+        intSubeMas = True: intListCount = Me.lstReservas.ListCount
+    Else
+        intSubeMas = False: intListCount = 1
+    End If
+    lngIdFichaCab = Me.lstReservas.Column(6)
+    Dim cWi As CWired, lngWuBookID As Long, strResp As String
+    Dim vMark As Variant, iOK As Integer, iFail As Integer, i As Integer, j As Integer
+    'Comprueba si la ficha tiene WubookID y si es así pregunta si volver a descargarla desde Wubook
+    lngWuBookID = Nz(DLookup("WuBookID", "tbFichasCab", "IdFichaCab = " & lngIdFichaCab), 0)
+    If lngWuBookID <> 0 Then
+        intR = MsgBox("¿Volver a descargar la reserva existente de Wubook: " & lngWuBookID & "?", vbYesNoCancel + vbDefaultButton1)
+        If intR = vbCancel Then Exit Sub
+        If intR = vbYes Then
+            Set cWi = New CWired
+            If cWi.FetchBooking(lngWuBookID) = True Then
+                Importa_wbReservation lngWuBookID
+                Me.lstReservas.Requery
+                MsgBox "OK", vbInformation, "Reserva importada"
+                
+            Else
+                MsgBox "Error", vbExclamation
+            End If
+            Exit Sub
+        End If
+    End If
+    
+    intR = SubeNewReservation_Ops(lngIdFichaCab, intIgnoreR, intIgnoreA, intSubeMas, intListCount)
+    'intR = MsgBox("¿Enviar reserva a Wubook?", vbOKCancel + vbQuestion)
+    'If intR <> vbOK Then Exit Sub
+    If Not intR Then Exit Sub
+    Set cWi = New CWired
+    If intSubeMas = False Then
+        lngIdFichaCab = Me.lstReservas.Column(6)
+        lngWuBookID = cWi.NewReservation(lngIdFichaCab, , strResp, intIgnoreR, intIgnoreA)
+        If lngWuBookID <> 0 Then
+            CurrentDb.Execute "UPDATE tbFichasCab SET WuBookID = " & lngWuBookID & " WHERE IdFichaCab = " & lngIdFichaCab, dbFailOnError
+            If cWi.FetchBooking(lngWuBookID) = False Then Exit Sub
+            vMark = Array("int", lngWuBookID)
+            If cWi.MarkBooks(vMark) = True Then
+                CurrentDb.Execute "UPDATE wbReservations SET MarkSN=True , MarkOK=True WHERE reservation_code = " & lngWuBookID, dbFailOnError
+                MsgBox "Se marcó reserva " & lngWuBookID & " como recibida", vbInformation
+            Else
+                MsgBox "No se marcó reserva " & lngWuBookID & " como recibida", vbExclamation
+            End If
+            'DoCmd.OpenForm "frm_wbReservations", , , "reservation_code = " & Me.WuBookID
+        End If
+        Me.lstReservas.Requery
+    Else
+        i = 1
+        While Me.lstReservas.Column(6, i) <> Me.lstReservas.Column(6)
+            i = i + 1
+        Wend
+        If Me.lstReservas.Column(6, i) <> Me.lstReservas.Column(6) Then
+            MsgBox "No se encontró inicio de lista", vbExclamation, "H4"
+            Exit Sub
+        End If
+        While j < intListCount
+            DoEvents
+            lngIdFichaCab = Me.lstReservas.Column(6, i)
+            lngWuBookID = cWi.NewReservation(lngIdFichaCab, False, strResp, intIgnoreR, intIgnoreA)
+            If lngWuBookID <> 0 Then
+                CurrentDb.Execute "UPDATE tbFichasCab SET WuBookID = " & lngWuBookID & " WHERE IdFichaCab = " & lngIdFichaCab, dbFailOnError
+                If cWi.FetchBooking(lngWuBookID) = False Then
+                    iFail = iFail + 1
+                    GoTo Siguiente
+                End If
+                vMark = Array("int", lngWuBookID)
+                If cWi.MarkBooks(vMark) = True Then
+                    iOK = iOK + 1
+                    CurrentDb.Execute "UPDATE wbReservations SET MarkSN=True , MarkOK=True WHERE reservation_code = " & lngWuBookID, dbFailOnError
+                    'MsgBox "Se marcó reserva " & lngWuBookID & " como recibida", vbInformation
+                Else
+                    iFail = iFail + 1
+                    'MsgBox "No se marcó reserva " & lngWuBookID & " como recibida", vbExclamation
+                End If
+                'DoCmd.OpenForm "frm_wbReservations", , , "reservation_code = " & Me.WuBookID
+            Else
+                iFail = iFail + 1
+                strMSG = strMSG & "Ficha: " & lngIdFichaCab & "->" & strResp & vbCrLf
+            End If
+            Me.lstReservas.Requery
+Siguiente:
+            i = i + 1
+            j = j + 1
+            MensajeBusyBox "Subiendo reservas a WuBook: " & j & "/" & intListCount & " - Ok: " & iOK & ", Fail: " & iFail, "Subiendo reservas a wubook"
+            'SysCmd acSysCmdSetStatus, "Subiendo reservas a WuBook: " & j & "/" & intListCount & " - Ok: " & iOk & ", Fail: " & iFail
+        Wend
+        SysCmd acSysCmdClearStatus
+        MensajeBusyBox "Se intentaron subir " & j & " reservas a WuBook: " & iOK & "/" & intListCount & " - Ok: " & iOK & ", Fail: " & iFail & vbCrLf & strMSG, "Finalizado", True
+    End If
+    
+        
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub btnWBreservation_KeyDown(KeyCode As Integer, Shift As Integer)
+    gShift = Shift
+End Sub
+
+Private Sub btnWBreservation_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gShift = Shift
+End Sub
+
+Private Sub cmbStatus_AfterUpdate()
+    Carga_lstReservas
+End Sub
+
+Private Sub Form_Load()
+    CargarParam Me, Me.Name & "_"
+    Call mrcVerTEF_AfterUpdate
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    ComprobarParam Me, Cancel, False, Me.Name & "_"
+End Sub
+
+Private Sub lstReservas_DblClick(Cancel As Integer)
+    On Error GoTo HandleError
+    If Me.lstReservas.ListIndex = -1 Then Exit Sub
+    If Me.lstReservas.Column(6) = "" Or gX < 1575 Then
+        DoCmd.OpenForm "frm_wbReservations", , , "reservation_code = " & (Me.lstReservas)
+    Else
+        DoCmd.OpenForm "frmFichas", , , "IdFichaCab = " & Me.lstReservas.Column(5)
+    End If
+    Me.Visible = False
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Private Sub lstReservas_MouseDown(Button As Integer, Shift As Integer, X As Single, y As Single)
+    gX = X
+    'MsgBox X
+    gShift = Shift
+End Sub
+
+Private Sub mrcVerTEF_AfterUpdate()
+    If Me.mrcVerTEF < 4 Then
+        Me.btnOrdenR.Left = Me.lstReservas.Left
+        Me.btnOrdenR.Width = 2.814 * TC_CmToPoints
+        Me.btnWBreservation.Visible = False
+        Me.btnVistaSN.Visible = True
+        Me.lstReservas.ColumnCount = 8
+
+    Else
+        '2,814cm;2,313cm;2cm;2cm;2cm;4cm
+        Me.btnVistaSN.Visible = False
+        Me.lstReservas.ColumnCount = 7
+        Me.btnOrdenR.Left = Me.btnVistaSN.Left - 1.5 * TC_CmToPoints
+        Me.btnOrdenR.Width = 1.5 * TC_CmToPoints
+        Me.btnWBreservation.Visible = True
+    End If
+    If Me.mrcVerTEF = 3 Then
+        Me.txtDesde = Date - 7
+        Me.txtHasta = Date + 1
+    End If
+        
+    Me.txtDesde.Visible = Me.mrcVerTEF = 2 Or Me.mrcVerTEF = 3
+    Me.txtHasta.Visible = Me.mrcVerTEF = 2 Or Me.mrcVerTEF = 3
+    Me.btnD.Visible = Me.mrcVerTEF = 2 Or Me.mrcVerTEF = 3
+    Me.btnH.Visible = Me.mrcVerTEF = 2 Or Me.mrcVerTEF = 3
+    Me.btnFetchBookingCodes.Enabled = Me.mrcVerTEF = 3
+    Carga_lstReservas
+End Sub
+
+Private Sub txtDesde_AfterUpdate()
+    Carga_lstReservas
+End Sub
+
+Private Sub txtHasta_AfterUpdate()
+    Carga_lstReservas
+End Sub
