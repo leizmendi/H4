@@ -13,9 +13,15 @@ Enum TBai_TEnvio
     ID_TBai = 8
     QR_TBai = 9
 End Enum
-
+Public Function TBaiSN() As Boolean
+    TBaiSN = Nz(DameValorParam("TBaiSN"), False)
+End Function
 Public Function TBai_FacturaAlta(lIdFactura As Long) As Boolean
     On Error GoTo HandleError
+    If Not TBaiSN Then
+        TBai_FacturaAlta = True
+        Exit Function
+    End If
     Dim sXml As String, sFile As String, sBuscaElemento As String, sValor As String, sEVs As String, vEVs As Variant, i As Integer
     sFile = Nz(DameValorParam("TBaiFileXML_ModeloAlta"), "")
     If sFile = "" Then
@@ -145,7 +151,10 @@ EncadenamientoFacturaAnterior:
     Dim sEncadena As String, sSerieFAnt As String, sNumFAnt As String, sFechaExpedicionFAnt As String, sSignatureValueFirmaFAnt As String, sX As String
     Dim lIdTBaiCadena As Long
     sEncadena = Dime_TBai_Anterior(lIdFactura)
-    If sEncadena = "" Then
+    If sEncadena = "Error" Then
+        TBai_FacturaAlta = False
+        GoTo HandleExit
+    ElseIf sEncadena = "" Then
         sXml = EliminaElementoXML(sXml, "//HuellaTBAI/EncadenamientoFacturaAnterior")
     Else
         lIdTBaiCadena = DimeXML(sEncadena, "IdTBaiCadena")
@@ -196,7 +205,7 @@ QR:
           LlenaIzqChar(DameValorParam("TBaiEmisorNIF"), 9, "0") & "-" & _
           Left(sFechaFactura, 2) & Mid(sFechaFactura, 4, 2) & Mid(sFechaFactura, 9, 2) & "-" & _
           Left(sSignV100, 13) & "-"
-    sTBaiId = sTBaiId & TBai_CRC(sQR)
+    sTBaiId = sTBaiId & TBai_CRC(sTBaiId)
     If TBai_GeneraQR(sTBaiId, sSerieFactura, sNumFactura, cImporteTotalFactura) = True Then
         'OpenFile sFileQR
     End If
@@ -215,7 +224,7 @@ HandleExit:
 HandleError:
     MsgBox Err.Description
     
-    Resume ' HandleExit
+    Resume HandleExit
 End Function
 
 Public Function TBai_FacturaBaja(lIdFactura As Long) As Boolean
@@ -508,6 +517,7 @@ Private Function Dime_TBai_Anterior(lIdFactura As Long) As String
         CurrentDb.Execute sSQL, dbFailOnError
     Else
         MsgBox "Se encontró registro en tbFacturas_TBaiCadena con mismo IdFactura", vbExclamation, "Error en Dime_TBai_Anterior"
+        Dime_TBai_Anterior = "Error"
         GoTo HandleExit
     End If
     lIdTBaiCadena = Nz(DLookup("IdTBaiCadena", "tbFacturas_TBaiCadena", "IdFactura = " & lIdFactura), 0)
@@ -581,7 +591,7 @@ Public Function TBai_GeneraQR(sIdTBaiQR As String, _
     sUrl = sUrl & "&i=" & ComaPunto(Format(cImporte, "0,00"))
     sCRC = TBai_CRC(sUrl)
     sUrl = sUrl & "&cr=" & sCRC
-    sFileQR = GetCarpetaQR() & NombreFicheroValido(sSerie & sNumFactura & "QR") & ".gif"
+    sFileQR = GetCarpetaQR() & NombreFicheroValido(sSerie & sNumFactura) & ".gif"
     qrcodeCreateImage sFileQR, sUrl
     TBai_GeneraQR = Dir(sFileQR & ".gif") <> ""
     
@@ -625,7 +635,7 @@ End Function
 Public Function TBai_PonLogo(lIdFactura As Long)
     'Al ir a imprimir una factura se debe llamar esta función para que su asigne le QR correspondiente a la Tira de Logos
     On Error GoTo HandleError
-    If Nz(DameValorParam("TBaiSN"), False) = False Then GoTo HandleExit
+    'If Nz(DameValorParam("TBaiSN"), False) = False Then GoTo HandleExit
     Dim sFileQR As String, sTBai_Id As String, sSQL As String
     sFileQR = GetFileQR(lIdFactura, GetCarpetaImagenes)
     sTBai_Id = DLookup("TBai_Id", "tbFacturas_TBaiCadena", "IdFactura = " & lIdFactura)

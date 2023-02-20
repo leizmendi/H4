@@ -56,6 +56,10 @@ Private Sub btnSelFile2_Click()
     Call btnSelFile_Click
 End Sub
 
+Private Sub btnSend_Click()
+
+End Sub
+
 Private Sub Form_Load()
     CargarParam Me
     Call TBaiSN_AfterUpdate
@@ -117,6 +121,6 @@ Public Sub Carga_lstEnvios()
     sSQL = "SELECT tbTBai_Envios.IdTBai_Envio, tbTBai_Envios.TipoTBai, tbTBai_Envios.EndPoint, tbTBai_Envios.RequestFileXML, tbTBai_Envios.Response, tbTBai_Envios.FechaEnvio, tbTBai_Envios.IP_Envio, tbTBai_Envios.CSV" & _
            " FROM tbTBai_Envios" & _
            " WHERE tbTBai_Envios.EnviadoSN=" & IIf(Me.mrcTBai_enviadosSN = 1, "False", "True") & _
-           " ORDER BY IdTBai_Envio " & IIf(Me.mrcTBai_enviadosSN = 1, "DESC", "ASC")
+           " ORDER BY IdTBai_Envio " & IIf(Me.mrcTBai_enviadosSN = 2, "DESC", "ASC")
     Me.lstEnvios.RowSource = sSQL
 End Sub
