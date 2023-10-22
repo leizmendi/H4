@@ -188,11 +188,11 @@ Private Function DimeXMLRPC(strMethodName As String, vParams() As Variant, Optio
 NextI:
     Next i
     DimeXMLRPC = "<?xml version='1.0'?>" & xDoc.XML
-    Dim fso As New FileSystemObject, ts As TextStream
+    Dim FSO As New FileSystemObject, ts As TextStream
     On Error Resume Next
-    fso.CreateTextFile ("D:\_DOCS1_\__H4+\Envio.xml")
+    FSO.CreateTextFile ("D:\_DOCS1_\__H4+\Envio.xml")
     If Err = 0 Then 'intGrabaEnvio Then
-        Set ts = fso.OpenTextFile("D:\_DOCS1_\__H4+\Envio.xml", ForAppending, True)
+        Set ts = FSO.OpenTextFile("D:\_DOCS1_\__H4+\Envio.xml", ForAppending, True)
         ts.Write "<?xml version='1.0'?>" & xDoc.XML
         ts.Close
     End If
@@ -860,7 +860,11 @@ Private Function CargawbRoomValues(lngIdRoom As Long, vDays As Variant, dtD As D
         vday = vDays(i)
         If intSoloPrecio = False Then
             For j = 0 To UBound(vday)
-                rs(vday(j)(0)) = vday(j)(1)
+                'If vday(j)(0) Like "closed*" Then
+                '    rs(vday(j)(0)) = vday(j)(1) = 1
+                'Else
+                    rs(vday(j)(0)) = vday(j)(1)
+                'End If
             Next j
 '            rs("price") = Null
         Else
@@ -868,10 +872,10 @@ Private Function CargawbRoomValues(lngIdRoom As Long, vDays As Variant, dtD As D
         End If
         lngwbTablaID = Nz(DLookup("wbTablaID", "wbTabla", "IdRoom = " & lngIdRoom & " AND Fecha = " & CLng(dtD + i)), 0)
         If lngwbTablaID = 0 Then
-            strSQL = "INSERT INTO wbTabla (IdRoom, Fecha, price, min_stay, avail, max_stay)"
-            strSQL = strSQL & " SELECT " & lngIdRoom & " AS IdR, " & CLng(dtD + i) & " AS F, " & ComaPunto(rs("price")) & " AS Precio, " & rs("min_stay") & " AS MinEst, " & Nz(rs("avail"), 0) & " AS avail, " & rs("max_stay") & " AS MaxEst"
+            strSQL = "INSERT INTO wbTabla (IdRoom, Fecha, price, min_stay, avail, max_stay, closed)"
+            strSQL = strSQL & " SELECT " & lngIdRoom & " AS IdR, " & CLng(dtD + i) & " AS F, " & ComaPunto(rs("price")) & " AS Precio, " & rs("min_stay") & " AS MinEst, " & Nz(rs("avail"), 0) & " AS avail, " & rs("max_stay") & " AS MaxEst, " & IIf(rs("closed"), "True", "False") & " as closed"
         Else
-            strSQL = "UPDATE wbTabla SET price = " & ComaPunto(rs("price")) & ", min_stay = " & rs("min_stay") & ", avail = " & Nz(rs("avail"), 0) & ", max_stay = " & Nz(rs("max_stay"), 0)
+            strSQL = "UPDATE wbTabla SET price = " & ComaPunto(rs("price")) & ", min_stay = " & rs("min_stay") & ", avail = " & Nz(rs("avail"), 0) & ", max_stay = " & Nz(rs("max_stay"), 0) & ", closed = " & IIf(rs("closed"), "True", "False")
             strSQL = strSQL & " WHERE wbTablaID = " & lngwbTablaID
         End If
         rs.Update
@@ -1027,12 +1031,12 @@ Private Function ResponseIsOK(strRespuestaXML As String, strAskFunction As Strin
     On Error GoTo Error_ResponseIsOK
     Dim xDoc As Object, xNode As Object, i As Integer, strData As String, intR As Integer
     Dim intPos As Integer, strStruct As String
-    Dim fso As New FileSystemObject, ts As TextStream
+    Dim FSO As New FileSystemObject, ts As TextStream
     Dim intRespCode As Integer
     On Error Resume Next
-    fso.CreateTextFile ("D:\_DOCS1_\__H4+\Respuesta.xml")
+    FSO.CreateTextFile ("D:\_DOCS1_\__H4+\Respuesta.xml")
     If Err = 0 Then
-        Set ts = fso.OpenTextFile("D:\_DOCS1_\__H4+\Respuesta.xml", ForAppending, True)
+        Set ts = FSO.OpenTextFile("D:\_DOCS1_\__H4+\Respuesta.xml", ForAppending, True)
         ts.Write strRespuestaXML
         ts.Close
     End If

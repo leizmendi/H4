@@ -2690,14 +2690,19 @@ Public Function RecalculaTotales()
     Me.Recalc
     If Me.IdFactura > 0 Then
         If Abs(ComprobarFacturable_FacturaDeFicha(Me.IdFichaCab)) > 0.5 Then
-'        If DLookup("[TotalBase] + [TotalIVA]", "tbFichasCab_Totales", "IdFichaCab = " & Me.IdFichaCab) <> DLookup("[TotalBase] + [TotalIVA]", "tbFacturasCab", "IdFactura = " & Me.IdFactura) Then
-            Select Case Nz(DameValorParam("FichasYFacturasMantenerIgual"), 1)
-                Case True
-                Case Else
-                    intR = MsgBox("¿Modificar Factura igual que la Ficha?", vbYesNo + vbQuestion)
-                    If intR = vbNo Then Exit Function
-            End Select
-            Call CopiarFichaAFactura(Nz(Me.IdFichaCab, 0))
+            If TBaiSN Then
+                MsgBox "Se anulará factura existente y se comunicará baja a TicketBai. Se deberá volver a facturar la ficha", vbInformation
+                TBai_FacturaBaja Me.IdFactura
+                Me.IdFactura = 0
+            Else
+                Select Case Nz(DameValorParam("FichasYFacturasMantenerIgual"), 1)
+                    Case True
+                    Case Else
+                        intR = MsgBox("¿Modificar Factura igual que la Ficha?", vbYesNo + vbQuestion)
+                        If intR = vbNo Then Exit Function
+                End Select
+                Call CopiarFichaAFactura(Nz(Me.IdFichaCab, 0))
+            End If
         End If
         If Me.EstadoFicha = 4 Then
             If TotalFicha(Me.IdFichaCab, 3) - TotalFichaPagos(Me.IdFichaCab) > 0.5 Then
@@ -2706,6 +2711,7 @@ Public Function RecalculaTotales()
             End If
         End If
     End If
+ServiciosDia:
     AsignarServiciosDia Nz(Me.IdFichaCab, 0)
     Me.txtPendiente.Visible = Me.txtPendiente <> 0
     

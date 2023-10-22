@@ -12,6 +12,15 @@ Public Sub ImprimirFactura(lngIdFactura As Long, Optional intImprimir_VistaPrevi
         MsgBox " No se encontró IdFactura = " & lngIdFactura
         Exit Sub
     End If
+    If TBaiSN Then
+        If IsNull(DLookup("IdTBaiCadena", "tbFacturas_TBaiCadena", "IdFactura = " & lngIdFactura)) Then
+            If Not TBai_FacturaAlta(lngIdFactura) Then
+                MsgBox "No se generó registro de TicketBai", vbExclamation
+            Else
+                TBai_EnviosPendientesSend
+            End If
+        End If
+    End If
     strSerie = Nz(DLookup("Serie", "tbFacturasCab", "IdFactura = " & lngIdFactura), "")
     PonXML strXML, "Serie", strSerie
     Actualiza_auxFacturasPagos lngIdFactura

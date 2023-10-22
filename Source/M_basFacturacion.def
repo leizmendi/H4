@@ -1,7 +1,7 @@
 Option Compare Database
 Option Explicit
-    Dim rsFacCab As Recordset, rsFacDet As Recordset
-    Dim db As Database
+    'Dim rsFacCab As Recordset, rsFacDet As Recordset
+    'Dim db As Database
     Dim glngIdFactura As Long
 
 Public Function FacturarFicha(lngFicha As Long, _
@@ -23,6 +23,8 @@ Public Function FacturarFicha(lngFicha As Long, _
     Dim intPrimer As Integer
     Dim intAgruparConceptos As Integer
     Dim intTipoIVA As Integer, cIVA As Currency, intDatosViajeroDetalleSN As Integer
+    Dim rsFacCab As Recordset, rsFacDet As Recordset
+    
     On Error GoTo Error_FacturarFicha
     Dim strSerie As String
     strSerie = Nz(DameValorParam("PuestoSerie"), "")
@@ -40,9 +42,9 @@ Public Function FacturarFicha(lngFicha As Long, _
         Exit Function
     End If
     intlIVAincFicha = DLookup("IvaIncluido", "tbFichasCab", "IdFichaCab = " & lngFicha)
-    Set db = CurrentDb
-    Set rsFacCab = db.OpenRecordset("tbFacturasCab")
-    Set rsFacDet = db.OpenRecordset("tbFacturasDet")
+    'Set db = CurrentDb
+    'Set rsFacCab = CurrentDb.OpenRecordset("tbFacturasCab")
+    'Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet")
     'Detalle----------------------------------------------------------------------------------------------------
     Dim vCli As Variant
     If intDetalleSN = -2 Then
@@ -77,7 +79,7 @@ Public Function FacturarFicha(lngFicha As Long, _
             strSQL = strSQL + " ORDER BY tbFichasDet.IVA;"
         End If
     End If
-    Set rs = db.OpenRecordset(strSQL)
+    Set rs = CurrentDb.OpenRecordset(strSQL)
     If lngIdFac > 0 Then
         If Nz(DLookup("IdFactura", "tbFichasCab", "IdFichaCab = " & lngFicha), 0) <> lngIdFac Then
             glngIdFactura = lngIdFac
@@ -89,6 +91,9 @@ Public Function FacturarFicha(lngFicha As Long, _
         End If
     Else
         glngIdFactura = 0
+    End If
+    If intDetalleSN = True Then
+        Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet", dbOpenDynaset, dbAppendOnly)
     End If
     While Not rs.EOF
         If Not intIniYa Then
@@ -156,6 +161,15 @@ FinFactura:
         CurrentDb.Execute "UPDATE tbFichasCab SET IdFactura = " & glngIdFactura & " WHERE IdFichaCab = " & lngFicha, dbFailOnError
         CurrentDb.Execute "UPDATE tbFichasCab SET EstadoFicha = 3 WHERE EstadoFicha < 3 AND IdFichaCab = " & lngFicha, dbFailOnError
     End If
+    If TBaiSN Then
+        If Not TBai_FacturaAlta(glngIdFactura) Then
+            MsgBox "No se generó registro de TicketBai", vbExclamation
+        Else
+            TBai_EnviosPendientesSend
+        End If
+    End If
+
+    
     FacturarFicha = glngIdFactura
 Salir_FacturarFicha:
     Exit Function
@@ -324,6 +338,7 @@ Public Function IniciarFactura(lngIdFT As Long, intFT As Integer, strSerie As St
 
     Dim strSQL As String
     Dim rs As Recordset, strSx As String
+    Dim rsFacCab As Recordset
     On Error GoTo Error_IniciarFactura
     IniciarFactura = 0
     Select Case intFT
@@ -346,15 +361,9 @@ Public Function IniciarFactura(lngIdFT As Long, intFT As Integer, strSerie As St
     End If
     rs.MoveFirst
 Ini:
-    If lngIdFac = 0 Then
-        rsFacCab.AddNew
-        rsFacCab("NumeroDeFactura") = DameNumeroFactura(strSerie)
-        'strSerie = Nz(DameValorParam("PuestoSerie"), "")
-        rsFacCab("Serie") = strSerie
-        rsFacCab("FechaFactura") = Date
-    Else
-        rsFacCab.FindFirst "IdFactura = " & lngIdFac
-        If rsFacCab.NoMatch Then
+    If lngIdFac <> 0 Then
+        Set rsFacCab = CurrentDb.OpenRecordset("SELECT * FROM tbFacturasCab WHERE IdFactura = " & lngIdFac, dbOpenDynaset)
+        If rsFacCab.EOF Then
             lngIdFac = 0
             GoTo Ini
         End If
@@ -363,6 +372,13 @@ Ini:
             MsgBox "Se va a modificar una factura ya impresa, se deberá volver a imprimir"
             rsFacCab("Imprimida") = False
         End If
+    Else
+        Set rsFacCab = CurrentDb.OpenRecordset("tbFacturasCab", dbOpenDynaset, dbAppendOnly)
+        rsFacCab.AddNew
+        rsFacCab("NumeroDeFactura") = DameNumeroFactura(strSerie)
+        'strSerie = Nz(DameValorParam("PuestoSerie"), "")
+        rsFacCab("Serie") = strSerie
+        rsFacCab("FechaFactura") = Date
     End If
     If intFT = 1 Then
         rsFacCab("CodCliente") = Nz(DLookup("CodCliente", "tbClientes", "NIF = " & ConComillas(Nz(rs("DNICliente"), ""))), "-")
@@ -477,22 +493,23 @@ End Function
 Private Sub FinalizarFactura(lngIdFactura As Long)
     Dim rs As Recordset
 On Error GoTo Error_FinalizarFactura
-    rsFacCab.FindFirst "IdFactura = " & lngIdFactura
-    If Not rsFacCab.NoMatch Then
-        rsFacCab.Edit
-        rsFacCab("TotalBase") = Redondea(DSum("Base", "qryFacturasTotalesTiposIVA", "IdFactura = " & lngIdFactura), 2)
-        rsFacCab("TotalIVA") = Redondea(DSum("ImporteIVA", "qryFacturasTotalesTiposIVA", "IdFactura = " & lngIdFactura), 2)
+    'rsFacCab.FindFirst "IdFactura = " & lngIdFactura
+    Set rs = CurrentDb.OpenRecordset("SELECT * FROM tbFacturasCab WHERE IdFactura = " & lngIdFactura, dbOpenDynaset)
+    If Not rs.EOF Then
+        rs.Edit
+        rs("TotalBase") = Redondea(DSum("Base", "qryFacturasTotalesTiposIVA", "IdFactura = " & lngIdFactura), 2)
+        rs("TotalIVA") = Redondea(DSum("ImporteIVA", "qryFacturasTotalesTiposIVA", "IdFactura = " & lngIdFactura), 2)
         If DLookup("CuentaDeIVA", "qryCuentaIVAs", "IdFactura = " & lngIdFactura) > 1 Then
-            rsFacCab("IVA_Cab") = Null
+            rs("IVA_Cab") = Null
         Else
-            rsFacCab("IVA_Cab") = DLookup("PrimeroDeIVA", "qryCuentaIVAs", "IdFactura = " & lngIdFactura)
+            rs("IVA_Cab") = DLookup("PrimeroDeIVA", "qryCuentaIVAs", "IdFactura = " & lngIdFactura)
         End If
-        rsFacCab.Update
+        rs.Update
     End If
 Salir_FinalizarFactura:
-    Set db = Nothing
-    Set rsFacCab = Nothing
-    Set rs = Nothing
+    'Set db = Nothing
+    'Set rsFacCab = Nothing
+    'Set rs = Nothing
     Exit Sub
 Error_FinalizarFactura:
     Select Case Err
@@ -673,15 +690,16 @@ Public Function FacturarPagoFicha(lngFicha As Long, curImporte As Currency, ByVa
     Dim varFichaFacturada
     On Error GoTo Error_FacturarPagoFicha
     Dim strConz50 As String, intLinPlus As Integer
+    Dim rsFacDet As Recordset
 '    varFichaFacturada = DLookup("IdFactura", "tbFichasCab", "IdFichaCab = " & lngFicha)
 '    If Not varFichaFacturada And varFichaFacturada <> 0 Then
 '        Exit Sub 'la ficha ya está facturada
 '    End If
 '    bolIVAinc = DLookup("IvaIncluido", "tbFichasCab", "IdFichaCab = " & lngFicha)
-    Set db = CurrentDb
-    Set rsFacCab = db.OpenRecordset("tbFacturasCab")
-    Set rsFacDet = db.OpenRecordset("tbFacturasDet")
+    'Set rsFacCab = CurrentDb.OpenRecordset("tbFacturasCab")
+    Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet")
     glngIdFactura = IniciarFactura(lngFicha, 1, "")
+    Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet", dbOpenDynaset, dbAppendOnly)
 Bucle:
     rsFacDet.AddNew
     rsFacDet("IdFactura") = glngIdFactura
@@ -726,15 +744,15 @@ Public Function FacturarPago(curImporte As Currency, strNombre As String, strCon
 
     Dim bolIVAinc As Integer
     Dim varFichaFacturada, strSerie As String
+    Dim rsFacCab As Recordset, rsFacDet As Recordset
     On Error GoTo Error_FacturarPago
 '    varFichaFacturada = DLookup("IdFactura", "tbFichasCab", "IdFichaCab = " & lngFicha)
 '    If Not varFichaFacturada And varFichaFacturada <> 0 Then
 '        Exit Sub 'la ficha ya está facturada
 '    End If
 '    bolIVAinc = DLookup("IvaIncluido", "tbFichasCab", "IdFichaCab = " & lngFicha)
-    Set db = CurrentDb
-    Set rsFacCab = db.OpenRecordset("tbFacturasCab")
-    Set rsFacDet = db.OpenRecordset("tbFacturasDet")
+    Set rsFacCab = CurrentDb.OpenRecordset("tbFacturasCab", dbOpenDynaset, dbAppendOnly)
+    Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet", dbOpenDynaset, dbAppendOnly)
     rsFacCab.AddNew
     strSerie = Nz(DameValorParam("PuestoSerie"), "")
     rsFacCab("NumeroDeFactura") = DameNumeroFactura(strSerie)
@@ -1074,6 +1092,7 @@ Public Function FacturarParcialFichaFijo(lngFicha As Long, curImporte As Currenc
     Dim varFichaFacturada
     Dim strSQL As String
     Dim strSerie As String
+    Dim rsFacDet As Recordset
     On Error GoTo Error_FacturarParcialFichaFijo
 '    varFichaFacturada = DLookup("IdFactura", "tbFichasCab", "IdFichaCab = " & lngFicha)
 '    If Not varFichaFacturada And varFichaFacturada <> 0 Then
@@ -1081,9 +1100,7 @@ Public Function FacturarParcialFichaFijo(lngFicha As Long, curImporte As Currenc
 '    End If
     strSerie = Nz(DameValorParam("PuestoSerie"), "")
     bolIVAinc = Nz(DLookup("IvaIncluido", "tbFichasCab", "IdFichaCab = " & lngFicha), True)
-    Set db = CurrentDb
-    Set rsFacCab = db.OpenRecordset("tbFacturasCab")
-    Set rsFacDet = db.OpenRecordset("tbFacturasDet")
+    Set rsFacDet = CurrentDb.OpenRecordset("tbFacturasDet", dbOpenDynaset, dbAppendOnly)
     IniciarFactura lngFicha, 1, strSerie
     strSQL = "UPDATE tbFichasCab SET IdFactura = Null WHERE IdFactura = " & glngIdFactura
     CurrentDb.Execute strSQL ', dbFailOnError
@@ -1138,4 +1155,30 @@ Public Function DiasF(vFechaInicio, vFechaFin) As Integer
     Else
         DiasF = CLng(CDate(vFechaFin)) - CLng(CDate(vFechaInicio))
     End If
+End Function
+
+Public Function AnularFactura(lIdFactura As Long) As Boolean
+    On Error GoTo HandleError
+    Dim rs1 As Recordset, rs2 As Recordset, i As Integer
+    
+    Set rs1 = CurrentDb.OpenRecordset("SELECT * FROM tbFacturasDet WHERE IdFactura = " & lIdFactura & _
+                                       " AND (PrecioUnitario*Cantidad) <> 0", dbOpenSnapshot)
+    Set rs2 = CurrentDb.OpenRecordset("tbFacturasDet", dbOpenDynaset, dbAppendOnly)
+    While Not rs1.EOF
+        rs2.AddNew
+        For i = 1 To rs1.Fields.Count - 1
+            rs2(i) = rs1(i)
+        Next i
+        rs2("Cantidad") = -1 * rs1("Cantidad")
+        rs2("Concepto") = RecDerTop("ANUL. " & rs1("Concepto"), 0, 50)
+        rs2.Update
+        rs1.MoveNext
+    Wend
+    FinalizarFactura (lIdFactura)
+    AnularFactura = True
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
 End Function

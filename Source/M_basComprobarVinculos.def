@@ -74,6 +74,7 @@ Public Function Autoexec()
     Call ComprobarCaja
     Call GenerarMenus2
     Call ComprobarCampos
+    Call ComprobarUpdates
     Call Pon_glngMiPuesto
     DoCmd.OpenForm Nz(DameValorParam("AplicacionFormularioInicio"), "frmMenu")
     Application.CommandBars.ActiveMenuBar.Enabled = True
@@ -491,3 +492,136 @@ Error_LicenciaNota:
             Resume Salir_LicenciaNota
     End Select
 End Function
+
+
+Public Sub ComprobarUpdates()
+    On Error GoTo HandleError
+    Dim sCUpdate As String, sFUpdate As String, iObjType As AcObjectType, sObjName As String
+    Dim sFImport As String, sCUpdated As String, sCSaved As String, i As Integer, f As Integer, sMsg As String
+    Dim bScript As Boolean
+    sCUpdate = DirectorioDe(CurrentDb.Name) & "Update"
+    If Dir(sCUpdate, vbDirectory) = "" Then MkDir sCUpdate
+    sCUpdate = sCUpdate & "\"
+    
+    Dim sFiles As String, vFiles As Variant
+    sFUpdate = Dir(sCUpdate & "*.def")
+    While sFUpdate <> ""
+        sFiles = sFiles & "," & sFUpdate
+        sFUpdate = Dir()
+    Wend
+    If sFiles = "" Then GoTo HandleExit
+    
+    sCUpdated = sCUpdate & "Updated"
+    If Dir(sCUpdated, vbDirectory) = "" Then MkDir sCUpdated
+    sCUpdated = sCUpdated & "\" & Format(Date, "yyyy_mm_dd")
+    If Dir(sCUpdated, vbDirectory) = "" Then MkDir sCUpdated
+    sCUpdated = sCUpdated & "\"
+    
+    sCSaved = sCUpdate & "Saved"
+    If Dir(sCSaved, vbDirectory) = "" Then MkDir sCSaved
+    sCSaved = sCSaved & "\" & Format(Date, "yyyy_mm_dd")
+    If Dir(sCSaved, vbDirectory) = "" Then MkDir sCSaved
+    sCSaved = sCSaved & "\"
+    
+    
+    sFiles = Mid(sFiles, 2)
+    vFiles = Split(sFiles, ",")
+    For f = 0 To UBound(vFiles)
+        bScript = False
+        sFUpdate = vFiles(f)
+        Select Case Left(sFUpdate, 2)
+            Case "F_"
+                iObjType = acForm
+            Case "R_"
+                iObjType = acReport
+            Case "Q_"
+                iObjType = acQuery
+            Case "S_"
+                iObjType = acMacro
+            Case "M_"
+                iObjType = acModule
+            Case "K_"
+                bScript = True
+            Case Else
+                MsgBox "No se reconoció el tipo de archivo a importar: " & sFUpdate, vbExclamation
+                GoTo HandleExit
+        End Select
+        i = InStrRev(sFUpdate, ".")
+        sObjName = Mid(sFUpdate, 3, i - 3)
+        MensajeBusyBox "Actualizando " & f + 1 & "/" & UBound(vFiles) + 1 & " : " & sFUpdate, "Actualizando H4", , True
+        If Dir(sCSaved & sFUpdate) <> "" Then
+            i = 0
+            While Dir(sCSaved & sFUpdate & "_" & i) <> ""
+                i = i + 1
+            Wend
+            FileCopy sCSaved & sFUpdate, sCSaved & sFUpdate & "_" & i
+        End If
+        If Not bScript Then
+            SaveAsText iObjType, sObjName, sCSaved & sFUpdate
+            LoadFromText iObjType, sObjName, sCUpdate & sFUpdate
+        Else
+            ExecuteAllScriptsFromJSON sCUpdate & sFUpdate
+        End If
+        sMsg = sMsg & ", " & sObjName
+        FileCopy sCUpdate & sFUpdate, sCUpdated & sFUpdate
+        Kill sCUpdate & sFUpdate
+    Next f
+    sMsg = Mid(sMsg, 3)
+    MensajeBusyBox "Se actualizaron " & f & " objetos: " & sMsg, "Actualizado H4", True
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub
+
+Sub ExecuteAllScriptsFromJSON(jsonPath As String)
+    On Error GoTo HandleError
+    Dim FSO As Object
+    Dim TextFile As Object
+    Dim FileContent As String
+    Dim JSON As Object
+    Dim Key As Variant
+    Dim Script As String
+    
+    'Crear un nuevo objeto FileSystemObject
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    'Abrir el archivo
+    Set TextFile = FSO.OpenTextFile(jsonPath, 1)
+    'Leer el contenido del archivo
+    FileContent = TextFile.ReadAll
+    'Cerrar el archivo
+    TextFile.Close
+    
+    'Deserializar el JSON
+    Set JSON = JsonConverter.ParseJson(FileContent)
+    
+    'Recorrer todas las claves del diccionario JSON
+    For Each Key In JSON.Keys
+        Script = JSON(Key)
+        Script = Replace(Script, "''", """")
+        'Ejecutar el script en la base de datos u otro sistema
+        'Nota: Asegúrate de que es seguro ejecutar el script antes de hacerlo.
+        'Por motivos de seguridad, deberías verificar y limpiar cualquier input que vaya a ser ejecutado.
+        On Error Resume Next
+        CurrentDb.Execute Script, dbFailOnError
+        If Err.Number <> 0 Then
+            MsgBox "Error al ejecutar el script de la clave " & Key & ": " & Err.Description, vbExclamation
+            Err.Clear
+        End If
+        On Error GoTo HandleError
+    Next Key
+    
+    'Limpiar
+    Set FSO = Nothing
+    Set TextFile = Nothing
+    Set JSON = Nothing
+    
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub

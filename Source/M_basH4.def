@@ -148,8 +148,8 @@ End Function
 Public Function GetFileQR(lIdFactura As Long, Optional fromPath As String = "") As String
     On Error GoTo HandleError
     Dim sR As String
-    sR = DLookup("Serie", "tbFacturasCab", "IdFactura = " & lIdFactura)
-    sR = IIf(sR = "", "_", sR)
+    sR = Nz(DLookup("Serie", "tbFacturasCab", "IdFactura = " & lIdFactura), "")
+    'sR = IIf(sR = "", "_", sR)
     sR = sR & DLookup("NumeroDeFactura", "tbFacturasCab", "IdFactura = " & lIdFactura) & ".gif"
     GetFileQR = GetRelativePath(fromPath, GetCarpetaQR) & NombreFicheroValido(sR)
     
@@ -162,6 +162,10 @@ End Function
 
 Public Function GetCarpetaTbaiSalida(Optional bConBarraFinal As Boolean = True)
     GetCarpetaTbaiSalida = ConBarraFinalSN(Nz(DameValorParam("TBai_CarpetaSalida"), ""), bConBarraFinal)
+End Function
+
+Public Function GetCarpetaTbaiEnviadas(Optional bConBarraFinal As Boolean = True)
+    GetCarpetaTbaiEnviadas = ConBarraFinalSN(Nz(DameValorParam("TBai_CarpetaEnviadas"), ""), bConBarraFinal)
 End Function
 
 Public Function ConBarraFinalSN(sPath As String, bConBarraFinal As Boolean) As String
@@ -180,3 +184,42 @@ HandleError:
     MsgBox Err.Description
     Resume HandleExit
 End Function
+
+
+
+Public Sub H4_TiraLogos(rptTiraLogos As SubForm, rptCall As Report)
+    On Error GoTo HandleError
+    Dim lngW As Long, lngH As Long, lngL As Long
+    Call rptTiraLogos.Report.PonTiraLogos(lngH, lngW)
+    If lngH = 0 Then
+        rptTiraLogos.Visible = False
+    Else
+        'Colocar subInforme TiraLogo
+        rptTiraLogos.Width = lngW
+        Select Case Nz(DameValorParam("FacturasTiraLogosAlinH"), 1)
+            Case 1
+                lngL = 10
+            Case 2
+                lngL = (rptCall.Width - lngW) \ 2
+            Case 3
+                lngL = rptCall.Width - lngW
+        End Select
+        If lngL < 0 Then lngL = 0
+        rptTiraLogos.Left = lngL
+        '''''''''''''''''''''''''''''
+        If lngH + rptTiraLogos.Height > rptCall.PieDePágina.Height Then
+            rptTiraLogos.Top = rptCall.PieDePágina.Height - lngH
+            rptTiraLogos.Height = lngH
+        Else
+            rptTiraLogos.Height = lngH
+            'rptTiraLogos.Top = Me.PieDePágina.Height - lngH - 400
+        End If
+        rptTiraLogos.Visible = True
+    End If
+
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub

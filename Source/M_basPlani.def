@@ -431,7 +431,7 @@ Public Function CargaRowTipoParcelaFichas(grd As Object, lngIdTipoParcela As Lon
         rs.MoveNext
     Wend
             
-    If g_SincroWB And Nz(DameValorParam("Planing_VerPreciosYRestricciones"), False) Then
+    If g_SincroWB And Nz(DameValorParam("Planing_VerPreciosYRestricciones"), False) = True Then
         Dim k As Integer
         
         strSQL = "SELECT tbParcelasTipo.CatINE, tbParcelasTipo.IdTipoParcela, tbParcelasTipo.TipoParcela, wbRooms.id as idR, wbRooms.shortname as sname, wbRooms.name, wbRooms_1.id as idR1, wbRooms_1.shortname as sname1, wbRooms_1.occupancy"
@@ -495,15 +495,15 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
     Dim dt1 As Date, dt2 As Date, dtFin As Date, intCol1 As Integer, intCol2 As Integer, intStyle As Integer
     'Dim strAsigN() As String, strAsigS() As String, strEntradas() As String, strTags() As String,
     Dim strTipoParcela As String
-    Dim strTxt() As String, strTag As String, i As Integer
+    Dim strTxt() As String, strTag As String, i As Integer, bClosed As Boolean
     Dim ColorWB  As Long
     ColorWB = RGB(252, 230, 212)
     'lngIdRoom = Nz(DLookup("id", "qryParcelasTipo_Rooms", "IdTipoParcela = " & lngIdTipoParcela), 0)
     If lngIdPlan = -1 Then lngIdPlan = Nz(DameValorParam("Planing_pid"), 0)
     If lngIdRPlan = -1 Then lngIdRPlan = Nz(DameValorParam("Planing_rpid"), 0)
-    strSQL = "SELECT wbTabla.IdRoom, wbTabla.Fecha, wbTabla.price, wbTabla.min_stay, wbTabla.max_stay"
+    strSQL = "SELECT wbTabla.IdRoom, wbTabla.Fecha, wbTabla.price, wbTabla.min_stay, wbTabla.max_stay, wbTabla.closed"
     If lngIdPlan <> 0 Then strSQL = strSQL & ", wbTabla_Precios.price, wbTabla_Precios.IdPricingPlan"
-    If lngIdRPlan <> 0 Then strSQL = strSQL & ", wbTabla_Restricciones.min_stay, wbTabla_Restricciones.max_stay, wbTabla_Restricciones.IdRestrictionPlan"
+    If lngIdRPlan <> 0 Then strSQL = strSQL & ", wbTabla_Restricciones.min_stay, wbTabla_Restricciones.max_stay, wbTabla_Restricciones.closed, wbTabla_Restricciones.IdRestrictionPlan"
     strSQL = strSQL & " FROM (wbTabla "
     If lngIdPlan <> 0 Then
         strSQL = strSQL & "LEFT JOIN wbTabla_Precios ON wbTabla.wbTablaID = wbTabla_Precios.wbTablaID)"
@@ -552,7 +552,9 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
                 'PonXML strTag, "CondicionesWB", ""
                 grd.cell(intRow, i).Tag = strTag
                 grd.cell(intRow, i).text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
-                grd.cell(intRow, i).BackColor = ColorWB
+                grd.cell(intRow, i).BackColor = IIf(Not bClosed, ColorWB, vbBlack)
+                grd.cell(intRow, i).ForeColor = IIf(Not bClosed, vbBlack, vbWhite)
+                
             End If
             i = rs("Fecha") - dtIni + 1
             dtAnt = rs("Fecha")
@@ -574,6 +576,7 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
                 strTxt(1) = Nz(rs("wbTabla_Restricciones.min_stay"), "")
                 strTxt(2) = Nz(rs("wbTabla_Restricciones.max_stay"), "")
             End If
+            bClosed = rs("closed")
             'If Nz(rs("min_stay"), -1) <> -1 Then strTxt(1) = strTxt(1) & "/" & rs("min_stay")
             'rpidAnt = Nz(rs("IdRestrictionPlan"), 0)
             k = 1
@@ -594,6 +597,8 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
         grd.cell(intRow, i).Tag = strTag
         grd.cell(intRow, i).text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
         grd.cell(intRow, i).BackColor = ColorWB
+        grd.cell(intRow, i).BackColor = IIf(Not bClosed, ColorWB, vbBlack)
+        grd.cell(intRow, i).ForeColor = IIf(Not bClosed, vbBlack, vbWhite)
     End If
 Salir_CargaRowTipoParcelaPrecios:
     Exit Function
