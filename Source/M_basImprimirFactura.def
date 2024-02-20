@@ -42,6 +42,7 @@ Public Sub ImprimirFactura(lngIdFactura As Long, Optional intImprimir_VistaPrevi
         End If
     Else
         If intImprimir_VistaPrevia_PDF_Email >= 3 Then stDocName = Nz(DameValorParam("FacturasRPTpdf"), "")
+        If intImprimir_VistaPrevia_PDF_Email = 5 Then stDocName = Nz(DameValorParam("FacturasRPT"), "") 'Urrobi
         If stDocName = "" Then stDocName = Nz(DameValorParam("FacturasRPT"), "rptFacturaA4")
         
         Select Case intImprimir_VistaPrevia_PDF_Email
@@ -89,6 +90,8 @@ Public Sub ImprimirFactura(lngIdFactura As Long, Optional intImprimir_VistaPrevi
     CurrentDb.Execute "UPDATE tbFacturasCab SET tbFacturasCab.Imprimida = Yes" _
                     & " WHERE (((tbFacturasCab.IdFactura)=" & lngIdFactura & "));"
     Call MarcarPagadaSN(lngIdFactura)
+    If intImprimir_VistaPrevia_PDF_Email < 3 And Nz(DameValorParam("FacturasPDFgenerarSiempre"), False) = True Then ImprimirFactura lngIdFactura, 3, , , False
+    
 Salir_ImprimirFactura:
     Exit Sub
 Error_ImprimirFactura:
@@ -225,3 +228,25 @@ Error_ImprimirFicha:
             Resume Salir_ImprimirFicha
     End Select
 End Sub
+
+Public Function Habitacion_Factura(lIdFactura As Long) As String
+
+    On Error GoTo HandleError
+    Dim sHab As String, rs As Recordset, sSQL As String
+    sSQL = "SELECT DISTINCT Parcela" _
+            & " FROM tbFichasDet AS FD INNER JOIN tbFichasCab as FC ON FD.IdFichaCab = FC.IdFichaCab" _
+            & " WHERE FC.IdFactura = " & lIdFactura _
+            & " AND Parcela Is Not Null"
+    Set rs = CurrentDb.OpenRecordset(sSQL, dbOpenSnapshot)
+    While Not rs.EOF
+        sHab = sHab & ", " & rs("Parcela")
+        rs.MoveNext
+    Wend
+    If Len(sHab) > 2 Then sHab = Mid(sHab, 3)
+    Habitacion_Factura = sHab
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox "Error nº " & Err & vbCrLf & Err.Description
+    Resume HandleExit
+End Function

@@ -1680,6 +1680,31 @@ intentos:
             End If
         End If
     End If
+    'Para el caso de que se haya movido una ficha entre parcelas-habitaciones Madres y Vistuales y haya conexion en Wubook, realizar las correspondientes aperturas y cierres de fechas en Wubook
+    If g_SincroWB Then
+        Dim dtIni As Date, dtFin As Date
+        Dim lIdTipoParcelaD As Long, lIdTipoParcelaA As Long
+        Dim sShortNameClose As String, sShortNameOpen As String, lIdRoomClose As Long, lIdRoomOpen As Long
+        lIdTipoParcelaD = Nz(DLookup("IdTipoParcela", "tbParcelas", "NombreParcela = '" & strParcelaD & "'"), 0)
+        lIdTipoParcelaA = Nz(DLookup("IdTipoParcela", "tbParcelas", "NombreParcela = '" & strParcelaA & "'"), 0)
+        If (lIdTipoParcelaD <> lIdTipoParcelaA) And lIdTipoParcelaD <> 0 And lIdTipoParcelaA <> 0 Then ' Sólo si son tipos de parcelas diferentes iniciamos la comprobación
+            dtIni = dtFechaA
+            dtFin = dtIni + intNoches
+            sShortNameClose = Nz(DLookup("TypeCode", "tbParcelasTipo", "IdTipoParcela = " & lIdTipoParcelaD), "")
+            If sShortNameClose = "" Then GoTo Finish
+            lIdRoomClose = Nz(DLookup("id", "wbRooms", "shortname = " & ConComillas(sShortNameClose, True)), 0)
+            If lIdRoomClose = 0 Then GoTo Finish
+            sShortNameOpen = Nz(DLookup("TypeCode", "tbParcelasTipo", "IdTipoParcela = " & lIdTipoParcelaA), "")
+            If sShortNameOpen = "" Then GoTo Finish
+            lIdRoomOpen = Nz(DLookup("id", "wbRooms", "shortname = " & ConComillas(sShortNameOpen, True)), 0)
+            If lIdRoomOpen = 0 Then GoTo Finish
+            'comprobamos que las habitaciones están abiertas en el tipo de habitacion a cerrar y viceversa antes de llamar a la función SincroWB...
+            If Not IsNull(DLookup("wbTablaID", "wbTabla", "IdRoom = " & lIdRoomClose & " AND Fecha >= " & CLng(dtIni) & " AND Fecha <= " & CLng(dtFin) & " AND closed")) Then GoTo Finish
+            If Not IsNull(DLookup("wbTablaID", "wbTabla", "IdRoom = " & lIdRoomOpen & " AND Fecha >= " & CLng(dtIni) & " AND Fecha <= " & CLng(dtFin) & " AND Not closed")) Then GoTo Finish
+            SincroWB_AperturaHabitacionesAnidadas dtFechaA, dtFechaA + intNoches - 1, lIdRoomClose, lIdRoomOpen
+        End If
+    End If
+Finish:
     MoverEstancia = True
     'AñadeParcelaARecarga strParcelaD
     'AñadeParcelaARecarga strParcelaA

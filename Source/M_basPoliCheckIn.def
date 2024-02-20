@@ -200,7 +200,7 @@ End Function
 Public Function DameCheckinURL(lngIdFichaCab As Long, ByRef strBookerUrl As String, ByRef strURL As String) As Integer
     
     On Error GoTo HandleError
-    Dim strNombre As String, intPax As Integer, strDateCheckIn As String, dt As Date
+    Dim strNombre As String, intPax As Integer, strDateCheckIn As String, strDateCheckOut As String, dt As Date
     
     strNombre = Nz(DLookup("[NombreCliente] & ' ' & [ApellidosCliente]", "tbFichasCab", "IdFichaCab = " & lngIdFichaCab), "?")
     intPax = Nz(DSum("PlazasOcupadas", "tbFichasDet", "IdFichaCab = " & lngIdFichaCab), 0)
@@ -208,6 +208,10 @@ Public Function DameCheckinURL(lngIdFichaCab As Long, ByRef strBookerUrl As Stri
     strDateCheckIn = Format(dt, "yyyy-mm-ddT") 'HH:mm:ss.000Z")
     dt = Nz(DLookup("HoraLlegada", "tbFichasCab", "IdFichaCab = " & lngIdFichaCab), 0)
     strDateCheckIn = strDateCheckIn & Format(dt, "HH:mm:ss.000Z")
+    
+    dt = Nz(DLookup("FechaSalida", "tbFichasCab", "IdFichaCab = " & lngIdFichaCab), 0)
+    strDateCheckOut = Format(dt, "yyyy-mm-dd") & "T12:00:00.000Z"
+    
     Dim wiResponse As String, strUrlPoliCheckin As String, strCustomerId As String, strApiKey As String, strOrganizationId As String
     
     strUrlPoliCheckin = Nz(DameValorParam("PoliCheckIn_URL_remote"), "")
@@ -226,6 +230,7 @@ Public Function DameCheckinURL(lngIdFichaCab As Long, ByRef strBookerUrl As Stri
                 ConComillas("organizationId") & ": " & ConComillas(strOrganizationId) & "," & vbCrLf & _
                 ConComillas("name") & ": " & ConComillas(strNombre) & "," & vbCrLf & _
                 ConComillas("checkInDate") & ": " & ConComillas(strDateCheckIn) & "," & vbCrLf & _
+                ConComillas("checkOutDate") & ": " & ConComillas(strDateCheckOut) & "," & vbCrLf & _
                 ConComillas("number") & ": " & intPax & _
               "}"
     strResponse = Post(strUrlPoliCheckin, strBody, strHeaders)

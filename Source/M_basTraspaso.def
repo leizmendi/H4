@@ -9,7 +9,7 @@ Option Explicit
 Public Function VaciarBase(strMDB As String, Optional strTabla As String = "", Optional strPwd As String = "")
     Dim strSQL As String, rs As Recordset, i As Integer, j As Integer
     Dim qdf As QueryDef, str As String
-    Dim db As DAO.Database, strXML As String
+    Dim db As dao.Database, strXML As String
     
     On Error GoTo Error_VaciarBase
     Set db = OpenDatabase(strMDB, False, False, "MS Access;PWD=" & strPwd)
@@ -67,7 +67,7 @@ End Function
 Public Function TraspasarDatos(strMDB As String, strFIND As String, Optional strTabla As String = "", Optional strPwd As String = "")
     Dim strSQL As String, rs As Recordset, i As Integer, j As Integer, y As Long, z As Long, X As Long
     Dim rs1 As Recordset, rs0 As Recordset
-    Dim db0 As DAO.Database, db As DAO.Database, strDAT As String
+    Dim db0 As dao.Database, db As dao.Database, strDAT As String
     On Error GoTo Error_TraspasarDatos
     Set db0 = OpenDatabase(strMDB, False, False, "MS Access;PWD=" & strPwd)
     'Set db0 = OpenDatabase(strMDB)
@@ -152,8 +152,8 @@ Error_TraspasarDatos:
 End Function
 
 
-Public Sub ActualizarAutonumericos(db As DAO.Database)
-    On Error GoTo Error_ActualizarAutonumericos
+Public Sub ActualizarAutonumericos_old(db As dao.Database)
+    On Error GoTo Error_ActualizarAutonumericos_old
     Dim rs As Recordset, strSQL As String, lngIdMax As Long, i As Integer
     Dim rs2 As Recordset
     Set rs = db.OpenRecordset("SELECT * FROM _Tablas_ WHERE AutonumericoSN = True ORDER BY OrdenAnexar", dbOpenSnapshot)
@@ -178,13 +178,13 @@ Public Sub ActualizarAutonumericos(db As DAO.Database)
     Wend
     MsgBox i & " autonuméricos ajustados", vbInformation
 '    InsertLog i & " autonuméricos ajustados"
-Salir_ActualizarAutonumericos:
+Salir_ActualizarAutonumericos_old:
     Exit Sub
-Error_ActualizarAutonumericos:
+Error_ActualizarAutonumericos_old:
     Select Case Err
         Case Else
-            MsgBox "Error nº " & Err & " en ActualizarAutonumericos" & vbCrLf & Err.Description
-            Resume Salir_ActualizarAutonumericos
+            MsgBox "Error nº " & Err & " en ActualizarAutonumericos_old" & vbCrLf & Err.Description
+            Resume Salir_ActualizarAutonumericos_old
     End Select
 End Sub
 
@@ -230,7 +230,7 @@ HandleError:
     Resume HandleExit
 End Sub
 
-Function ActualizaTablas(db As DAO.Database, intBorrarAnexar As Integer) As Integer
+Function ActualizaTablas(db As dao.Database, intBorrarAnexar As Integer) As Integer
     On Error GoTo HandleError
     Dim strSQL As String, strXML As String
     CurrentDb.Execute "DELETE * FROM auxTablas", dbFailOnError
@@ -247,7 +247,7 @@ Function ActualizaTablas(db As DAO.Database, intBorrarAnexar As Integer) As Inte
         rs.MoveNext
     Wend
     If intBorrarAnexar = 1 Then
-        PonXML strXML, "BorrarSN", "S"
+        absw_3nak.PonXML strXML, "BorrarSN", "S"
     Else
         PonXML strXML, "AnexarSN", "S"
     End If

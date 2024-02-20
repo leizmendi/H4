@@ -5,13 +5,13 @@ Option Explicit
 Public Function SoloNum(strTel As String, Optional intYLetras As Integer = False) As String
     'Devuelve un string con solo los números del string pasado (para buscar teléfonos)
     On Error GoTo Error_SoloNum
-    Dim i As Integer, stRes As String, st1 As String
+    Dim i As Integer, stRes As String, sT1 As String
     For i = 1 To Len(strTel)
         If IsNumeric(Mid(strTel, i, 1)) Then
             stRes = stRes & Mid(strTel, i, 1)
         ElseIf intYLetras Then
-            st1 = UCase(Mid(strTel, i, 1))
-            If st1 >= "A" And st1 <= "Z" Then
+            sT1 = UCase(Mid(strTel, i, 1))
+            If sT1 >= "A" And sT1 <= "Z" Then
                 stRes = stRes & Mid(strTel, i, 1)
             End If
         End If

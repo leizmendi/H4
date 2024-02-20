@@ -175,7 +175,7 @@ Public Sub Lee_ICAR_txtOutPut_frmFichas(strResult As String)
                 On Error Resume Next
                 frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
                 If frm.FechaExpedicion = "01/01/1999" Or frm.FechaExpedicion = "PERMANENT" Then
-                    frm.FechaExpedicion = Nz(MyInputBox("Introducir Fecha de expedición", "Fecha de expedición: ", frm.FechaExpedicion), frm.FechaExpedicion)
+                    frm.FechaExpedicion = Nz(myinputbox("Introducir Fecha de expedición", "Fecha de expedición: ", frm.FechaExpedicion), frm.FechaExpedicion)
                 Else
                     frm.FechaExpedicion = DateAdd("yyyy", -10, frm.FechaExpedicion)
                 End If
@@ -420,7 +420,7 @@ EsFecha:
             frm.FechaExpedicion = Nz(DimeCampoICAR(strResult, "EXPIRY"), "01/01/2001")
             
             If frm.FechaExpedicion = "01/01/1999" Or frm.FechaExpedicion = "PERMANENT" Then
-                frm.FechaExpedicion = Nz(MyInputBox("Introducir Fecha de expedición", "Fecha de expedición: ", frm.FechaExpedicion), frm.FechaExpedicion)
+                frm.FechaExpedicion = Nz(myinputbox("Introducir Fecha de expedición", "Fecha de expedición: ", frm.FechaExpedicion), frm.FechaExpedicion)
             Else
                 If edad < 30 Then
                     frm.FechaExpedicion = DateAdd("yyyy", -5, frm.FechaExpedicion)

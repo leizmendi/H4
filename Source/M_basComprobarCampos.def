@@ -2,9 +2,9 @@ Option Compare Database
 Option Explicit
 
 Public Function ComprobarCampos(Optional strMDB As String = "Current")
-    Dim fld As DAO.Field, strMSG As String, strMsg2 As String, tdf As TableDef
+    Dim fld As dao.Field, strMSG As String, strMsg2 As String, tdf As TableDef
     Dim strSQL As String, rs As Recordset, db As Database
-    Dim db2 As Database, tdf2 As TableDef, fld2 As DAO.Field, strMDB2 As String
+    Dim db2 As Database, tdf2 As TableDef, fld2 As dao.Field, strMDB2 As String
     On Error GoTo Error_ComprobarCampos
     Set rs = CurrentDb.OpenRecordset("SELECT * FROM sysComprobarCampos ORDER By ID", dbOpenSnapshot)
     If strMDB = "Current" Then
@@ -71,7 +71,7 @@ Public Function Añadir_Campo(strTabla As String, strNombreCampo As String, intTi
     On Error GoTo Error_Añadir_Campo
     
     Dim db As Database, ws As Workspace
-    Dim tdf As TableDef, fld As DAO.Field, ind As index
+    Dim tdf As TableDef, fld As dao.Field, ind As index
     Dim i As Integer
     On Error GoTo Error_Añadir_Campo
     If strMDB = "current" Then
@@ -136,7 +136,7 @@ Public Function Quitar_Campo(strTabla As String, strNombreCampo As String, Optio
     On Error GoTo Error_Quitar_Campo
     
     Dim db As Database, ws As Workspace
-    Dim tdf As TableDef, fld As DAO.Field, ind As index
+    Dim tdf As TableDef, fld As dao.Field, ind As index
     On Error GoTo Error_Quitar_Campo
     If strMDB = "current" Then
         If DLookup("DirectorioActual", "1myConexionTablas", "NombreTabla = '" & strTabla & "'") = True Then
@@ -167,7 +167,7 @@ Error_Quitar_Campo:
 End Function
 
 
-Sub SetProperty(fldTemp As DAO.Field, strName As String, intType As Integer, valor As Variant)
+Sub SetProperty(fldTemp As dao.Field, strName As String, intType As Integer, valor As Variant)
 
    Dim prpNew As Property
    Dim errLoop As Error

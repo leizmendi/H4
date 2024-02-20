@@ -334,7 +334,7 @@ End Function
 Public Function DimeEmailCli(strNIF As String, Optional intSiNoHayPedir As Integer = True) As String
     Dim strR As String
     strR = Nz(DLookup("Email", "tbClientes", "NIF = " & ConComillas(strNIF)), "")
-    If strR = "" And intSiNoHayPedir Then strR = Nz(MyInputBox("Introduzca Email de Envío", "Dirección de Email:"), "")
+    If strR = "" And intSiNoHayPedir Then strR = Nz(myinputbox("Introduzca Email de Envío", "Dirección de Email:"), "")
     DimeEmailCli = strR
 End Function
 
@@ -390,9 +390,9 @@ EnviarEmail:
     strMensaje = Nz(DameValorParam("ParrafoEnvioFacturaEmail_OK"), "Adjuntamos factura")
     strAsunto = "Factura: " & strFac
     If intInputBox Then
-        strEmail = Nz(MyInputBox("Enviar a email:", "Dirección de email donde enviar:", strEmail), "")
+        strEmail = Nz(myinputbox("Enviar a email:", "Dirección de email donde enviar:", strEmail), "")
         
-        strAsunto = Nz(MyInputBox("Asunto:", "Asunto del mensaje:", "Factura: " & strFac), "")
+        strAsunto = Nz(myinputbox("Asunto:", "Asunto del mensaje:", "Factura: " & strFac), "")
         If strAsunto = "" Then GoTo Salir_EnviarFacturaXEmail
     End If
 
@@ -506,9 +506,9 @@ Public Function EnviaRecordatorioReserva(lngIdFichaCab As Long, Optional intInpu
     'End If
     strAdjuntarFicheros = Nz(DameValorParam("FichasRecordatorioAdjuntarFicheros"), "")
     If intInputBox = True Then
-        strMensaje = Nz(MyInputBox(strAsunto, "Confirme mensaje a enviar", strMensaje, , False, strAdjuntarFicheros), "")
+        strMensaje = Nz(myinputbox(strAsunto, "Confirme mensaje a enviar", strMensaje, , False, strAdjuntarFicheros), "")
         If strMensaje = "" Then GoTo HandleExit
-        strEmail = Nz(MyInputBox(strAsunto, "Confirme email", strEmail, , False), "")
+        strEmail = Nz(myinputbox(strAsunto, "Confirme email", strEmail, , False), "")
         If strEmail = "" Then GoTo HandleExit
     End If
     EnviaRecordatorioReserva = Envia_Email(strAsunto, strMensaje, strEmail, , , strAdjuntarFicheros, , True, , lngIdFichaCab, intMessageSN, strMsgResp, intFuerzaAuto)
@@ -852,11 +852,11 @@ Public Function EnviaNotificacion(lngIdFichaCab As Long, iNumNoti As Integer, Op
         GoTo HandleExit
     End If
     If intInputBox = True Then
-        sAsunto = Nz(MyInputBox(sAsunto, "Confirme Asunto del mensaje a enviar", sAsunto, , False), "")
+        sAsunto = Nz(myinputbox(sAsunto, "Confirme Asunto del mensaje a enviar", sAsunto, , False), "")
         If sAsunto = "" Then GoTo HandleExit
-        sMensaje = Nz(MyInputBox(sAsunto, "Confirme mensaje a enviar", sMensaje, , False, sAdjuntos), "")
+        sMensaje = Nz(myinputbox(sAsunto, "Confirme mensaje a enviar", sMensaje, , False, sAdjuntos), "")
         If sMensaje = "" Then GoTo HandleExit
-        strEmail = Nz(MyInputBox(sAsunto, "Confirme email", strEmail, , False), "")
+        strEmail = Nz(myinputbox(sAsunto, "Confirme email", strEmail, , False), "")
         If strEmail = "" Then GoTo HandleExit
     End If
     EnviaNotificacion = Envia_Email(sAsunto, sMensaje, strEmail, , , sAdjuntos, , True, , lngIdFichaCab, intMessageSN, strMsgResp, intFuerzaAuto)
@@ -912,9 +912,9 @@ Public Sub Genera_auxNotificaciones()
         iNumNoti = Right(rs("NP"), 1)
         strSQL = "SELECT IdFichaCab, Email, NombreCliente & ' ' & ApellidosCliente as Cliente, FechaLlegada, FechaSalida, Adultos + Niños as Pax FROM tbFichasCab"
         If iAD = 1 Then
-            strSQL = strSQL & " WHERE CLng(FechaLlegada) - " & CLng(Date) & " Between 0 AND " & iDias
+            strSQL = strSQL & " WHERE CLng(Nz(FechaLlegada)) - " & CLng(Date) & " Between 0 AND " & iDias
         Else
-            strSQL = strSQL & " WHERE " & CLng(Date) & " - CLng(FechaSalida) Between  " & iDias & " AND " & iDias + 6
+            strSQL = strSQL & " WHERE " & CLng(Date) & " - CLng(Nz(FechaSalida)) Between  " & iDias & " AND " & iDias + 6
         End If
         strSQL = strSQL & " AND EstadoFicha<>9"
         

@@ -1297,3 +1297,90 @@ HandleError:
     MsgBox Err.Description
     Resume HandleExit
 End Function
+
+Public Sub SincroWB_AperturaHabitacionesAnidadas(dtIni As Date, dtFin As Date, lIdRoomClose As Long, lIdRoomOpen As Long, Optional Planing_rpid As Long = 0)
+    'Para el caso de que se haya movido una ficha entre parcelas-habitaciones Madres y Vistuales y haya conexion en Wubook, realizar las correspondientes aperturas y cierres de fechas en Wubook
+    On Error GoTo HandleError
+    Dim sIdRoomsClose As String, sIdRoomsOpen As String
+    Dim vIdRoomsClose As Variant, vIdRoomsOpen As Variant
+    Dim sSQL As String, rs As Recordset
+    
+    'Suponemos que la habitación Madre es la que se va a cerrar y por tanto se deben cerrar las anidadas virtuales y abrir las anidades separadas...
+    sSQL = "SELECT id, shortname FROM wbRooms WHERE subroom = " & lIdRoomClose
+    Set rs = CurrentDb.OpenRecordset(sSQL, dbOpenSnapshot)
+    sIdRoomsClose = "," & CStr(lIdRoomClose)
+    Dim lidRoom As Long, sShortName As String
+    While Not rs.EOF
+        sIdRoomsClose = sIdRoomsClose & "," & CStr(rs("id"))
+        sShortName = rs("shortname")
+        lidRoom = Nz(DLookup("id", "wbRooms", "shortname = '" & RecDerTop(sShortName, 1, 0) & "'"), 0) 'Se espera que el ShortName de las virtuales se el de las virtuals + V, por ej. DI-->DIV  TI-->TIV
+        If lidRoom <> 0 Then sIdRoomsOpen = sIdRoomsOpen & "," & CStr(lidRoom)
+        rs.MoveNext
+    Wend
+    
+    'Suponemos que la habitación Madre es la que se va a abrir y por tanto se deben abrir las anidadas virtuales y cerrar las anidades separadas...
+    sSQL = "SELECT id, shortname FROM wbRooms WHERE subroom = " & lIdRoomOpen
+    Set rs = CurrentDb.OpenRecordset(sSQL, dbOpenSnapshot)
+    sIdRoomsOpen = sIdRoomsOpen & "," & CStr(lIdRoomOpen)
+    While Not rs.EOF
+        sIdRoomsOpen = sIdRoomsOpen & "," & CStr(rs("id"))
+        sShortName = rs("shortname")
+        lidRoom = Nz(DLookup("id", "wbRooms", "shortname = '" & RecDerTop(sShortName, 1, 0) & "'"), 0) 'Se espera que el ShortName de las virtuales se el de las virtuals + V, por ej. DI-->DIV  TI-->TIV
+        If lidRoom <> 0 Then sIdRoomsClose = sIdRoomsClose & "," & CStr(lidRoom)
+        rs.MoveNext
+    Wend
+    
+    sIdRoomsClose = Mid(sIdRoomsClose, 2)
+    vIdRoomsClose = Split(sIdRoomsClose, ",")
+    sIdRoomsOpen = Mid(sIdRoomsOpen, 2)
+    vIdRoomsOpen = Split(sIdRoomsOpen, ",")
+    
+    
+    
+    Dim cWi As New CWired
+    cWi.GetToken
+    cWi.UpdateRestrictionsWb vIdRoomsClose, Planing_rpid, dtIni, dtFin, "closed", 1, False
+    cWi.UpdateRestrictionsWb vIdRoomsOpen, Planing_rpid, dtIni, dtFin, "closed", 0, False
+    If Planing_rpid = 0 Then
+        cWi.FetchRoomsValues dtIni, dtFin
+    Else
+        Dim vRPid As Variant, vRpids As Variant
+        vRPid = Array("int", Planing_rpid)
+        vRpids = Array(vRPid)
+        cWi.FetchRPlanValues vRpids, dtIni, dtFin
+    End If
+    cWi.ReleaseToken
+    If IsOpenForm("frmPlaningG") Then
+        Dim frm As Form
+        Set frm = Forms("frmPlaningG")
+        'frm.lblRecargaParcelas.Caption = "{{IdRooms}}"
+        If Nz(DameValorParam("CeldaTipoParcela_to_PlaningSN"), False) = True Then
+            Dim dt As Date, y As Long, z As Long
+            Set rs = CurrentDb.OpenRecordset("Select IdTipoParcela FROM tbParcelasTipo WHERE ControlReservas", dbOpenSnapshot)
+            If Not rs.EOF Then
+                rs.MoveLast
+                rs.MoveFirst
+            End If
+            z = rs.RecordCount * (dtIni - dtFin + 1)
+            DoCmd.Hourglass True
+            While Not rs.EOF
+                For dt = dtIni To dtFin
+                    y = y + 1
+                    SysCmd acSysCmdSetStatus, "CeldaTipoParcela_to_Planing " & y & "/" & z
+                    CeldaTipoParcela_to_Planing rs("IdTipoParcela"), dt
+                Next dt
+                rs.MoveNext
+            Wend
+            DoCmd.Hourglass False
+            SysCmd acSysCmdClearStatus
+        End If
+        'frm.CargaPlaningFechas CDate(frm.txtFechaIni), True
+        frm.lblRecargaParcelas.Caption = "*"
+    End If
+    
+HandleExit:
+    Exit Sub
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Sub

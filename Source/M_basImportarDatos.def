@@ -5,7 +5,7 @@ Option Explicit
 Public Function ImportarDatos()
     Dim strRuta As String
     Dim con As ADODB.Connection, rs As ADODB.Recordset, cm As ADODB.Command, fld As ADODB.Field
-    Dim rsTablas As DAO.Recordset, strSQL As String, rs1 As DAO.Recordset
+    Dim rsTablas As dao.Recordset, strSQL As String, rs1 As dao.Recordset
     Dim i As Integer, y As Long, z As Long, strR As String
     On Error GoTo Error_ImportarDatos
     strRuta = InputBox("Introduzca Ruta de fichero de datos")

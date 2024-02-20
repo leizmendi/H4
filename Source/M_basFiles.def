@@ -6,10 +6,10 @@ Public Function LeerFicheroTexto(Ruta As String) As String
       
     Dim ObjDatos As TextStream     ' Objeto Fso para el Contenido del archivo
     Dim Datos As String            ' datos del fichero
-    Dim fso As New FileSystemObject
+    Dim FSO As New FileSystemObject
     
     Datos = ""
-    Set ObjDatos = fso.OpenTextFile(Ruta, ForReading, False, TristateMixed)
+    Set ObjDatos = FSO.OpenTextFile(Ruta, ForReading, False, TristateMixed)
     While Not ObjDatos.AtEndOfStream
           Datos = Datos & ObjDatos.ReadAll
     Wend
@@ -17,14 +17,32 @@ Public Function LeerFicheroTexto(Ruta As String) As String
     LeerFicheroTexto = Datos
     ' cierra el archivo abierto
     ObjDatos.Close
-    Set fso = Nothing
+    Set FSO = Nothing
 Exit Function
 Error_Function:
   
     MsgBox Err.Description
     On Local Error Resume Next
-    Set fso = Nothing
+    Set FSO = Nothing
 End Function
+
+Function ReadUTF8File(ByVal FilePath As String) As String
+    Dim TextStream As Object
+    Dim FileContent As String
+    
+    Set TextStream = CreateObject("ADODB.Stream")
+    
+    TextStream.Charset = "utf-8"
+    TextStream.Open
+    TextStream.LoadFromFile FilePath
+    FileContent = TextStream.ReadText(-1)
+    
+    TextStream.Close
+    Set TextStream = Nothing
+    
+    ReadUTF8File = FileContent
+End Function
+
 
 Public Function EscribirFicheroTexto(sFile As String _
                          , sTexto As String _

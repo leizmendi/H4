@@ -372,9 +372,9 @@ Private Sub AddStreamParam(stream As Variant, boundary As String, paramName As S
     stream.WriteText value + vbCrLf
 End Sub
 
-Private Sub AddFileToStream(stream As Variant, boundary As String, Name As String, filePath As String)
+Private Sub AddFileToStream(stream As Variant, boundary As String, Name As String, FilePath As String)
     Dim fileBytes As String
-    fileBytes = ReadBinaryFile(filePath)
+    fileBytes = ReadBinaryFile(FilePath)
 
     stream.WriteText "--" + boundary + vbCrLf
     stream.WriteText "Content-Disposition: form-data; name=""files[" + Name + "]""; filename=""" + Name + """" + vbCrLf
