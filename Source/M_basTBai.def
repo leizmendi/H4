@@ -126,7 +126,7 @@ DetalleFactura:
         For i = 0 To 4
             sBuscaElemento = vEVs(i): sValor = SpNz(CStr(vDetalle(j + i)), "-")
             Set xElem2 = xDoc.createElement(sBuscaElemento)
-            xElem2.text = sValor
+            xElem2.Text = sValor
             xNode.appendChild xElem2
             'sXML = Replace(sXML, "|@" & sBuscaElemento & "@|", sValor)
             'sXML = AñadeElementoXML(sXML, "//Factura/DatosFactura/DetallesFactura/IDDetalleFactura", sBuscaElemento, sValor)
@@ -162,7 +162,7 @@ DesgloseIVA:
         For i = 0 To 2
             sBuscaElemento = vEVs(i): sValor = SpNz(CStr(vDetalle(j + i)), "-")
             Set xElem2 = xDoc.createElement(sBuscaElemento)
-            xElem2.text = sValor
+            xElem2.Text = sValor
             xNode.appendChild xElem2
             'sXML = Replace(sXML, "|@" & sBuscaElemento & "@|", sValor)
             'sXML = AñadeElementoXML(sXML, "//Factura/DatosFactura/DetallesFactura/IDDetalleFactura", sBuscaElemento, sValor)

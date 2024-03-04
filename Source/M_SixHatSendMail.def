@@ -360,7 +360,7 @@ Private Function GetHttpResponse(ByVal strXML As String) As String
       ' MELISSA DATA KEY
     Set xmlNodeList = result.SelectNodes("//result")
     For Each xmlNode In xmlNodeList
-        If xmlNode.text > "" Then strResponse = xmlNode.text
+        If xmlNode.Text > "" Then strResponse = xmlNode.Text
     Next xmlNode
         
     GetHttpResponse = strResponse

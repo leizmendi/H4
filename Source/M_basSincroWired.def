@@ -150,7 +150,7 @@ End Function
 Public Function TestNode(xmlNode As MSXML2.IXMLDOMNode)
     Dim fieldNode As Object
     For Each fieldNode In xmlNode.ChildNodes
-        Debug.Print "[" & fieldNode.BaseName & "] = [" & fieldNode.text & "]"
+        Debug.Print "[" & fieldNode.BaseName & "] = [" & fieldNode.Text & "]"
         If fieldNode.BaseName <> "" Then TestNode fieldNode
     Next fieldNode
 End Function

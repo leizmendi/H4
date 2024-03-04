@@ -261,7 +261,7 @@ Public Function VaciaFilaGrd(grd As Object, intRow As Integer, Optional intColDe
     If intColDesde = -1 Then intColDesde = 1
     If intColHasta = -1 Then intColHasta = grd.Cols - 1
     For intCol = intColDesde To intColHasta
-        grd.cell(intRow, intCol).text = ""
+        grd.cell(intRow, intCol).Text = ""
         If intEsTipoParcela = False Then
             intStyle = 3
         Else
@@ -269,7 +269,7 @@ Public Function VaciaFilaGrd(grd As Object, intRow As Integer, Optional intColDe
         End If
         PonStyleCelda grd.cell(intRow, intCol), intStyle
         grd.cell(intRow, intCol).Tag = ""
-        grd.cell(intRow, intCol).text = ""
+        grd.cell(intRow, intCol).Text = ""
     Next intCol
     With grd.Range(intRow, intColDesde, intRow, intColHasta)
         .MergeCells = False
@@ -474,13 +474,13 @@ Public Sub CargaGridVacio(grd As Object, dtDesde As Date, Optional intCols As In
     Dim lngIdTempo As Long, lngIdTempoAnt As Long, lngColor As Long, lngColorFuente As Long, i As Integer, dtCambiaTemporada As Date
     lngIdTempoAnt = -1
     For i = 1 To grd.Cols - 1
-        If strAntMes <> grd.cell(0, i).text Then
+        If strAntMes <> grd.cell(0, i).Text Then
             If strAntMes <> "" Then
                 With grd.Range(0, intAntMesCol, 0, i - 1)
                     .MergeCells = True
                 End With
             End If
-            strAntMes = grd.cell(0, i).text
+            strAntMes = grd.cell(0, i).Text
             intAntMesCol = i
         End If
         If (dtDesde + i - 1) >= dtCambiaTemporada And dtCambiaTemporada <> -1 Then
@@ -652,7 +652,7 @@ Public Function RecargaGridFichas(grd As Object, dtDesde As Date, strListaRecarg
                             While Not rs2.EOF
                                 If Nz(rs2("avail"), 0) <> Nz(rs2("availH4"), 0) Then
                                     i = rs2("Fecha") - dtDesde + 1
-                                    grd.cell(intRow, i).text = Nz(rs2("avail"), 0) & "x ! " & grd.cell(intRow, i).text
+                                    grd.cell(intRow, i).Text = Nz(rs2("avail"), 0) & "x ! " & grd.cell(intRow, i).Text
                                     grd.cell(intRow, i).ForeColor = vbRed
                                    ' grd.cell(intRow, i).ControlTipText = "Avail WB: " & Nz(rs("avail"), 0) & " - H4: " & Nz(rs("availH4"), 0)
                                 End If

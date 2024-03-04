@@ -83,7 +83,7 @@ Public Function CargaRowParcelaFichas(grd As Object, strNombreParcela As String,
     End If
     If intRow = -1 Then
         For i = 1 To grd.Rows - 1
-            If grd.cell(i, 0).text = strNombreParcelaT Then
+            If grd.cell(i, 0).Text = strNombreParcelaT Then
                 intRow = i
                 Exit For
             End If
@@ -165,7 +165,7 @@ Public Function CargaRowParcelaFichas(grd As Object, strNombreParcela As String,
                 intStyle = DimeStyle(rs("EstadoFicha"))
                 PonStyleCelda grd.cell(intRow, intCol), intStyle
                 grd.cell(intRow, intCol).Tag = "<IdFichaCab>" & rs("IdF") & "</IdFichaCab>"
-                If cFC.FindFirst("IdFichaCab = " & rs("IdF")) Then grd.cell(intRow, intCol).text = cFC.ResumenFicha(intPrimeroPax) ' DimeFicha(rs("IdFichaCab"), intPrimeroPax)
+                If cFC.FindFirst("IdFichaCab = " & rs("IdF")) Then grd.cell(intRow, intCol).Text = cFC.ResumenFicha(intPrimeroPax) ' DimeFicha(rs("IdFichaCab"), intPrimeroPax)
                 'strXML = strXML & "<Cell Row=""" & intRow & """ Col=""" & intCol & """ Style=""" & intStyle & """ Tag=""&lt;IdFichaCab&gt;" & rs("IdFichaCab") & "&lt;/IdFichaCab&gt;"">"
                 'strXML = strXML & DimeFicha(rs("IdFichaCab"))
                 'strXML = strXML & "</Cell>"
@@ -177,7 +177,7 @@ Public Function CargaRowParcelaFichas(grd As Object, strNombreParcela As String,
                 PonXML strXML, "IdPl", rs("IdPl")
                 PonXML strXML, "TipoParcelaSN", "N"
                 grd.cell(intRow, intCol).Tag = strXML
-                grd.cell(intRow, intCol).text = "　++!!"
+                grd.cell(intRow, intCol).Text = "　++!!"
                 'strTag = ReemplazaChars(ReemplazaChars(rs("IdFichaCabXML"), "<", "&lt;"), ">", "&gt;")
                 'strXML = strXML & "<Cell Row=""" & intRow & """ Col=""" & intCol & """ Style=""" & intStyle & """ Tag=""" & strTag & """>"
                 'strXML = strXML & "　++!!"
@@ -283,7 +283,7 @@ Public Function CargaRowParcelaFichas2(grd As Object, strNombreParcela As String
         End If
         intRow = -1
         For i = 1 To grd.Rows - 1
-            If grd.cell(i, 0).text = strNombreParcelaT Then
+            If grd.cell(i, 0).Text = strNombreParcelaT Then
                 intRow = i
                 Exit For
             End If
@@ -313,7 +313,7 @@ Public Function CargaRowParcelaFichas2(grd As Object, strNombreParcela As String
                     intStyle = DimeStyle(cFC.EstadoFicha)
                     PonStyleCelda grd.cell(intRow, i), intStyle
                     grd.cell(intRow, i).Tag = "<IdFichaCab>" & lIdF & "</IdFichaCab>"
-                    grd.cell(intRow, i).text = cFC.ResumenFicha(intPrimeroPax)
+                    grd.cell(intRow, i).Text = cFC.ResumenFicha(intPrimeroPax)
                 End If
             ElseIf Nz(rs("Dia" & i), "") = "" Then 'disponible
                 PonStyleCelda grd.cell(intRow, i), 3
@@ -328,7 +328,7 @@ Public Function CargaRowParcelaFichas2(grd As Object, strNombreParcela As String
                 Next j
                 PonXML strXML, "TipoParcelaSN", "N"
                 grd.cell(intRow, i).Tag = strXML
-                grd.cell(intRow, i).text = "　++!!"
+                grd.cell(intRow, i).Text = "　++!!"
             End If
         Next i
         If iNumNoches > 1 Then
@@ -418,7 +418,7 @@ Public Function CargaRowTipoParcelaFichas(grd As Object, lngIdTipoParcela As Lon
         strTag = ""
         PonXML strTag, "IdPl", rs("IdPl")
         grd.cell(intRow, i).Tag = strTag
-        grd.cell(intRow, i).text = IIf(rs("Ent") <> 0, rs("Ent") & "e. ", "") & IIf(rs("AsS") <> 0, rs("AsS"), "") & IIf(rs("AsN") <> 0, "+" & rs("AsN"), "") & IIf(rs("CancS") <> 0, " " & rs("CancS") & "c", "")
+        grd.cell(intRow, i).Text = IIf(rs("Ent") <> 0, rs("Ent") & "e. ", "") & IIf(rs("AsS") <> 0, rs("AsS"), "") & IIf(rs("AsN") <> 0, "+" & rs("AsN"), "") & IIf(rs("CancS") <> 0, " " & rs("CancS") & "c", "")
         If rs("AsS") + rs("AsN") > intMaximo Then
             grd.cell(intRow, i).BackColor = vbRed
             grd.cell(intRow, i).ForeColor = vbWhite
@@ -452,7 +452,7 @@ Public Function CargaRowTipoParcelaFichas(grd As Object, lngIdTipoParcela As Lon
                     While Not rs2.EOF
                         If Nz(rs2("avail"), 0) <> Nz(rs2("availH4"), 0) Then
                             i = rs2("Fecha") - dtIni + 1
-                            grd.cell(intRow, i).text = Nz(rs2("avail"), 0) & "x ! " & grd.cell(intRow, i).text
+                            grd.cell(intRow, i).Text = Nz(rs2("avail"), 0) & "x ! " & grd.cell(intRow, i).Text
                             grd.cell(intRow, i).ForeColor = vbRed
                            ' grd.cell(intRow, i).ControlTipText = "Avail WB: " & Nz(rs("avail"), 0) & " - H4: " & Nz(rs("availH4"), 0)
                         End If
@@ -551,7 +551,7 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
             If dtAnt <> 0 Then
                 'PonXML strTag, "CondicionesWB", ""
                 grd.cell(intRow, i).Tag = strTag
-                grd.cell(intRow, i).text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
+                grd.cell(intRow, i).Text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
                 grd.cell(intRow, i).BackColor = IIf(Not bClosed, ColorWB, vbBlack)
                 grd.cell(intRow, i).ForeColor = IIf(Not bClosed, vbBlack, vbWhite)
                 
@@ -595,7 +595,7 @@ Public Function CargaRowTipoParcelaPrecios(grd As Object, lngIdRoom As Long, _
     If dtAnt <> 0 Then
         'PonXML strTag, "CondicionesWB", ""
         grd.cell(intRow, i).Tag = strTag
-        grd.cell(intRow, i).text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
+        grd.cell(intRow, i).Text = strTxt(0) & " - " & strTxt(1) & IIf(SpNz(strTxt(2), "0") <> "0", " - " & strTxt(2), "")
         grd.cell(intRow, i).BackColor = ColorWB
         grd.cell(intRow, i).BackColor = IIf(Not bClosed, ColorWB, vbBlack)
         grd.cell(intRow, i).ForeColor = IIf(Not bClosed, vbBlack, vbWhite)
@@ -619,7 +619,7 @@ Public Function VaciaRowGrd(grd As Object, intRow As Integer, Optional intColDes
     If intColDesde = -1 Then intColDesde = 1
     If intColHasta = -1 Then intColHasta = grd.Cols - 1
     For intCol = intColDesde To intColHasta
-        grd.cell(intRow, intCol).text = ""
+        grd.cell(intRow, intCol).Text = ""
         If intEsTipoParcela = False Then
             intStyle = 3
         Else
@@ -627,7 +627,7 @@ Public Function VaciaRowGrd(grd As Object, intRow As Integer, Optional intColDes
         End If
         PonStyleCelda grd.cell(intRow, intCol), intStyle
         grd.cell(intRow, intCol).Tag = ""
-        grd.cell(intRow, intCol).text = ""
+        grd.cell(intRow, intCol).Text = ""
     Next intCol
     With grd.Range(intRow, intColDesde, intRow, intColHasta)
         .MergeCells = False

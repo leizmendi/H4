@@ -21,7 +21,7 @@ Public Sub PrintReportAsPDF(strRPT As String, strWHERE As String, strOutFilePDF 
     xmldom.Load (currentdir & "\infoPDF.xml")
     
     Rem -- Get the program id of the automation object.
-    progid = xmldom.SelectSingleNode("/xml/progid").text
+    progid = xmldom.SelectSingleNode("/xml/progid").Text
 
     Rem -- Create the printer automation object
     Set pdfwriter = CreateObject(progid)
@@ -141,7 +141,7 @@ Sub PrintWordDocAsPDF(strFileDoc As String, strOutFilePDF As String, strTitulo A
     xmldom.Load (currentdir & "\infoPDF.xml")
     
     Rem -- Get the program id of the automation object.
-    progid = xmldom.SelectSingleNode("/xml/progid").text
+    progid = xmldom.SelectSingleNode("/xml/progid").Text
 
     Rem -- Create the printer automation object
     Set pdfwriter = CreateObject(progid)

@@ -294,12 +294,21 @@ HandleError:
     Resume HandleExit
 End Function
 
-Public Sub SetSelItems(lst As ListBox, sSelItems As String, Optional sSeparador As String = "|", Optional bScrollToSelection As Boolean = True)
+Public Sub SetSelItems(lst As ListBox, sSelitems As String, Optional sSeparador As String = "|", Optional bScrollToSelection As Boolean = True)
     On Error GoTo HandleError
     Dim vIt As Variant, i As Integer, j As Integer
+    Dim y As Long, z As Long
+    vIt = Split(sSelitems, sSeparador)
+    z = UBound(vIt)
     For i = 0 To lst.ListCount - 1 ' To 0 Step -1
-        j = InStr(sSelItems, sSeparador & lst.ItemData(i) & sSeparador)
+        j = InStr(sSelitems, sSeparador & lst.ItemData(i) & sSeparador)
         lst.Selected(i) = j > 0
+        If Not bScrollToSelection Then
+            If j > 0 Then
+                y = y + 1
+                If y > z - 2 Then Exit For
+            End If
+        End If
         'If j = 1 Then Exit For
     Next i
     If bScrollToSelection Then
@@ -315,10 +324,10 @@ End Sub
 
 Public Sub RequeryListAndSelItems(lst As ListBox)
     On Error GoTo HandleError
-    Dim sSelItems As String
-    sSelItems = GetSelItems(lst)
+    Dim sSelitems As String
+    sSelitems = GetSelItems(lst)
     lst.Requery
-    SetSelItems lst, sSelItems
+    SetSelItems lst, sSelitems
 HandleExit:
     Exit Sub
 HandleError:

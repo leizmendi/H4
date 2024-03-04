@@ -20,8 +20,8 @@ Option Explicit
 
 Public Sub EnlaceContabilidad(Optional intGenerarNoEnlazar As Integer = False)
     On Error GoTo Error_EnlaceContabilidad
-    Dim strSQL As String, lngF As Long, lngO As Long, lngR As Long, lngC As Long, lngP As Long, lngT As Long
-    Dim lngF_no As Long, lngO_no As Long, lngR_no As Long, lngC_no As Long, lngP_no As Long, lngT_no As Long, lngN As Long
+    Dim strSQL As String, lngF As Long, lngO As Long, lngR As Long, lngC As Long, lngP As Long, lngT As Long, lngB As Long
+    Dim lngF_no As Long, lngO_no As Long, lngR_no As Long, lngC_no As Long, lngP_no As Long, lngT_no As Long, lngB_no As Long, lngN As Long
     Dim rs As Recordset, rsEE As Recordset
     Dim z As Long, y As Long, strMSG As String, intEnlazadaSN As Integer, dt As Date, lngRegEnlace As Long
     Dim lngRegEnlaceMax As Long, lngRegEnlaceMin As Long, intMarcarNoEnlazar  As Integer, intR As Integer, strConcepto As String
@@ -120,6 +120,13 @@ Public Sub EnlaceContabilidad(Optional intGenerarNoEnlazar As Integer = False)
                 Else
                     lngT_no = lngT_no + 1
                 End If
+            Case "B"
+                If EnlazarRegistroBanco(rs("IdFOR")) = True Then
+                    lngB = lngB + 1
+                    intEnlazadaSN = True
+                Else
+                    lngB_no = lngB_no + 1
+                End If
         End Select
 SiguienteContador:
 '        If intEnlazadaSN = True Then
@@ -205,6 +212,7 @@ Siguiente:
     If lngC > 0 Then strMSG = strMSG & "Se generó enlace de: " & lngC & " cobros de facturas emitidas" & vbCrLf
     If lngP > 0 Then strMSG = strMSG & "Se generó enlace de: " & lngP & " pagos de facturas recibidas" & vbCrLf
     If lngT > 0 Then strMSG = strMSG & "Se generó enlace de: " & lngT & " totalizaciones de tarjetas" & vbCrLf
+    If lngB > 0 Then strMSG = strMSG & "Se generó enlace de: " & lngB & " bancos" & vbCrLf
     If lngN > 0 Then strMSG = strMSG & "Se marcaron para enlazar S/N " & lngN & " registros" & vbCrLf
     If lngF_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngF_no & " facturas emitidas" & vbCrLf
     If lngO_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngO_no & " otros ingresos" & vbCrLf
@@ -212,6 +220,7 @@ Siguiente:
     If lngC_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngC_no & " cobros de facturas emitidas" & vbCrLf
     If lngP_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngP_no & " pagos de facturas recibidas" & vbCrLf
     If lngT_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngT_no & " totalizaciones de tarjetas" & vbCrLf
+    If lngB_no > 0 Then strMSG = strMSG & "No se pudo generar enlace de: " & lngB_no & " bancos" & vbCrLf
     
     MsgBox strMSG
 Salir_EnlaceContabilidad:
@@ -823,7 +832,7 @@ Private Function EnlazarRegistroCobroFacturaE(lngIdCajaDet As Long) As Integer
     grsASI("ASI-EJERCICIO") = gstrEjercicio
     i = DimeNumPago(lngIdCajaDet, dtFechaFac, strNumFac)
     strNumFac = strNumFac & "-" & i
-    strAsiento = "1" & LlenaIzqChar(SoloNum(Left(strNumFac, 5)), 6, "0")
+    strAsiento = "4" & LlenaIzqChar(SoloNum(Left(strNumFac, 5)), 6, "0")
     strAsiento = strAsiento & Right(Format(i, "00"), 2)
     grsASI("ASI-ASIENTO") = strAsiento
     grsASI("ASI-FECHA") = Format(rs("Fecha"), "DDMMYYYY")
@@ -937,7 +946,7 @@ Private Function EnlazarRegistroPagoFacturaR(lngIdCajaDet As Long) As Integer
     grsASI("ASI-EJERCICIO") = gstrEjercicio
     i = DimeNumPago(lngIdCajaDet, dtFechaFac, strNumFac)
     strNumFac = strNumFac & "-" & i
-    strAsiento = "3" & LlenaIzqChar(SoloNum(strNumFac), 6, "0")
+    strAsiento = "5" & LlenaIzqChar(SoloNum(strNumFac), 6, "0")
     strAsiento = strAsiento & Right(Format(i, "00"), 2)
     grsASI("ASI-ASIENTO") = strAsiento
     grsASI("ASI-FECHA") = Format(rs("Fecha"), "DDMMYYYY")
@@ -1032,7 +1041,7 @@ Private Function EnlazarRegistroTotalizacionTarjetas(lngIdFor As Long) As Intege
     grsASI("ASI-EMPRESA") = gstrEmpresa
     grsASI("ASI-CANAL") = gstrCanal
     grsASI("ASI-EJERCICIO") = gstrEjercicio
-    strAsiento = "4" & rs("TPV") & LlenaIzqChar(Format(rs("Fecha"), "yymmdd"), 7, "0")
+    strAsiento = "6" & rs("TPV") & LlenaIzqChar(Format(rs("Fecha"), "yymmdd"), 7, "0")
     grsASI("ASI-ASIENTO") = strAsiento
     grsASI("ASI-FECHA") = Format(rs("Fecha"), "DDMMYYYY")
     grsASI("ASI-FECHADOC") = Format(rs("Fecha"), "DDMMYYYY")
@@ -1152,6 +1161,197 @@ Error_EnlazarRegistroTotalizacionTarjetas:
     End Select
 End Function
 
+Public Function DimeProveedor(sCuentaContable As String) As String
+    On Error GoTo HandleError
+    Dim rs As Recordset
+    Set rs = CurrentDb.OpenRecordset("SELECT NombreProveedor FROM tbProveedores WHERE CuentaContabilidad = '" & sCuentaContable & "'", dbOpenSnapshot)
+    If Not rs.EOF Then DimeProveedor = rs("Nombre")
+    
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+Private Function EnlazarRegistroBanco(lngIdFor As Long) As Integer
+    
+    On Error GoTo HandleError
+    Dim rs As Recordset, strSQL As String, strAsiento As String
+    Dim intApunte As Integer, curTotal As Currency, strSubcuenta As String, strDescripcion As String
+    Dim lngIdFicha As Long, strDescripcionProveedor As String, strDescripcionCliente As String, i As Integer
+    Dim strConcepto As String
+    'strConcepto = Nz(DameValorParam("ContabilidadConceptoOI"), "2")
+    strSQL = "SELECT *"
+    strSQL = strSQL & " FROM tbCuentasMoves"
+    strSQL = strSQL & " WHERE Id=" & lngIdFor
+    Set rs = CurrentDb.OpenRecordset(strSQL, dbOpenSnapshot)
+    If rs.EOF Then
+        EnlazarRegistroBanco = False
+        GoTo HandleExit
+    End If
+    If Not IsNumeric(rs("CuentaContable")) Then
+        EnlazarRegistroBanco = False
+        GoTo HandleExit
+    End If
+    grsASI.AddNew
+    grsASI("ASI-EMPRESA") = gstrEmpresa
+    grsASI("ASI-CANAL") = gstrCanal
+    grsASI("ASI-EJERCICIO") = gstrEjercicio
+    strAsiento = "7" & Format(rs("Id"), "0000000") '& LlenaIzqChar(Format(rs("FechaValor"), "yymmdd"), 7, "0")
+    grsASI("ASI-ASIENTO") = strAsiento
+    grsASI("ASI-FECHA") = Format(rs("FechaValor"), "DDMMYYYY")
+    grsASI("ASI-FECHADOC") = Format(rs("FechaOperacion"), "DDMMYYYY")
+    grsASI("ASI-PAGOCOBRO") = 0
+    grsASI("ASI-DIARIO") = 1
+    
+    grsASI("TipoIVA") = " "
+    grsASI("NumeroFactura") = "-" 'RecDerTop(strNumFac, 0, 8)
+    grsASI("NumeroFactura2") = "--" 'Mid(strNumFac, 9)
+    grsASI("CriterioCajaSN") = "N"
+    grsASI("TipoRegistro") = "C"
+    
+    grsASI.Update
+    
+    'Registros de APUNTES--------------------------------------
+    If rs("Importe") < 0 Then
+    
+        'APUNTE AL DEBE------------------------------------------->PROVEEDOR
+        strDescripcionProveedor = Nz(DLookup("NombreProveedor", "tbProveedores", "CuentaContabilidad = '" & rs("CuentaContable") & "'"), "?")
+        strDescripcion = "PAGO FRA."
+        intApunte = 1
+        
+        grsAPU.AddNew
+        grsAPU("APU-EMPRESA") = gstrEmpresa
+        grsAPU("APU-CANAL") = gstrCanal
+        grsAPU("APU-EJERCICIO") = gstrEjercicio
+        grsAPU("APU-ASIENTO") = strAsiento
+        grsAPU("APU-APUNTE") = Format(intApunte, "00")
+        grsAPU("APU-CONCEPTO") = 6
+        grsAPU("APU-DH") = "D"
+        curTotal = Round((rs("Importe") * -1) * 100, 0)
+        grsAPU("APU-IMPORTE") = Format(Abs(curTotal), "000000000000") & IIf(curTotal < 0, "-", "+")
+        strSubcuenta = rs("CuentaContable")
+        If strSubcuenta = "" Then
+            MsgBox "Se debe indicar la cuenta del Proveedor" & rs("Concepto") & " en Movimientos de Cuentas"
+            EnlazarRegistroBanco = False
+            GoTo HandleExit
+        End If
+        grsAPU("APU-SUBCUENTA") = strSubcuenta
+        grsAPU("APU-DESCRIPCION") = strDescripcion
+    '    grsAPU("APU-CONTRAPARTIDA") = Nz(DameValorParam("ContabilidadCuentaVisa"), "")
+    '    If grsAPU("APU-CONTRAPARTIDA") = "" Then
+    '        MsgBox "Se debe indicar la cuenta de contabilidad correspondiente a Visa"
+    '        EnlazarRegistrobanco = False
+    '        Exit Function
+    '    End If
+        'grsAPU("APU-TIPO") = "0"
+        
+        grsAPU("TipoRegistro") = "O"
+        grsAPU.Update
+        AñadirSubcuenta strSubcuenta, strDescripcionProveedor
+    
+    'APUNTE AL HABER------------------------------------------>BANCO
+        intApunte = 2
+        strDescripcion = RecDerTop("PAGO FRA./" & strDescripcionProveedor, 0, 60)
+        grsAPU.AddNew
+        grsAPU("APU-EMPRESA") = gstrEmpresa
+        grsAPU("APU-CANAL") = gstrCanal
+        grsAPU("APU-EJERCICIO") = gstrEjercicio
+        grsAPU("APU-ASIENTO") = strAsiento
+        grsAPU("APU-APUNTE") = Format(intApunte, "00")
+        grsAPU("APU-CONCEPTO") = 6
+        grsAPU("APU-DH") = "H"
+        curTotal = Round((rs("Importe") * -1) * 100, 0)
+        grsAPU("APU-IMPORTE") = Format(Abs(curTotal), "000000000000") & IIf(curTotal < 0, "-", "+")
+        strSubcuenta = Nz(DLookup("CuentaContabilidad", "tbMisCuentas", "Id = " & rs("IdCuenta")), "")
+        If strSubcuenta = "" Then
+            MsgBox "No se ha encontrado la cuenta de contabilidad de la Cuenta Bancaria"
+            EnlazarRegistroBanco = False
+            GoTo HandleExit
+        End If
+        grsAPU("APU-SUBCUENTA") = strSubcuenta
+        grsAPU("APU-DESCRIPCION") = strDescripcion
+        'grsAPU("APU-CONTRAPARTIDA") = Nz(DameValorParam("ContabilidadCuentaIngresosAcampada"), "")
+        'grsAPU("APU-TIPO") = "L"
+        grsAPU("TipoRegistro") = "O"
+        grsAPU.Update
+        AñadirSubcuenta strSubcuenta, Nz(DLookup("NombreCuenta", "tbMisCuentas", "Id = " & rs("IdCuenta")), "BANCO")
+    Else
+        'APUNTE AL HABER------------------------------------------->CLIENTE
+        intApunte = 1
+        strDescripcionCliente = Trim(Nz(DLookup("[NombreCli] & ' ' & [ApellidosCli]", "tbClientes", "CuentaContabilidad = '" & rs("CuentaContable") & "'"), "?"))
+        strDescripcion = "COBRO FRA."
+        
+        grsAPU.AddNew
+        grsAPU("APU-EMPRESA") = gstrEmpresa
+        grsAPU("APU-CANAL") = gstrCanal
+        grsAPU("APU-EJERCICIO") = gstrEjercicio
+        grsAPU("APU-ASIENTO") = strAsiento
+        grsAPU("APU-APUNTE") = Format(intApunte, "00")
+        grsAPU("APU-CONCEPTO") = 7
+        grsAPU("APU-DH") = "H"
+        curTotal = Round((rs("Importe")) * 100, 0)
+        grsAPU("APU-IMPORTE") = Format(Abs(curTotal), "000000000000") & IIf(curTotal < 0, "-", "+")
+        strSubcuenta = rs("CuentaContable")
+        If strSubcuenta = "" Then
+            MsgBox "Se debe indicar la cuenta del CLIENTE" & rs("Concepto") & " en Movimientos de Cuentas"
+            EnlazarRegistroBanco = False
+            GoTo HandleExit
+        End If
+        grsAPU("APU-SUBCUENTA") = strSubcuenta
+        grsAPU("APU-DESCRIPCION") = strDescripcion
+    '    grsAPU("APU-CONTRAPARTIDA") = Nz(DameValorParam("ContabilidadCuentaVisa"), "")
+    '    If grsAPU("APU-CONTRAPARTIDA") = "" Then
+    '        MsgBox "Se debe indicar la cuenta de contabilidad correspondiente a Visa"
+    '        EnlazarRegistrobanco = False
+    '        Exit Function
+    '    End If
+        'grsAPU("APU-TIPO") = "0"
+        
+        grsAPU("TipoRegistro") = "O"
+        grsAPU.Update
+        AñadirSubcuenta strSubcuenta, strDescripcionCliente
+    
+    'APUNTE AL DEBE------------------------------------------>BANCO
+        strDescripcion = RecDerTop("COBRO FRA./" & strDescripcionCliente, 0, 60)
+
+        intApunte = 2
+        grsAPU.AddNew
+        grsAPU("APU-EMPRESA") = gstrEmpresa
+        grsAPU("APU-CANAL") = gstrCanal
+        grsAPU("APU-EJERCICIO") = gstrEjercicio
+        grsAPU("APU-ASIENTO") = strAsiento
+        grsAPU("APU-APUNTE") = Format(intApunte, "00")
+        grsAPU("APU-CONCEPTO") = 7
+        grsAPU("APU-DH") = "D"
+        curTotal = Round((rs("Importe")) * 100, 0)
+        grsAPU("APU-IMPORTE") = Format(Abs(curTotal), "000000000000") & IIf(curTotal < 0, "-", "+")
+        strSubcuenta = Nz(DLookup("CuentaContabilidad", "tbMisCuentas", "Id = " & rs("IdCuenta")), "")
+        If strSubcuenta = "" Then
+            MsgBox "No se ha encontrado la cuenta de contabilidad de la Cuenta Bancaria"
+            EnlazarRegistroBanco = False
+            GoTo HandleExit
+        End If
+        grsAPU("APU-SUBCUENTA") = strSubcuenta
+        grsAPU("APU-DESCRIPCION") = strDescripcion
+        'grsAPU("APU-CONTRAPARTIDA") = Nz(DameValorParam("ContabilidadCuentaIngresosAcampada"), "")
+        'grsAPU("APU-TIPO") = "L"
+        grsAPU("TipoRegistro") = "O"
+        grsAPU.Update
+        AñadirSubcuenta strSubcuenta, Nz(DLookup("NombreCuenta", "tbMisCuentas", "Id = " & rs("IdCuenta")), "BANCO")
+    End If
+    EnlazarRegistroBanco = True
+HandleExit:
+    Exit Function
+HandleError:
+    Select Case Err
+        Case Else
+            MsgBox "Error nº " & Err & " en EnlazarRegistrobanco" & vbCrLf & Err.Description
+            Resume HandleExit
+    End Select
+End Function
+
 
 '''''''- - - - - - - - - - - - - -     A Ñ A D I R   S U B C U E N T A     - - - - - - - - - - - - - ''''''''
            
@@ -1167,6 +1367,24 @@ End Function
            '03 SUB-PAIS                   PIC X(2). > PAIS SI ES ESPA¥A "ES" SINO SU CODIGO DE PAIS
            '03 SUB-PRO-CODIGO             PIC X(2). > CODIGO DE PROVINCIA
            '03 SUB-PRO-NOMBRE             PIC X(30).> NOMBRE DE LA PROVINCIA
+
+
+'''''''- - - - - - - - - - - - - -     A Ñ A D I R   S U B C U E N T A     - - - - - - - - - - - - - ''''''''
+           
+           
+           '03 SUB-EMPRESA                PIC X(5). > IGUAL QUE EN EE
+           '03 SUB-CANAL                  PIC X.    > IGUAL QUE EN EE
+           '03 SUB-CODIGO                 PIC X(12).> CODIGO DE CUENTE
+           '03 SUB-NOMBRE                 PIC X(60).> NOMBRE
+           '03 SUB-DNI                    PIC X(15).> DNI
+           '03 SUB-DIRECCION              PIC X(30).> DIRECCION
+           '03 SUB-CPOSTAL                PIC X(05).> CODIGO POSTAL
+           '03 SUB-POBLACION              PIC X(30).> POBLACION
+           '03 SUB-PAIS                   PIC X(2). > PAIS SI ES ESPA¥A "ES" SINO SU CODIGO DE PAIS
+           '03 SUB-PRO-CODIGO             PIC X(2). > CODIGO DE PROVINCIA
+           '03 SUB-PRO-NOMBRE             PIC X(30).> NOMBRE DE LA PROVINCIA
+
+
 Private Sub AñadirSubcuenta(strCodigo As String, strNombre As String, Optional lngIdCliPro As Long = 0) ',
     If Not IsNull(DLookup("[SUB-CODIGO]", "[conSUB-REG]", "[SUB-EMPRESA] = '" & gstrEmpresa & "' AND [SUB-CANAL] = '" & gstrCanal & "' AND [SUB-CODIGO] = '" & strCodigo & "'")) Then Exit Sub
     Dim strDNI As String, strDirecciona As String, strCPostal As String, strPoblacion As String
@@ -1677,38 +1895,66 @@ Public Function ImportarMovimientosCuentas()
     Set excelWorkbook = excelApp.Workbooks.Open(sFileExcel)  ' Reemplaza con la ruta de tu archivo Excel
     
     ' Especificar la hoja de Excel (ajusta el nombre según sea necesario)
+    On Error Resume Next
     Set excelSheet = excelWorkbook.Sheets("Hoja1")
-    Dim row As Excel.Range
+    If Err <> 0 Then
+        MsgBox "No se encontró la hoja llamada Hoja1", vbExclamation
+        GoTo HandleExit
+    End If
+    Dim rng As Excel.Range, row As Excel.Range
     ' Iterar a través de los datos en el rango con nombre "Moves" en Excel
-    z = excelSheet.Range("moves").Rows.Count
+    excelSheet.Activate
+    Set rng = excelSheet.Range("moves")
+    z = rng.Rows.Count
+    If Err <> 0 Then
+        MsgBox "No se encontró el rango moves en la Hoja1", vbExclamation
+        GoTo HandleExit
+    End If
+    On Error GoTo HandleError
+    Dim bInsert As Boolean
     For Each row In excelSheet.Range("moves").Rows
         ' Obtener los valores de cada columna en la fila actual
         'idCuenta = ObtenerIdCuenta()  ' Debes implementar la lógica para asignar el IdCuenta desde tu código
         y = y + 1
         MensajeBusyBox "Importando movimientos de cuenta " & sCuenta & ": " & y & "/" & z
         ' Construir la cadena SQL para insertar los datos en Access
+Berriz:
         sSQL = "INSERT INTO tbCuentasMoves (IdCuenta, FechaOperacion, FechaValor, Concepto, Importe) " & _
-                 "VALUES (" & idCuenta & ", #" & row.Cells(1, 1).value & "#, #" & row.Cells(1, 2).value & "#, '" & row.Cells(1, 3).value & "', " & ComaPunto(row.Cells(1, 4).value) & ")"
+                 "VALUES (" & idCuenta & ", " & CLng(CDate(row.Cells(1, 1).value)) & ", " & CLng(CDate(row.Cells(1, 2).value)) & ", '" & row.Cells(1, 3).value & "', " & ComaPunto(row.Cells(1, 4).value) & ")"
+                 '"VALUES (" & idCuenta & ", #" & row.Cells(1, 1).value & "#, #" & row.Cells(1, 2).value & "#, '" & row.Cells(1, 3).value & "', " & ComaPunto(row.Cells(1, 4).value) & ")"
         
         ' Ejecutar la consulta SQL
-        CurrentDb.Execute sSQL
+        bInsert = True
+        CurrentDb.Execute sSQL, dbFailOnError
+Salta:
+        
+        bInsert = False
     Next
     
     ' Cerrar conexiones y liberar recursos
 '    rs.Close
 '    Set rs = Nothing
+    
+    MensajeBusyBox "Datos importados correctamente." & vbCrLf & y & "/" & z, "Datos importados", True
+    MensajeBusyBox "", "", True, True
+
+HandleExit:
+    On Error Resume Next
     excelWorkbook.Close False
     excelApp.Quit
     Set excelSheet = Nothing
     Set excelWorkbook = Nothing
     Set excelApp = Nothing
     
-    MensajeBusyBox "Datos importados correctamente." & vbCrLf & y & "/" & z, "Datos importados", True
-    MensajeBusyBox "", "", True, True
-    
-HandleExit:
     Exit Function
 HandleError:
+    If bInsert = True And Err = 3022 Then ' Duplicado de Fechas, concepto e importe
+        iR = MsgBox("Duplicado: " & row.Cells(1, 3).value & vbCrLf & "¿Añadir -@- al Concepto?" & vbCrLf & "Si se pulsa No se saltará el registro", vbYesNoCancel + vbExclamation)
+        If iR = vbCancel Then Resume HandleExit
+        If iR = vbNo Then Resume Salta
+        row.Cells(1, 3).value = row.Cells(1, 3).value & "-@-"
+        Resume Berriz
+    End If
     MsgBox Err.Description
     Resume HandleExit
 End Function
@@ -1717,45 +1963,114 @@ Public Function DimeCuentaContable(sConcepto As String, Optional lIdCuenta As Lo
     'Dado un concepto de movimiento de cuenta debe devolver un nº de cuenta contable si lo puede reconocer o nulo en caso contrario
     On Error GoTo HandleError
     Dim rs As Recordset, sSQL As String, sR As String, iTCri As CriterioBusquedaCuenta, iTAA As AccionAyudaBusquedaCuenta, sT1 As String, sT2 As String
+    Dim sResult As String
     sSQL = "SELECT * FROM tbCuentaCriterioBusca as B"
     If lIdCuenta <> 0 Then
         sSQL = sSQL & " INNER JOIN tbCuentasCriterios as CC ON B.Id = CC.IdCriterio" _
-                    & " WHERE CC.IdCuenta = lIdCuenta"
+                    & " WHERE CC.IdCuenta = " & lIdCuenta
     End If
     sSQL = sSQL & " ORDER BY Orden"
     Set rs = CurrentDb.OpenRecordset(sSQL, dbOpenSnapshot)
     While Not rs.EOF
-        Select Case rs("Criterio")
-            Case "Empieza por": iTCri = EmpiezaPor
-            Case "Entre T1 y T2": iTCri = EntreT1yT2
-            Case "Contiene": iTCri = Contiene
-        End Select
-        Select Case rs("Accionayuda")
-            Case "Cuenta=T2": iTAA = Cuenta_T2
-            Case "BuscaProveedor": iTAA = BuscaProveedor
-            Case "BuscaCliente": iTAA = BuscaCliente
-        End Select
+        iTCri = DimeTipoCriterioBusqueda(rs("Criterio"))
+        iTAA = DimeAccionAyudaBusqueda(rs("Accionayuda"))
         sT1 = rs("T1")
         sT2 = rs("T2")
         sR = DimeCuentaContableCriterioB(sConcepto, iTCri, sT1, sT2, iTAA)
         If sR <> "" Then
             Select Case iTAA
                 Case Cuenta_T2
-                    DimeCuentaContable = sR
+                    sResult = sR
                     GoTo HandleExit
                 Case BuscaProveedor
+                    sResult = BuscaCuentaProveedor(sR, rs("B.Id"))
                 Case BuscaCliente
+                    sResult = BuscaCuentaCliente(sR, rs("B.Id"))
             End Select
+        End If
+        If sResult <> "" Then
+            DimeCuentaContable = sResult
+            GoTo HandleExit
         End If
         rs.MoveNext
     Wend
-    
 HandleExit:
     Exit Function
 HandleError:
     MsgBox Err.Description
     Resume HandleExit
 End Function
+
+Public Function DimeTipoCriterioBusqueda(sCriterioB As String) As CriterioBusquedaCuenta
+    On Error GoTo HandleError
+    Dim iTCri As CriterioBusquedaCuenta
+    Select Case sCriterioB
+        Case "Empieza por": iTCri = EmpiezaPor
+        Case "Entre T1 y T2": iTCri = EntreT1yT2
+        Case "Contiene": iTCri = Contiene
+        Case Else: iTCri = 0
+    End Select
+    DimeTipoCriterioBusqueda = iTCri
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+Public Function DimeTxtTipoCriterioBusqueda(iTCri As CriterioBusquedaCuenta) As String
+    On Error GoTo HandleError
+    Dim sCri As String
+    Select Case iTCri
+        Case EmpiezaPor: sCri = "Empieza por"
+        Case EntreT1yT2: sCri = "Entre T1 y T2"
+        Case Contiene: sCri = "Contiene"
+        Case Else: sCri = "?"
+    End Select
+    DimeTxtTipoCriterioBusqueda = sCri
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+
+Public Function DimeAccionAyudaBusqueda(sAccionAyudaB As String) As CriterioBusquedaCuenta
+    On Error GoTo HandleError
+    Dim iTAA As AccionAyudaBusquedaCuenta
+    Select Case sAccionAyudaB
+        Case "Cuenta=T2": iTAA = Cuenta_T2
+        Case "BuscaProveedor": iTAA = BuscaProveedor
+        Case "BuscaCliente": iTAA = BuscaCliente
+        Case Else: iTAA = 0
+    End Select
+    DimeAccionAyudaBusqueda = iTAA
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+
+Public Function DimeTxtAccionAyudaBusqueda(iTAA As AccionAyudaBusquedaCuenta) As String
+    On Error GoTo HandleError
+    Dim sAA As String
+    Select Case iTAA
+        Case Cuenta_T2: sAA = "Cuenta=T2"
+        Case BuscaProveedor: sAA = "BuscaProveedor"
+        Case BuscaCliente: sAA = "BuscaCliente"
+        Case Else: sAA = "?"
+    End Select
+    DimeTxtAccionAyudaBusqueda = sAA
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
 
 Private Function DimeCuentaContableCriterioB(sConcepto As String, iTCri As CriterioBusquedaCuenta, sT1 As String, sT2 As String, iTAccionAyuda As AccionAyudaBusquedaCuenta) As String
     On Error GoTo HandleError
@@ -1784,6 +2099,80 @@ HandleError:
     MsgBox Err.Description
     Resume HandleExit
 End Function
+
+Private Function BuscaCuentaProveedor(sEncuentra As String, lIdCriterioBusca As Long) As String
+    On Error GoTo HandleError
+    Dim sR As String, sSQL As String, lIdPro As Long
+    sR = Nz(DLookup("Cuenta", "tbCuentaCriterioEncuentra", "IdCuentaCriterioBusca = " & lIdCriterioBusca & " AND Encuentra = '" & sEncuentra & "'"), "")
+    If sR <> "" Then
+        BuscaCuentaProveedor = sR
+        GoTo HandleExit
+    End If
+    sSQL = "SELECT IdProveedor, NombreProveedor, NIF FROM tbProveedores WHERE NombreProveedor Like '*" & sEncuentra & "*' ORDER BY NombreProveedor"
+    CurrentDb.Execute "UPDATE sysBusquedas SET strSQL = """ & sSQL & """, Predeterminada = True, Titulo = """ & sEncuentra & """ WHERE CodBusqueda = ""BPRO1"""
+    CurrentDb.Execute "UPDATE sysBusquedas SET Predeterminada = False, Titulo = """ & sEncuentra & """ WHERE CodBusqueda = ""BPRO2"""
+    lIdPro = Nz(BuscaAyuda("BPRO", , 1, , , , True, , , , , , , , , , , , "Selecciona " & sEncuentra), 0)
+    If lIdPro = 0 Then
+        MsgBox "No se indicó Proveedor para: " & sEncuentra, vbExclamation
+        GoTo HandleExit
+    End If
+    sR = Nz(DLookup("CuentaContabilidad", "tbProveedores", "IdProveedor = " & lIdPro), "")
+    If sR = "" Then
+        sR = Nz(myinputbox("Cuenta Contabilidad de " & sEncuentra, "Indique Cta. Contable para " & sEncuentra), "")
+        If sR = "" Then GoTo HandleExit
+        sSQL = "UPDATE tbProveedores SET CuentaContabilidad = " & ConComillas(sR) & " WHERE IdProveedor = " & lIdPro
+        CurrentDb.Execute sSQL, dbFailOnError
+    End If
+    BuscaCuentaProveedor = sR
+    sSQL = "INSERT INTO tbCuentaCriterioEncuentra (IdCuentaCriterioBusca, Encuentra, Cuenta)" _
+        & " VALUES(" & lIdCriterioBusca & ", " & ConComillas(sEncuentra) & ", " & ConComillas(sR) & ")"
+    CurrentDb.Execute sSQL, dbFailOnError
+    
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+
+
+Private Function BuscaCuentaCliente(sEncuentra As String, lIdCriterioBusca As Long) As String
+    On Error GoTo HandleError
+    Dim sR As String, sSQL As String, lIdCli As Long
+    sR = Nz(DLookup("Cuenta", "tbCuentaCriterioEncuentra", "IdCuentaCriterioBusca = " & lIdCriterioBusca & " AND Encuentra = '" & sEncuentra & "'"), "")
+    If sR <> "" Then
+        BuscaCuentaCliente = sR
+        GoTo HandleExit
+    End If
+    sSQL = "SELECT IdCliente, Trim(NombreCli & ' ' & ApellidosCli) as Cliente, NIF FROM tbClientes WHERE Trim(NombreCli & ' ' & ApellidosCli) Like '*" & sEncuentra & "*' ORDER BY NombreCli, ApellidosCli"
+    CurrentDb.Execute "UPDATE sysBusquedas SET strSQL = """ & sSQL & """, Predeterminada = True, Titulo = """ & sEncuentra & """ WHERE CodBusqueda = ""BCLI1"""
+    CurrentDb.Execute "UPDATE sysBusquedas SET Predeterminada = False, Titulo = """ & sEncuentra & """ WHERE CodBusqueda = ""BCLI2"""
+    lIdCli = Nz(BuscaAyuda("BCLI", , 1, , , , True, , , , , , , , , , , , "Selecciona " & sEncuentra), 0)
+    If lIdCli = 0 Then
+        MsgBox "No se indicó Cliente para: " & sEncuentra, vbExclamation
+        GoTo HandleExit
+    End If
+    sR = Nz(DLookup("CuentaContabilidad", "tbClientes", "IdCliente = " & lIdCli), "")
+    If sR = "" Then
+        sR = Nz(myinputbox("Cuenta Contabilidad de " & sEncuentra, "Indique Cta. Contable para " & sEncuentra), "")
+        If sR = "" Then GoTo HandleExit
+        sSQL = "UPDATE tbClientes SET CuentaContabilidad = " & ConComillas(sR) & " WHERE IdCliente = " & lIdCli
+        CurrentDb.Execute sSQL, dbFailOnError
+    End If
+    BuscaCuentaCliente = sR
+    sSQL = "INSERT INTO tbCuentaCriterioEncuentra (IdCuentaCriterioBusca, Encuentra, Cuenta)" _
+        & " VALUES(" & lIdCriterioBusca & ", " & ConComillas(sEncuentra) & ", " & ConComillas(sR) & ")"
+    CurrentDb.Execute sSQL, dbFailOnError
+    
+HandleExit:
+    Exit Function
+HandleError:
+    MsgBox Err.Description
+    Resume HandleExit
+End Function
+
+
 
 Function ObtenerTextoEntreCadenas(ByVal Texto As String, ByVal cadenaInicio As String, ByVal cadenaFin As String) As String
     On Error GoTo HandleError
